@@ -16,23 +16,30 @@ export const UBLogin: React.FC = () => {
     const responseMessage = async (credentialResponse: CredentialResponse) => {
         if (credentialResponse.credential) {
             console.log('Google ID Token:', credentialResponse.credential);
-
+    
             try {
                 // Verify and get the profile data using the ID Token
                 const response = await axios.get(
                     `https://oauth2.googleapis.com/tokeninfo?id_token=${credentialResponse.credential}`
                 );
-
+    
                 const profileData = response.data;
                 console.log('Profile Data:', profileData);
-
+    
                 const emailDomain = profileData.email.split('@')[1];
                 if (emailDomain !== 'ub.edu.bz') {
                     console.error('Unauthorized domain');
                     alert('Only emails from the "ub.edu.bz" domain are allowed.');
                     return;
                 }
-
+    
+                // // Call Laravel API to check or create the user
+                // await axios.post(`${process.env.REACT_APP_API_URL}/users/check-or-create`, {
+                //     name: profileData.name,
+                //     email: profileData.email,
+                //     picture: profileData.picture,
+                // });
+    
                 dispatch(
                     setUser({
                         name: profileData.name,
@@ -40,14 +47,14 @@ export const UBLogin: React.FC = () => {
                         picture: profileData.picture,
                     })
                 );
-
+    
                 dispatch(setToken(credentialResponse.credential));
-
+    
                 // Redirect to the index page after successful login
                 navigate('/'); // Adjust this path to your index route
-
+    
             } catch (error) {
-                console.error('Error fetching profile:', error);
+                console.error('Error:', error);
             }
         } else {
             console.error('No credential received');
