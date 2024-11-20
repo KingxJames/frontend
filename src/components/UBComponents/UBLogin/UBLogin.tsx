@@ -1,116 +1,124 @@
-import { useEffect } from "react";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import React from 'react';
 import UBLogo from "../../../../src/images/UB_Logo.png";
-import { useNavigate } from "react-router-dom";
 import { Container, CssBaseline, Box, Typography } from "@mui/material";
-import {
-    useLoginWithGoogleQuery,
-    useHandleGoogleCallbackMutation,
-} from "../../../../store/services/authAPI";
-import { useDispatch } from "react-redux";
-import { setAuthData } from "../../../../store/features/authSlice";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import { useSelector, useDispatch } from "react-redux";
+import axios from 'axios';
+import { setUser, selectUser, setToken } from "../../../../store/features/authSlice";
+import { useNavigate } from 'react-router-dom';
 
 export const UBLogin: React.FC = () => {
-    const navigate = useNavigate();
     const dispatch = useDispatch();
-    const [handleGoogleCallback] = useHandleGoogleCallbackMutation();
-    const login = useLoginWithGoogleQuery();
+    const user = useSelector(selectUser); // Get the user data from the Redux store
+    const navigate = useNavigate(); // Initialize useNavigate
 
-    const handleGoogleLogin = () => {
-        // Redirect to Google authentication page
-        window.location.href = `${BACKEND_URL}/auth/google`;
+    // Function to handle the Google OAuth credential response
+    const responseMessage = async (credentialResponse: CredentialResponse) => {
+        if (credentialResponse.credential) {
+            console.log('Google ID Token:', credentialResponse.credential);
+
+            try {
+                // Verify and get the profile data using the ID Token
+                const response = await axios.get(
+                    `https://oauth2.googleapis.com/tokeninfo?id_token=${credentialResponse.credential}`
+                );
+
+                const profileData = response.data;
+                console.log('Profile Data:', profileData);
+
+                const emailDomain = profileData.email.split('@')[1];
+                if (emailDomain !== 'ub.edu.bz') {
+                    console.error('Unauthorized domain');
+                    alert('Only emails from the "ub.edu.bz" domain are allowed.');
+                    return;
+                }
+
+                dispatch(
+                    setUser({
+                        name: profileData.name,
+                        email: profileData.email,
+                        picture: profileData.picture,
+                    })
+                );
+
+                dispatch(setToken(credentialResponse.credential));
+
+                // Redirect to the index page after successful login
+                navigate('/'); // Adjust this path to your index route
+
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+            }
+        } else {
+            console.error('No credential received');
+        }
     };
 
-    useEffect(() => {
-        // Define an async function to handle the login callback
-        const handleLoginCallback = async () => {
-            // Get the URL parameters from the current page
-            const params = new URLSearchParams(window.location.search);
-            // Check if there's a "code" parameter (this indicates Google authentication has returned a code)
-            const code = params.get("code");
-            console.log("--->", code)
-            if (code) {
-                // If the code exists, call the Google callback mutation with the code
-                const result = await handleGoogleCallback(code);
-
-                // If result contains data, extract the token and name
-                if (result?.data) {
-                    const { token, name } = result.data;
-
-                    // Dispatch the token and Gmail name to the Redux store
-                    dispatch(
-                        setAuthData({
-                            token,
-                            name,
-                            username: name, // Assuming you want to use 'name' as 'username'
-                            loading: false,
-                            error: null,
-                        })
-                    );
-
-                    // Navigate to the home page after successful login
-                    navigate("/");
-                }
-            } else {
-                // If there's no code, redirect the user to start Google authentication
-                handleGoogleLogin(); // Redirect immediately on page load
-            }
-        };
-
-        // Call the async function defined above
-        handleLoginCallback();
-    }, [handleGoogleCallback, navigate, dispatch]);
-
+    // Function to handle Google login failure
+    const errorMessage = () => {
+        console.error('Google Login Failed');
+    };
     return (
-            <Box
+        <Box
+            sx={{
+                backgroundColor: "#6C3777",
+                minHeight: "100vh",
+                minWidth: "100vw",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
+            <Container
+                component="main"
+                maxWidth="xs"
                 sx={{
-                    backgroundColor: "#6C3777",
-                    minHeight: "100vh",
-                    minWidth: "100vw",
+                    backgroundColor: "#fff",
+                    borderRadius: "5%",
+                    padding: "3%",
                     display: "flex",
+                    flexDirection: "column",
                     justifyContent: "center",
-                    alignItems: "center",
                 }}
             >
-                <Container
-                    component="main"
-                    maxWidth="xs"
+                <CssBaseline />
+                <Box
                     sx={{
-                        backgroundColor: "#fff",
-                        borderRadius: "5%",
-                        padding: "3%",
                         display: "flex",
                         flexDirection: "column",
-                        justifyContent: "center",
+                        alignItems: "center",
                     }}
                 >
-                    <CssBaseline />
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                        }}
-                    >
-                        <Box sx={{ mb: 2 }}>
-                            <img
-                                src={UBLogo}
-                                alt="UB Logo"
-                                style={{
-                                    width: "100%",
-                                    height: "70%",
-                                    transition: "width 0.3s, height 0.3s",
-                                }}
-                            />
-                        </Box>
-                        <Typography component="h1" variant="h5">
-                            Redirecting to Google Login...
-                        </Typography>
+                    <Box sx={{ mb: 2 }}>
+                        <img
+                            src={UBLogo}
+                            alt="UB Logo"
+                            style={{
+                                width: "100%",
+                                height: "70%",
+                                transition: "width 0.3s, height 0.3s",
+                            }}
+                        />
                     </Box>
-                </Container>
-            </Box>
+                    {user ? (
+                        <div>
+                            <img src={user.picture} alt="user image" style={{ borderRadius: '50%', width: '100px', height: '100px' }} />
+                            <Typography component="h3" variant="h6">User Logged in</Typography>
+                            <p>Name: {user.name}</p>
+                            <p>Email: {user.email}</p>
+                            <br />
+                        </div>
+                    ) : (
+                        <>
+                            <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
+                                Sign in with Google
+                            </Typography>
+                            <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
+                        </>
+                    )}
+                </Box>
+            </Container>
+        </Box>
     );
 };
 

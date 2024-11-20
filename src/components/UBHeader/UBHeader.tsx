@@ -104,9 +104,7 @@ export const UBHeader = (props: {
           </ul>
 
           {/* <!-- User Area --> */}
-          <Link to="/Login">
             <DropdownUser/>
-          </Link>
           {/* <!-- User Area --> */}
         </div>
       </div>
