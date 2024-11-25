@@ -133,6 +133,7 @@ export const UBLogin: React.FC = () => {
                             <Typography component="h3" variant="h6">User Logged in</Typography>
                             <p>Name: {user.name}</p>
                             <p>Email: {user.email}</p>
+                            <p>{user.picture}</p>
                             <br />
                         </div>
                     ) : (
