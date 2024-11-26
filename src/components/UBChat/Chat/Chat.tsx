@@ -42,7 +42,38 @@ export const Chat = () => {
         <div className="message">
           <img src={userOne} alt="" />
           <div className="texts">
-            <p>Lorem ipsum dolor sit amet, consectetur adipi\bus viverra turpis, eu congue purus volutpat pellentesque.</p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipi\bus viverra turpis,
+              eu congue purus volutpat pellentesque.
+            </p>
+            <span>1 min ago</span>
+          </div>
+        </div>{" "}
+        <div className="message own">
+          <div className="texts">
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipi\bus viverra turpis,
+              eu congue purus volutpat pellentesque.
+            </p>
+            <span>1 min ago</span>
+          </div>
+        </div>{" "}
+        <div className="message">
+          <img src={userOne} alt="" />
+          <div className="texts">
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipi\bus viverra turpis,
+              eu congue purus volutpat pellentesque.
+            </p>
+            <span>1 min ago</span>
+          </div>
+        </div>{" "}
+        <div className="message own">
+          <div className="texts">
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipi\bus viverra turpis,
+              eu congue purus volutpat pellentesque.
+            </p>
             <span>1 min ago</span>
           </div>
         </div>
