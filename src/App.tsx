@@ -9,57 +9,49 @@ import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Settings } from "./pages/Settings/Settings";
 import { AnonymousTips } from "./pages/Messages/AnonymousTips/AnonymousTips";
 import { Emergencies } from "./pages/Messages/Emergencies/Emergencies";
-import Chats from "./pages/Messages/Chats/Chat";
+// import Chats from "./pages/Messages/Chats/Chat";
 import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
+import UBChatApp from "./components/UBChat/UBChatApp/UBChatApp";
 
 const App: React.FC = () => {
-    const [loading, setLoading] = useState<boolean>(true);
-    const { pathname } = useLocation();
+  const [loading, setLoading] = useState<boolean>(true);
+  const { pathname } = useLocation();
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [pathname]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
-    useEffect(() => {
-        setTimeout(() => setLoading(false), 1000);
-    }, []);
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
 
-    return loading ? (
-        <Loader />
-    ) : (
-        <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route element={<UBPrivateRoute />}>
+  return loading ? (
+    <Loader />
+  ) : (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route element={<UBPrivateRoute />}>
+        <Route
+          path="*"
+          element={
+            <DefaultLayout>
+              <Routes>
+                <Route index element={<Dashboard />} />
+                <Route path="/Settings" element={<Settings />} />
                 <Route
-                    path="*"
-                    element={
-                        <DefaultLayout>
-                            <Routes>
-                                <Route index element={<Dashboard />} />
-                                <Route
-                                    path="/Settings"
-                                    element={<Settings />}
-                                />
-                                <Route
-                                    path="/Messages/Anonymous-Tips"
-                                    element={<AnonymousTips />}
-                                />
-                                <Route
-                                    path="/Messages/Emergencies"
-                                    element={<Emergencies />}
-                                />
-                                <Route
-                                    path="/Messages/Chats"
-                                    element={<Chats />}
-                                />
-                            </Routes>
-                        </DefaultLayout>
-                    }
-                ></Route>
-            </Route>
-            <Route path="/*" element={<Navigate to={"/Login"} />} />
-        </Routes>
-    );
+                  path="/Messages/Anonymous-Tips"
+                  element={<AnonymousTips />}
+                />
+                <Route path="/Messages/Emergencies" element={<Emergencies />} />
+                <Route path="/Messages/Chats" element={<UBChatApp />} />
+              </Routes>
+            </DefaultLayout>
+          }
+        ></Route>
+      </Route>
+      <Route path="/*" element={<Navigate to={"/Login"} />} />
+    </Routes>
+  );
 };
 
 export default App;
