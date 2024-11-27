@@ -43,7 +43,7 @@ const App: React.FC = () => {
                   element={<AnonymousTips />}
                 />
                 <Route path="/Messages/Emergencies" element={<Emergencies />} />
-                <Route path="/Messages/Chats" element={<UBChatApp />} />
+                <Route path="/Messages/Chats" element={<UBChatApp/>} />
               </Routes>
             </DefaultLayout>
           }
