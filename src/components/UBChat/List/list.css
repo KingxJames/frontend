@@ -9,23 +9,4 @@
     border-left: 1px solid #dddddd35;
 }
 
-  /* Scrollbar for the list component */
-.list .center {
-  overflow-y: scroll; /* Enable vertical scrolling */
-  -ms-overflow-style: none; /* For Internet Explorer and Edge */
-  scrollbar-width: none; /* For Firefox */
-}
 
-.list::-webkit-scrollbar {
-  display: none; /* For Chrome, Safari, and Opera */
-}
-
-.list::-webkit-scrollbar-thumb:hover {
-  background-color: #666; /* Slightly lighter color on hover */
-}
-
-/* For other browsers (Firefox) */
-.list {
-  scrollbar-width: thin; /* Makes the scrollbar thinner */
-  scrollbar-color: #444 #1e1e1e; /* Thumb color | Track color */
-}

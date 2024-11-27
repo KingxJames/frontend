@@ -3,6 +3,8 @@ import "./chatList.css";
 import search from "./../../../../image/search.png";
 import minus from "./../../../../image/minus.png";
 import plus from "./../../../../image/plus.png";
+import avatar from "./../../../../image/avatar.png";
+import AddUser from "./AddUser/Adduser";
 
 export const ChatList = () => {
   const [addMode, setAddMode] = useState(false);
@@ -21,6 +23,49 @@ export const ChatList = () => {
           onClick={() => setAddMode((prev) => !prev)}
         />
       </div>
+      <div className="item">
+        <img src={avatar} alt="" />
+
+        <div className="texts">
+          <span>Jan doe</span>
+          <p>hello</p>
+        </div>
+      </div>
+
+      <div className="item">
+        <img src={avatar} alt="" />
+
+        <div className="texts">
+          <span>Jan doe</span>
+          <p>hello</p>
+        </div>
+      </div>
+
+      <div className="item">
+        <img src={avatar} alt="" />
+
+        <div className="texts">
+          <span>Jan doe</span>
+          <p>hello</p>
+        </div>
+      </div>
+      <div className="item">
+        <img src={avatar} alt="" />
+
+        <div className="texts">
+          <span>Jan doe</span>
+          <p>hello</p>
+        </div>
+      </div>
+      <div className="item">
+        <img src={avatar} alt="" />
+
+        <div className="texts">
+          <span>Jan doe</span>
+          <p>hello</p>
+        </div>
+      </div>
+      {addMode && < AddUser/>}
     </div>
   );
 };

@@ -3,6 +3,8 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import authReducer from "./features/authSlice";
 import dashboardReducer from "./features/dashboardSlice";
 import  messagesReducer  from "./features/messageSlice";
+import chatReducer from "./features/UBChat/chatSlice";
+import listReducer from "./features/UBChat/listSlice"
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 
@@ -11,6 +13,8 @@ export const store = configureStore({
     auth: authReducer,
     dashboard: dashboardReducer,
     messages: messagesReducer,
+    chat: chatReducer,
+    list:listReducer,
     [baseAPI.reducerPath]: baseAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>

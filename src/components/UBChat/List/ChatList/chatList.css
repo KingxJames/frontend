@@ -1,6 +1,10 @@
 .chatList {
     flex: 1;
-    /* overflow: scroll; */
+    overflow-y: scroll; /* Enable vertical scrolling */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+    scrollbar-width: none; /* For Firefox */
+    
+    
     .search {
       display: flex;
       align-items: center;
@@ -71,3 +75,15 @@
       }
     }
   }
+
+  /* Scrollbar for the chatList component */
+/*  */
+
+.chatList::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
+}
+
+.chatList::-webkit-scrollbar-thumb:hover {
+  background-color: #666; /* Slightly lighter color on hover */
+}
+

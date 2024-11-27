@@ -1,19 +1,34 @@
 import { useEffect, useRef, useState } from "react";
 import "./chat.css";
-import video from "./../../../image/video.png";
-import info from "./../../../image/info.png";
-import phone from "./../../../image/phone.png";
 import userOne from "./../../../images/user/user-01.png";
 import img from "./../../../image/img.png";
 import camera from "./../../../image/camera.png";
 import mic from "./../../../image/mic.png";
 import emoji from "./../../../image/emoji.png";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "./../../../../store/store";
+import { addMessage, setToggleEmojiPicker } from "./../../../../store/features/UBChat/chatSlice";
 
 export const Chat = () => {
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+  const { messages, activeUser, isEmojiPickerOpen } = useSelector((state: RootState) => state.chat);
   const [text, setText] = useState("");
 
+  const handleSendMessage = () => {
+    if (!text.trim()) return;
+
+    dispatch(
+      addMessage({
+        id: Date.now().toString(),
+        text,
+        sender: "own",
+        timestamp: new Date().toLocaleTimeString(),
+      })
+    );
+    setText("");
+  };
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -29,72 +44,34 @@ export const Chat = () => {
 
   return (
     <div className="chat">
-      {/* Top Section */}
       <div className="top">
         <div className="user">
           <img src={userOne} alt="User" />
           <div className="texts">
-            <span>James Faber</span>
-            <p>James is a handsome young man</p>
+            <span>{activeUser}</span>
           </div>
-        </div>
-        <div className="icons">
-          <img src={phone} alt="Call" />
-          <img src={video} alt="Video Call" />
-          <img src={info} alt="Info" />
         </div>
       </div>
 
-      {/* Chat Center Section */}
       <div className="center">
-        <div className="message">
-          <img src={userOne} alt="" />
-          <div className="texts">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipi\bus viverra turpis,
-              eu congue purus volutpat pellentesque.
-            </p>
-            <span>1 min ago</span>
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`message ${msg.sender === "own" ? "own" : ""}`}
+          >
+            <div className="texts">
+              <p>{msg.text}</p>
+              <span>{msg.timestamp}</span>
+            </div>
           </div>
-        </div>{" "}
-        <div className="message own">
-          <div className="texts">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipi\bus viverra turpis,
-              eu congue purus volutpat pellentesque.
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>{" "}
-        <div className="message">
-          <img src={userOne} alt="" />
-          <div className="texts">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipi\bus viverra turpis,
-              eu congue purus volutpat pellentesque.
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>{" "}
-        <div className="message own">
-          <div className="texts">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipi\bus viverra turpis,
-              eu congue purus volutpat pellentesque.
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
-        <div ref={endRef}></div>
+        ))}
       </div>
 
-      {/* Bottom Section */}
       <div className="bottom">
-        <div className="icons">
+        {/* <div className="icons">
           <img src={img} alt="Add Image" />
-          <img src={camera} alt="Camera" />
           <img src={mic} alt="Microphone" />
-        </div>
+        </div> */}
         <input
           type="text"
           placeholder="Type a message"
@@ -105,17 +82,21 @@ export const Chat = () => {
           <img
             src={emoji}
             alt="Open Emoji Picker"
-            onClick={() => setOpen((prev) => !prev)}
+            onClick={() => dispatch(setToggleEmojiPicker())}
           />
-          {open && (
+          {isEmojiPickerOpen && (
             <EmojiPicker
-              onEmojiClick={handleEmoji}
+              onEmojiClick={(emojiData) =>
+                setText((prev) => prev + emojiData.emoji)
+              }
               searchDisabled={true}
               height={350}
             />
           )}
         </div>
-        <button className="sendButton">Send</button>
+        <button className="sendButton" onClick={handleSendMessage}>
+          Send
+        </button>
       </div>
     </div>
   );
