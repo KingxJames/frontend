@@ -4,7 +4,7 @@ import { Container, CssBaseline, Box, Typography } from "@mui/material";
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { useSelector, useDispatch } from "react-redux";
 import axios from 'axios';
-import { setUser, selectUser, setToken } from "../../../../store/features/authSlice";
+import { setUser, selectUser, setIDToken } from "../../../../store/features/authSlice";
 import { useNavigate } from 'react-router-dom';
 
 export const UBLogin: React.FC = () => {
@@ -41,9 +41,8 @@ export const UBLogin: React.FC = () => {
                         name: profileData.name,
                         email: profileData.email,
                         picture: profileData.picture,
+                        id_token: credentialResponse.credential, // Send the ID token
                     });
-
-                    //remember to save the token as well 
 
                 console.log('Saved or existing user:', apiResponse.data);
 
@@ -55,11 +54,13 @@ export const UBLogin: React.FC = () => {
                         // picture: apiResponse.data.data.picture,
                         picture: profileData.picture,
 
+
+
                     })
                 );
-                console.log("---->",  profileData.picture,)
+                console.log("---->", profileData.picture,)
 
-                dispatch(setToken(credentialResponse.credential));
+                dispatch(setIDToken(credentialResponse.credential));
 
                 // Redirect to the index page after successful login
                 navigate('/'); // Adjust this path to your index route
@@ -71,16 +72,6 @@ export const UBLogin: React.FC = () => {
             console.error('No credential received');
         }
     };
-
-
-
-
-
-
-
-
-
-
 
 
     // Function to handle Google login failure

@@ -1,93 +1,50 @@
-// import { baseAPI } from "./baseAPI";
-// import { setUser } from "../features/authSlice";
-
-// export const authAPI = baseAPI.injectEndpoints({
-//     endpoints: (builder) => ({
-//         loginWithGoogle: builder.query<void, void>({
-//             query: () => ({
-//                 url: "auth/google",
-//                 method: "GET",
-//             }),
-//         }),
-//         handleGoogleCallback: builder.mutation({
-//             query: (code: string) => ({
-//                 url: "/auth/google/callback",
-//                 method: "GET",
-//                 params: { code },
-//             }),
-//             async onQueryStarted(_, { dispatch, queryFulfilled }) {
-//                 try {
-//                     const { data } = await queryFulfilled;
-//                     if (data?.data?.token) {
-//                         dispatch(setAuthData(data.data));
-//                     }
-//                 } catch (error) {
-//                     console.error("Google login failed", error);
-//                 }
-//             },
-//         }),
-//         getUser: builder.query({
-//             query: () => ({
-//                 url: "/getUsername", // Assuming 'user' endpoint as defined in your Laravel API
-//                 method: "GET",
-//             }),
-//             async onQueryStarted(_, { dispatch, queryFulfilled }) {
-//                 try {
-//                     const { data } = await queryFulfilled;
-//                     if (data) {
-//                         if (data?.name && data?.email) {
-//                             console.log(data);
-//                             dispatch(setAuthData(data));
-//                         }
-//                         console.log(data);
-//                     }
-//                 } catch (error) {
-//                     console.error("Failed to fetch user data", error);
-//                 }
-//             },
-//         }),
-//     }),
-// });
-
-// export const {
-//     useLoginWithGoogleQuery,
-//     useHandleGoogleCallbackMutation,
-//     useGetUserQuery,
-// } = authAPI;
-
-
-
 import { baseAPI } from "./baseAPI";
 import { setAuthData } from '../features/authSlice'
 
-interface ICredentials {
-    username: string;
-    password: string
+interface IUser {
+    id: number;
+    name: string;
+    email: string;
+    picture: string;
+    token: string;
+    // Add other user properties here based on your API response.
 }
 
 export const authAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         login: builder.mutation({
-            query: (credentials: ICredentials) => ({
+            query: (credentials: { username: string; password: string }) => ({
                 url: '/authenticate',
                 method: 'POST',
-                body: credentials
+                body: credentials,
             }),
-            async onQueryStarted(input, {dispatch, queryFulfilled}) {
+            async onQueryStarted(input, { dispatch, queryFulfilled }) {
                 try {
-                    const { data } = await queryFulfilled
-                    
-                    if (data?.data?.token) {
-                        dispatch(setAuthData({...data.data, username: input.username}));
-                    }
-                } catch(e) {
-                    console.error(e)
-                }
-            }
-        })
-    })
-})
+                    const { data } = await queryFulfilled;
 
+                    if (data?.data?.token) {
+                        dispatch(setAuthData({ ...data.data, username: input.username }));
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+        }),
+        fetchUsers: builder.query<IUser[], string>({
+            query: (token) => ({
+                url: '/v1/publicSafety/users',
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }),
+            transformResponse: (response: { data: IUser[] }) => response.data,
+        }),        
+    }),
+});
+
+// Export hooks for components to use the endpoints
 export const {
-    useLoginMutation
-} = authAPI
+    useLoginMutation,
+    useFetchUsersQuery,
+} = authAPI;

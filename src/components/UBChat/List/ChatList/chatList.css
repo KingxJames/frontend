@@ -73,6 +73,10 @@
           font-weight: 300;
         }
       }
+      &:hover {
+        background-color: rgba(17, 25, 40, 0.3); /* Add a hover background */
+    }
+
     }
   }
 

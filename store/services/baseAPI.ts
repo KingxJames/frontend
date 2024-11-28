@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 // const baseUrl = 'https://api.ub.edu.bz/api'
-const baseUrl = 'http://127.0.0.1:8088/api/'
+const baseUrl = 'http://localhost:8088/api/'
 
 const baseQuery = fetchBaseQuery({
     baseUrl,

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import "./chat.css";
 import userOne from "./../../../images/user/user-01.png";
-import img from "./../../../image/img.png";
-import camera from "./../../../image/camera.png";
-import mic from "./../../../image/mic.png";
+// import img from "./../../../image/img.png";
+// import camera from "./../../../image/camera.png";
+// import mic from "./../../../image/mic.png";
 import emoji from "./../../../image/emoji.png";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useSelector, useDispatch } from "react-redux";
@@ -17,7 +17,7 @@ export const Chat = () => {
   const [text, setText] = useState("");
 
   const handleSendMessage = () => {
-    if (!text.trim()) return;
+    if (!text.trim() || !activeUser) return;
 
     dispatch(
       addMessage({
@@ -25,17 +25,17 @@ export const Chat = () => {
         text,
         sender: "own",
         timestamp: new Date().toLocaleTimeString(),
+        user: activeUser,
       })
     );
     setText("");
   };
+
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
-
-
 
   const handleEmoji = (emojiData: EmojiClickData): void => {
     setText((prev: string) => prev + emojiData.emoji);
@@ -48,23 +48,26 @@ export const Chat = () => {
         <div className="user">
           <img src={userOne} alt="User" />
           <div className="texts">
-            <span>{activeUser}</span>
+          <span>{activeUser || "No User Selected"}</span>
           </div>
         </div>
       </div>
 
       <div className="center">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`message ${msg.sender === "own" ? "own" : ""}`}
-          >
-            <div className="texts">
-              <p>{msg.text}</p>
-              <span>{msg.timestamp}</span>
+        {messages
+          .filter((msg) => msg.user === activeUser) // Filter messages by active user
+          .map((msg) => (
+            <div
+              key={msg.id}
+              className={`message ${msg.sender === "own" ? "own" : ""}`}
+            >
+              <div className="texts">
+                <p>{msg.text}</p>
+                <span>{msg.timestamp}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        <div ref={endRef}></div>
       </div>
 
       <div className="bottom">
