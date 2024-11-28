@@ -8,13 +8,20 @@ import emoji from "./../../../image/emoji.png";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "./../../../../store/store";
-import { addMessage, setToggleEmojiPicker } from "./../../../../store/features/UBChat/chatSlice";
+import {
+  addMessage,
+  setToggleEmojiPicker,
+  setText,
+  selectText,
+} from "./../../../../store/features/UBChat/chatSlice";
 
 export const Chat = () => {
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  const { messages, activeUser, isEmojiPickerOpen } = useSelector((state: RootState) => state.chat);
-  const [text, setText] = useState("");
+  const { messages, activeUser, isEmojiPickerOpen } = useSelector(
+    (state: RootState) => state.chat
+  );
+  const text = useSelector(selectText);
 
   const handleSendMessage = () => {
     if (!text.trim() || !activeUser) return;
@@ -28,7 +35,7 @@ export const Chat = () => {
         user: activeUser,
       })
     );
-    setText("");
+    dispatch(setText("")); // Clear the text state in Redux
   };
 
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -38,8 +45,7 @@ export const Chat = () => {
   }, []);
 
   const handleEmoji = (emojiData: EmojiClickData): void => {
-    setText((prev: string) => prev + emojiData.emoji);
-    setOpen(false);
+    dispatch(setText(text + emojiData.emoji)); // Update text state in Redux
   };
 
   return (
@@ -48,7 +54,7 @@ export const Chat = () => {
         <div className="user">
           <img src={userOne} alt="User" />
           <div className="texts">
-          <span>{activeUser || "No User Selected"}</span>
+            <span>{activeUser || "No User Selected"}</span>
           </div>
         </div>
       </div>
@@ -79,7 +85,7 @@ export const Chat = () => {
           type="text"
           placeholder="Type a message"
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => dispatch(setText(e.target.value))} // Update Redux text state
         />
         <div className="emoji">
           <img
@@ -89,9 +95,7 @@ export const Chat = () => {
           />
           {isEmojiPickerOpen && (
             <EmojiPicker
-              onEmojiClick={(emojiData) =>
-                setText((prev) => prev + emojiData.emoji)
-              }
+              onEmojiClick={(emojiData) => handleEmoji(emojiData)}
               searchDisabled={true}
               height={350}
             />
