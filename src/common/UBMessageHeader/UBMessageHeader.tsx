@@ -24,7 +24,7 @@ export const UBMessageHeader: React.FC = () => {
         boxShadow: "sm",
       }}
     >
-      <GlobalStyles
+      {/* <GlobalStyles
         styles={(theme) => ({
           ":root": {
             "--Header-height": "52px",
@@ -33,7 +33,7 @@ export const UBMessageHeader: React.FC = () => {
             },
           },
         })}
-      />
+      /> */}
       <IconButton
         onClick={() => toggleSidebar()}
         variant="outlined"

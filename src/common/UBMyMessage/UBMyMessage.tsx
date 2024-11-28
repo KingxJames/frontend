@@ -13,8 +13,7 @@ export const UBMyMessage: React.FC = () => {
         sx={{
           flex: 1,
           width: '100%',
-          mx: 'auto',
-          pt: { xs: 'var(--Header-height)', md: 0 },
+          mx: '',
           display: 'grid',
           gridTemplateColumns: {
             xs: '1fr',

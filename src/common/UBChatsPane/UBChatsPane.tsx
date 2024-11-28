@@ -12,21 +12,20 @@ import { ChatProps } from '../types';
 import { toggleMessagesPane } from '../utils';
 
 type IUBChatsPaneProps = {
-    chats: ChatProps[];
-    setSelectedChat: (chat: ChatProps) => void;
-    selectedChatId: string;
-  };
-  
+  chats: ChatProps[];
+  setSelectedChat: (chat: ChatProps) => void;
+  selectedChatId: string;
+};
+
 
 export const UBChatsPane: React.FC<IUBChatsPaneProps> = (props) => {
-    const { chats, setSelectedChat, selectedChatId } = props;
-    return(
-        <Sheet
+  const { chats, setSelectedChat, selectedChatId } = props;
+  return (
+    <Sheet
       sx={{
         borderRight: '1px solid',
         borderColor: 'divider',
-        height: { sm: 'calc(100dvh - var(--Header-height))', md: '100dvh' },
-        overflowY: 'auto',
+        overflowY: '',
       }}
     >
       <Stack
@@ -35,30 +34,10 @@ export const UBChatsPane: React.FC<IUBChatsPaneProps> = (props) => {
         sx={{ alignItems: 'center', justifyContent: 'space-between', p: 2, pb: 1.5 }}
       >
         <Typography
-          component="h1"
-          endDecorator={
-            <Chip
-              variant="soft"
-              color="primary"
-              size="md"
-              slotProps={{ root: { component: 'span' } }}
-            >
-              4
-            </Chip>
-          }
           sx={{ fontSize: { xs: 'md', md: 'lg' }, fontWeight: 'lg', mr: 'auto' }}
         >
           Messages
         </Typography>
-        <IconButton
-          variant="plain"
-          aria-label="edit"
-          color="neutral"
-          size="sm"
-          sx={{ display: { xs: 'none', sm: 'unset' } }}
-        >
-          <EditNoteRoundedIcon />
-        </IconButton>
         <IconButton
           variant="plain"
           aria-label="edit"
@@ -97,5 +76,5 @@ export const UBChatsPane: React.FC<IUBChatsPaneProps> = (props) => {
         ))}
       </List>
     </Sheet>
-    )
+  )
 }

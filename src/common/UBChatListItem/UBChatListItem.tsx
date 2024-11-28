@@ -12,20 +12,20 @@ import { toggleMessagesPane } from '../utils';
 
 
 type IUBChatListItemProps = ListItemButtonProps & {
-    id: string;
-    unread?: boolean;
-    sender: UserProps;
-    messages: MessageProps[];
-    selectedChatId?: string;
-    setSelectedChat: (chat: ChatProps) => void;
-  };
+  id: string;
+  unread?: boolean;
+  sender: UserProps;
+  messages: MessageProps[];
+  selectedChatId?: string;
+  setSelectedChat: (chat: ChatProps) => void;
+};
 
 
 export const UBChatListItem: React.FC<IUBChatListItemProps> = (props) => {
-    const { id, sender, messages, selectedChatId, setSelectedChat } = props;
-    const selected = selectedChatId === id;
-    return(
-        <React.Fragment>
+  const { id, sender, messages, selectedChatId, setSelectedChat } = props;
+  const selected = selectedChatId === id;
+  return (
+    <React.Fragment>
       <ListItem>
         <ListItemButton
           onClick={() => {
@@ -71,5 +71,5 @@ export const UBChatListItem: React.FC<IUBChatListItemProps> = (props) => {
       </ListItem>
       <ListDivider sx={{ margin: 0 }} />
     </React.Fragment>
-    )
+  )
 }
