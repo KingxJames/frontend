@@ -52,10 +52,12 @@ export const UBLogin: React.FC = () => {
                     setUser({
                         name: apiResponse.data.data.name,
                         email: apiResponse.data.data.email,
-                        picture: apiResponse.data.data.picture,
+                        // picture: apiResponse.data.data.picture,
+                        picture: profileData.picture,
 
                     })
                 );
+                console.log("---->",  profileData.picture,)
 
                 dispatch(setToken(credentialResponse.credential));
 
