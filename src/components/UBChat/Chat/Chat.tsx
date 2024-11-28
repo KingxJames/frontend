@@ -13,39 +13,55 @@ import {
   setToggleEmojiPicker,
   setText,
   selectText,
+  selectChatState,
 } from "./../../../../store/features/UBChat/chatSlice";
+import { useCreateMessageMutation } from "./../../../../store/services/chatAPI"; // Import the hook to create a message
 
 export const Chat = () => {
-  // const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  const { messages, activeUser, isEmojiPickerOpen } = useSelector(
-    (state: RootState) => state.chat
-  );
+  // // const { messages, activeUser, isEmojiPickerOpen } = useSelector(
+  //   (state: RootState) => state.chat
+  // );
   const text = useSelector(selectText);
-
-  const handleSendMessage = () => {
-    if (!text.trim() || !activeUser) return;
-
-    dispatch(
-      addMessage({
-        id: Date.now().toString(),
-        text,
-        sender: "own",
-        timestamp: new Date().toLocaleTimeString(),
-        user: activeUser,
-      })
-    );
-    dispatch(setText("")); // Clear the text state in Redux
-  };
-
+  const chat = useSelector(selectChatState);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const [createMessage] = useCreateMessageMutation(); // Hook for creating messages
+
+  const handleSendMessage = async () => {
+    if (!chat.text.trim() || !chat.activeUser) return;
+
+    // Prepare the message object
+    const newMessage = {
+      text: chat.text,
+      sender: "own",
+      timestamp: new Date().toISOString(),
+      user: chat.activeUser,
+    };
+
+    const tempMessage = {
+      id: Date.now().toString(),
+      ...newMessage,
+    };
+
+    dispatch(addMessage(tempMessage)); // Optimistic UI update
+    dispatch(setText("")); // Clear input field
+
+    // Send the message to the backend
+    try {
+      const savedMessage = await createMessage(newMessage).unwrap(); // Save message to DB
+      dispatch(addMessage({ ...savedMessage })); // Update with server response (if needed)
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
+  };
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+  }, [chat.messages]);
 
+  
   const handleEmoji = (emojiData: EmojiClickData): void => {
-    dispatch(setText(text + emojiData.emoji)); // Update text state in Redux
+    dispatch(setText(chat.text + emojiData.emoji)); // Concatenate emoji to chat.text
   };
 
   return (
@@ -54,14 +70,14 @@ export const Chat = () => {
         <div className="user">
           <img src={userOne} alt="User" />
           <div className="texts">
-            <span>{activeUser || "No User Selected"}</span>
+            <span>{chat.activeUser || "No User Selected"}</span>
           </div>
         </div>
       </div>
 
       <div className="center">
-        {messages
-          .filter((msg) => msg.user === activeUser) // Filter messages by active user
+        {chat.messages
+          .filter((msg) => msg.user === chat.activeUser)
           .map((msg) => (
             <div
               key={msg.id}
@@ -77,15 +93,11 @@ export const Chat = () => {
       </div>
 
       <div className="bottom">
-        {/* <div className="icons">
-          <img src={img} alt="Add Image" />
-          <img src={mic} alt="Microphone" />
-        </div> */}
         <input
           type="text"
           placeholder="Type a message"
-          value={text}
-          onChange={(e) => dispatch(setText(e.target.value))} // Update Redux text state
+          value={chat.text}
+          onChange={(e) => dispatch(setText(e.target.value))}
         />
         <div className="emoji">
           <img
@@ -93,7 +105,7 @@ export const Chat = () => {
             alt="Open Emoji Picker"
             onClick={() => dispatch(setToggleEmojiPicker())}
           />
-          {isEmojiPickerOpen && (
+          {chat.isEmojiPickerOpen && (
             <EmojiPicker
               onEmojiClick={(emojiData) => handleEmoji(emojiData)}
               searchDisabled={true}

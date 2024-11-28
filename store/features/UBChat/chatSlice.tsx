@@ -56,7 +56,10 @@ export const {
   setText,
 } = chatSlice.actions;
 
-export const selectChatState = (state: RootState) => state.chat;
+export const selectChatState = (state: RootState) => {
+  return state.chat;
+};
+
 export const selectToggleEmojiPicker = (state: RootState) =>
   state.chat.isEmojiPickerOpen;
 export const selectActive = (state: RootState) => state.chat.activeUser;
