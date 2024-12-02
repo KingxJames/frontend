@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-
+import { PersistGate } from 'redux-persist/integration/react';
 import authReducer from "./features/authSlice";
 import dashboardReducer from "./features/dashboardSlice";
 import  messagesReducer  from "./features/messageSlice";
@@ -12,26 +12,31 @@ import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
 
+// Configuration for persisting chatReducer
 const persistConfig = {
-  key: "root",
+  key: "chat",
   storage,
 };
 
-const persistedReducer = persistReducer(persistConfig, chatReducer);
-
+// Wrap chatReducer with persistReducer
+const persistedChatReducer = persistReducer(persistConfig, chatReducer);
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     dashboard: dashboardReducer,
     messages: messagesReducer,
-    chat: chatReducer,
-    list:listReducer,
+    chat: persistedChatReducer, // Use persisted reducer here
+    list: listReducer,
     [baseAPI.reducerPath]: baseAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authAPI.middleware, baseAPI.middleware, chatAPI.middleware),
+    getDefaultMiddleware({
+      serializableCheck: false, // Disable serialization checks for persist
+    }).concat(authAPI.middleware, baseAPI.middleware, chatAPI.middleware),
 });
+
+export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
