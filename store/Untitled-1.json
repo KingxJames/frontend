@@ -1,0 +1,48 @@
+[
+  {
+    "id": 5,
+    "icon": "/icon/5",
+    "name": "Chat",
+    "path": "Message/Chattest4",
+    "menuId": 1,
+    "subMenu": [
+      {
+        "id": 3,
+        "icon": "/icon/1",
+        "name": "Chattest",
+        "path": "Message/ChatTestPut",
+        "menuId": 1
+      },
+      {
+        "id": 3,
+        "icon": "/icon/1",
+        "name": "Chattest",
+        "path": "Message/ChatTestPut",
+        "menuId": 1
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "icon": "/icon/2",
+    "name": "Anonymous",
+    "path": "Message/Anonymous",
+    "menuId": 2,
+    "subMenu": [
+      {
+        "id": 4,
+        "icon": "/icon/5",
+        "name": "Chat",
+        "path": "Message/Chattest4",
+        "menuId": 1
+      },
+      {
+        "id": 4,
+        "icon": "/icon/5",
+        "name": "Chat",
+        "path": "Message/Chattest4",
+        "menuId": 1
+      }
+    ]
+  }
+]
