@@ -1,12 +1,19 @@
-// src/components/PrivateRoute.tsx
-import { Navigate, Outlet } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../store/store';
+import React, { useEffect } from "react";
+import { useNavigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store/store";
 
-const PrivateRoute = () => {
-  const isAuthenticated = useSelector((state: RootState) => !! state.auth.isAuthenticated);
+const UBPrivateRoute: React.FC = () => {
+  const isAuthenticated = useSelector((state: RootState) => state.auth.token);
+  const navigate = useNavigate();
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
+
+  return isAuthenticated ? <Outlet /> : null;
 };
 
-export default PrivateRoute;
+export default UBPrivateRoute;

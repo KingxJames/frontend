@@ -1,20 +1,16 @@
 import { baseAPI } from "./baseAPI";
 import { setAuthData } from '../features/authSlice'
 
-interface IUser {
-    id: number;
-    name: string;
-    email: string;
-    picture: string;
-    token: string;
-    // Add other user properties here based on your API response.
-}
+interface ICredentials {
+    username: string;
+    password: string;
+  }
 
 export const authAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         login: builder.mutation({
-            query: (credentials: { username: string; password: string }) => ({
-                url: '/authenticate',
+            query: (credentials: ICredentials) => ({
+                url: '/login',
                 method: 'POST',
                 body: credentials,
             }),
@@ -30,21 +26,10 @@ export const authAPI = baseAPI.injectEndpoints({
                 }
             },
         }),
-        fetchUsers: builder.query<IUser[], string>({
-            query: (token) => ({
-                url: '/v1/publicSafety/users',
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }),
-            transformResponse: (response: { data: IUser[] }) => response.data,
-        }),        
     }),
 });
 
 // Export hooks for components to use the endpoints
 export const {
     useLoginMutation,
-    useFetchUsersQuery,
 } = authAPI;

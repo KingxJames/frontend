@@ -1,146 +1,143 @@
-import React from 'react';
+import React, { useState } from "react";
 import UBLogo from "../../../../src/images/UB_Logo.png";
-import { Container, CssBaseline, Box, Typography } from "@mui/material";
-import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import {
+  Container,
+  CssBaseline,
+  Box,
+  Button,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
-import axios from 'axios';
-import { setUser, selectUser, setIDToken } from "../../../../store/features/authSlice";
-import { useNavigate } from 'react-router-dom';
+import { RootState } from "../../../../store/store";
+import { setAuthData } from "../../../../store/features/authSlice";
+import { useLoginMutation } from "../../../../store/services/authAPI";
+import { useNavigate } from "react-router-dom";
 
 export const UBLogin: React.FC = () => {
-    const dispatch = useDispatch();
-    const user = useSelector(selectUser); // Get the user data from the Redux store
-    const navigate = useNavigate(); // Initialize useNavigate
+  const dispatch = useDispatch();
+  const username = useSelector((state: RootState) => state.auth.username);
+  const [password, setPassword] = useState("");
+  const [login] = useLoginMutation();
+  const [warning, setWarning] = useState<string | null>(null); // State for warning message
+  const navigate = useNavigate();
 
-    // Function to handle the Google OAuth credential response
-    const responseMessage = async (credentialResponse: CredentialResponse) => {
-        if (credentialResponse.credential) {
-            console.log('Google ID Token:', credentialResponse.credential);
+  const handleLogin = async () => {
+    setWarning(null); // Clear warning on each login attempt
 
-            try {
-                // Verify and get the profile data using the ID Token
-                const response = await axios.get(
-                    `https://oauth2.googleapis.com/tokeninfo?id_token=${credentialResponse.credential}`
-                );
+    if (!username || !password) {
+      setWarning("Username and Password are required.");
+      return;
+    }
 
-                const profileData = response.data;
-                console.log('Profile Data:', profileData);
+    try {
+      const response = await login({ username, password }).unwrap();
+      console.log("Login successful:", response);
 
-                //  Check email domain
-                const emailDomain = profileData.email.split('@')[1];
-                if (emailDomain !== 'ub.edu.bz') {
-                    console.error('Unauthorized domain');
-                    alert('Only emails from the "ub.edu.bz" domain are allowed.');
-                    return;
-                }
+      // Dispatch data to the Redux store
+      dispatch(setAuthData(response));
+      navigate("/"); // Navigate to the next page
+    } catch (err) {
+      console.error("Login failed:", err);
+      setWarning("Invalid username or password."); // Display a warning if login fails
+    }
+  };
 
-                //  Call the "login-or-create" API
-                const apiResponse = await axios.post(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/v1/publicSafety/loginOrCreate`,
-                    {
-                        name: profileData.name,
-                        email: profileData.email,
-                        picture: profileData.picture,
-                        id_token: credentialResponse.credential, // Send the ID token
-                    });
-
-                console.log('Saved or existing user:', apiResponse.data);
-
-                //Update Redux store
-                dispatch(
-                    setUser({
-                        name: apiResponse.data.data.name,
-                        email: apiResponse.data.data.email,
-                        // picture: apiResponse.data.data.picture,
-                        picture: profileData.picture,
-
-
-
-                    })
-                );
-                console.log("---->", profileData.picture,)
-
-                dispatch(setIDToken(credentialResponse.credential));
-
-                // Redirect to the index page after successful login
-                navigate('/'); // Adjust this path to your index route
-
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        } else {
-            console.error('No credential received');
-        }
-    };
-
-
-    // Function to handle Google login failure
-    const errorMessage = () => {
-        console.error('Google Login Failed');
-    };
-    return (
+  return (
+    <Box
+      sx={{
+        backgroundColor: "#6C3777",
+        minHeight: "100vh",
+        minWidth: "100vw",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          backgroundColor: "#fff",
+          borderRadius: "5%",
+          padding: "3%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <CssBaseline />
         <Box
-            sx={{
-                backgroundColor: "#6C3777",
-                minHeight: "100vh",
-                minWidth: "100vw",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
         >
-            <Container
-                component="main"
-                maxWidth="xs"
-                sx={{
-                    backgroundColor: "#fff",
-                    borderRadius: "5%",
-                    padding: "3%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                }}
+          <Box sx={{ mb: 2 }}>
+            <img
+              src={UBLogo}
+              alt="UB Logo"
+              style={{
+                width: "100%",
+                height: "70%",
+                transition: "width 0.3s, height 0.3s",
+              }}
+            />
+          </Box>
+
+          <TextField
+            sx={{ mb: 2, mt: "-7%", width: "100%" }}
+            id="outlined-textarea"
+            label="Username"
+            placeholder=""
+            multiline
+            value={username}
+            onChange={(e) =>
+              dispatch(setAuthData({ username: e.target.value }))
+            }
+          />
+
+          <TextField
+            sx={{ mb: 2, width: "100%" }}
+            id="password"
+            label="Password"
+            placeholder=""
+            type="password"
+            multiline={false}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {warning && (
+            <Typography
+              sx={{
+                color: "red",
+                mb: 2,
+                fontSize: "14px",
+                textAlign: "center",
+              }}
             >
-                <CssBaseline />
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                    }}
-                >
-                    <Box sx={{ mb: 2 }}>
-                        <img
-                            src={UBLogo}
-                            alt="UB Logo"
-                            style={{
-                                width: "100%",
-                                height: "70%",
-                                transition: "width 0.3s, height 0.3s",
-                            }}
-                        />
-                    </Box>
-                    {user ? (
-                        <div>
-                            <img src={user.picture} alt="user image" style={{ borderRadius: '50%', width: '100px', height: '100px' }} />
-                            <Typography component="h3" variant="h6">User Logged in</Typography>
-                            <p>Name: {user.name}</p>
-                            <p>Email: {user.email}</p>
-                            <p>{user.picture}</p>
-                            <br />
-                        </div>
-                    ) : (
-                        <>
-                            <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
-                                Sign in with Google
-                            </Typography>
-                            <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
-                        </>
-                    )}
-                </Box>
-            </Container>
+              {warning}
+            </Typography>
+          )}
+
+          <Button
+            onClick={handleLogin}
+            sx={{
+              width: "50%",
+              backgroundColor: "#6C3777",
+              color: "white",
+              borderRadius: "20px",
+              mb: "-5%",
+            }}
+          >
+            Login
+          </Button>
         </Box>
-    );
+      </Container>
+    </Box>
+  );
 };
 
 export default UBLogin;

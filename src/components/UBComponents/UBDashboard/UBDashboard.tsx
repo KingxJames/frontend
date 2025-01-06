@@ -1,7 +1,7 @@
 import React from "react";
 import UBCardDataStats from "../../../common/UBCardDataStats/UBCardDataStats";
 import UBVisitorsAnalyticsChart from "../../../common/UBVisitorsAnalyticsChart/UBVisitorsAnalyticsChart";
-import UBChats from "../../../common/UBChats/UBChats";
+// import UBChats from "../../../common/UBChats/UBChats";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 import AssessmentIcon from "@mui/icons-material/Assessment";
@@ -13,6 +13,8 @@ import {
 } from "../../../../store/services/dashboardAPI";
 import { useSelector } from "react-redux";
 import { selectDashboard } from "../../../../store/features/dashboardSlice";
+import ChatList from "../../UBChat/List/ChatList/ChatList";
+import { Box } from "@mui/material";
 
 export const UBDashboard: React.FC = () => {
   // Fetch the totals using hooks
@@ -20,7 +22,6 @@ export const UBDashboard: React.FC = () => {
   const { data: reportTotalData } = useFetchReportTotalQuery();
   const { data: incidentFilesTotalData } = useFetchIncidentFilesTotalQuery();
   const { data: messageTotalData } = useFetchMessageTotalQuery();
-
 
   const dashboardData = useSelector(selectDashboard);
   const stats = [
@@ -36,7 +37,10 @@ export const UBDashboard: React.FC = () => {
     },
     {
       title: "Total incident Files",
-      total: incidentFilesTotalData?.total || dashboardData.total.incidentFilesTotal || 0,
+      total:
+        incidentFilesTotalData?.total ||
+        dashboardData.total.incidentFilesTotal ||
+        0,
       icon: <AssessmentIcon />,
     },
     {
@@ -46,19 +50,19 @@ export const UBDashboard: React.FC = () => {
     },
   ];
 
-  console.log(reportTotalData)
+  // console.log(reportTotalData);
   return (
-    <>
+    <Box sx={{ p: "2%" }}>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
         {stats.map((stat, index) => (
           <UBCardDataStats key={index} title={stat.title} total={stat.total}>
             {stat.icon}
           </UBCardDataStats>
         ))}
-      </div>
+      </div> 
 
-      {/* Display total users count directly */}
-      {/* <div className="mt-4">
+      {/* Display total users count directly
+       <div className="mt-4">
         <h2>Total Users from API: {dashboardData.total.usersTotal}</h2>
       </div> */}
 
@@ -66,10 +70,13 @@ export const UBDashboard: React.FC = () => {
         <div className="col-span-12 md:col-span-7">
           <UBVisitorsAnalyticsChart />
         </div>
-        <div className="col-span-12 md:col-span-5">
-          <UBChats />
+        <div className="col-span-12 md:col-span-5 rounded-sm border border-stroke bg-white pt-3.5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h1 style={{ fontSize: "40px", padding: "2% 0 2% 4%" }}>Chat</h1>
+          <ChatList showSearchBar={false} />
         </div>
       </div>
-    </>
+    </Box>
   );
 };
+
+export default UBDashboard;

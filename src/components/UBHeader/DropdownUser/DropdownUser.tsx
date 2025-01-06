@@ -4,19 +4,19 @@ import ClickOutside from "../../../common/ClickOutside";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useSelector, useDispatch } from "react-redux";
-import { selectUser, logout } from "../../../../store/features/authSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../store/store";
+// import { selectUser, logout } from "../../../../store/features/authSlice";
 
 
 
 export const DropdownUser: React.FC = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const user = useSelector(selectUser);
+    const name = useSelector((state:RootState) => state.auth.name);
 
     const handleLogout = () => {
-        dispatch(logout()); // Correctly dispatch the logout action
+        // dispatch(logout()); // Correctly dispatch the logout action
         navigate("/login"); // Navigate to the login page
     };
 
@@ -34,17 +34,17 @@ export const DropdownUser: React.FC = () => {
             >
                 <span className="hidden text-right lg:block">
                     <span className="block text-sm font-medium text-black dark:text-white">
-                        {user?.name || "Guest"}
+                        {name}
                     </span>
                 </span>
 
-                {user?.picture && (
+                {/* {user?.picture && (
                     <img
                         src={user.picture}
                         alt="Profile"
                         className="w-10 h-10 rounded-full"
                     />
-                )}
+                )} */}
 
                 <ArrowDropDownIcon />
             </Link>

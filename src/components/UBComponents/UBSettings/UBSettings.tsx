@@ -8,18 +8,18 @@ import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import CompassCalibrationIcon from '@mui/icons-material/CompassCalibration';
 import EditIcon from "@mui/icons-material/Edit";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  selectUser,
-  selectPhoneNumber,
-  setPhoneNumber,
-  setPersonalEmail,
-} from "../../../../store/features/authSlice";
+// import {
+//   selectUser,
+//   selectPhoneNumber,
+//   setPhoneNumber,
+//   setPersonalEmail,
+// } from "../../../../store/features/authSlice";
 
 export const UBSettings: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector(selectUser);
-  const phoneNumber = useSelector(selectPhoneNumber);
+  // const user = useSelector(selectUser);
+  // const phoneNumber = useSelector(selectPhoneNumber);
 
   return (
     <>
@@ -52,7 +52,7 @@ export const UBSettings: React.FC = () => {
                         name="phoneNumber"
                         id="phoneNumber"
                         placeholder=""
-                        defaultValue={user?.name}
+                        // defaultValue={user?.name}
                         readOnly
                       />
                     </div>
@@ -119,7 +119,7 @@ export const UBSettings: React.FC = () => {
                         name="workEmail"
                         id="workEmail"
                         placeholder="devidjond45@@ub.edu.bz"
-                        defaultValue={user?.email}
+                        // defaultValue={user?.email}
                         readOnly
                       />
                     </div>

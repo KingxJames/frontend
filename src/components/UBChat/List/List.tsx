@@ -6,8 +6,8 @@ import "./list.css";
 export const List = () => {
   return <div className="list">
     <UserInfo/>
-    <ChatList/>
-  </div>;
+    <ChatList showSearchBar={true} />
+    </div>;
 };
 
 export default List;
