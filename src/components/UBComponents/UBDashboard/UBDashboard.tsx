@@ -72,7 +72,7 @@ export const UBDashboard: React.FC = () => {
         </div>
         <div className="col-span-12 md:col-span-5 rounded-sm border border-stroke bg-white pt-3.5 shadow-default dark:border-strokedark dark:bg-boxdark">
           <h1 style={{ fontSize: "40px", padding: "2% 0 2% 4%" }}>Chat</h1>
-          <ChatList showSearchBar={false} />
+          {/* <ChatList showSearchBar={false} /> */}
         </div>
       </div>
     </Box>

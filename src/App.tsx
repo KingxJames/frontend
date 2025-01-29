@@ -11,8 +11,8 @@ import { AnonymousTips } from "./pages/Messages/AnonymousTips/AnonymousTips";
 import { Emergencies } from "./pages/Messages/Emergencies/Emergencies";
 // import Chats from "./pages/Messages/Chats/Chat";
 import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
-import UBChatApp from "./components/UBChat/UBChatApp/UBChatApp";
-
+// import UBChatApp from "./components/UBChat/UBChatApp/UBChatApp";
+import UBMessenger from "./components/UBMessenger/UBMessenger";
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
@@ -37,13 +37,15 @@ const App: React.FC = () => {
             <DefaultLayout>
               <Routes>
                 <Route index element={<Dashboard />} />
+
                 <Route path="/Settings" element={<Settings />} />
                 <Route
                   path="/Messages/Anonymous-Tips"
                   element={<AnonymousTips />}
                 />
                 <Route path="/Messages/Emergencies" element={<Emergencies />} />
-                <Route path="/Messages/Chats" element={<UBChatApp/>} />
+                {/* <Route path="/Messages/Chats" element={<UBChatApp/>} /> */}
+                <Route path="/Messages/Chats" element={<UBMessenger />} />
               </Routes>
             </DefaultLayout>
           }

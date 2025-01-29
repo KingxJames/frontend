@@ -1,12 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  picture?: string;
+}
+
 export interface AuthState {
   token: string | null;
   username: string;
   name: string;
   isLoading: boolean;
   error: string | null;
+  users: User[];
 }
 
 const initialState: AuthState = {
@@ -15,6 +23,14 @@ const initialState: AuthState = {
   name: "",
   isLoading: false,
   error: null,
+  users: [
+    {
+      id: "",
+      name: "",
+      email: "",
+      picture: "",
+    },
+  ],
 };
 
 // Slice
@@ -39,3 +55,4 @@ export default authSlice.reducer;
 
 export const selectName = (state: RootState) => state.auth.name;
 export const selectUsername = (state: RootState) => state.auth.username;
+export const selectUsers = (state: RootState) => state.auth.users;

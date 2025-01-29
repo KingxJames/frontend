@@ -6,9 +6,14 @@ import plus from "./../../../../image/plus.png";
 import avatar from "./../../../../image/avatar.png";
 import AddUser from "./AddUser/Adduser";
 import { useSelector, useDispatch } from "react-redux";
-// import { setUsers, selectUsers } from "../../../../../store/features/authSlice";
+import { setAuthData } from "../../../../../store/features/authSlice";
 // import { useFetchUsersQuery } from "../../../../../store/services/authAPI";
-import { setActiveUser } from "../../../../../store/features/UBChat/chatSlice";
+import {
+  setActiveUser,
+  setChatState,
+  setSearchText,
+} from "../../../../../store/features/UBChat/chatSlice";
+import { RootState } from "../../../../../store/store";
 
 interface ChatListProps {
   showSearchBar?: boolean;
@@ -19,21 +24,21 @@ export const ChatList: React.FC<ChatListProps> = ({ showSearchBar = true }) => {
   const [searchText, setSearchText] = useState("");
 
   const dispatch = useDispatch();
-  // const users = useSelector(selectUsers);
+  const users = useSelector(selectUsers);
 
   const token = useSelector((state: any) => state.auth.token);
 
-  // const { data, error, isLoading } = useFetchUsersQuery(token);
+  const { data, error, isLoading } = useFetchUsersQuery(token);
 
-  // useEffect(() => {
-  //   if (data) {
-  //     dispatch(setUsers(data));
-  //   }
-  // }, [data, dispatch]);
+  useEffect(() => {
+    if (data) {
+      dispatch(setUsers(data));
+    }
+  }, [data, dispatch]);
 
-  // const filteredUsers = users.filter((user) =>
-  //   user.name.toLowerCase().includes(searchText.toLowerCase())
-  // );
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
     <div className="chatList">
@@ -57,10 +62,10 @@ export const ChatList: React.FC<ChatListProps> = ({ showSearchBar = true }) => {
         </div>
       )}
 
-      {/* {isLoading && <p>Loading users...</p>}
-      {error && <p>Error fetching users</p>} */}
+      {isLoading && <p>Loading users...</p>}
+      {error && <p>Error fetching users</p>}
 
-      {/* {filteredUsers.map((user: any) => (
+      {filteredUsers.map((user: any) => (
         <div
           className="item"
           key={user.id}
@@ -72,7 +77,7 @@ export const ChatList: React.FC<ChatListProps> = ({ showSearchBar = true }) => {
             <p>{user.email}</p>
           </div>
         </div>
-      ))} */}
+      ))}
 
       {addMode && <AddUser />}
     </div>

@@ -9,7 +9,7 @@ import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "./../../../../store/store";
 import {
-  addMessage,
+  // addMessage,
   setToggleEmojiPicker,
   setText,
   selectText,
@@ -43,23 +43,22 @@ export const Chat = () => {
       ...newMessage,
     };
 
-    dispatch(addMessage(tempMessage)); // Optimistic UI update
+    // dispatch(addMessage(tempMessage)); // Optimistic UI update
     dispatch(setText("")); // Clear input field
 
-    // Send the message to the backend
-    try {
-      const savedMessage = await createMessage(newMessage).unwrap(); // Save message to DB
-      dispatch(addMessage({ ...savedMessage })); // Update with server response (if needed)
-    } catch (error) {
-      console.error("Failed to send message:", error);
-    }
-  };
+  //   // Send the message to the backend
+  //   try {
+  //     const savedMessage = await createMessage(newMessage).unwrap(); // Save message to DB
+  //     dispatch(addMessage({ ...savedMessage })); // Update with server response (if needed)
+  //   } catch (error) {
+  //     console.error("Failed to send message:", error);
+  //   }
+  // };
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat.messages]);
 
-  
   const handleEmoji = (emojiData: EmojiClickData): void => {
     dispatch(setText(chat.text + emojiData.emoji)); // Concatenate emoji to chat.text
   };
@@ -76,7 +75,7 @@ export const Chat = () => {
       </div>
 
       <div className="center">
-        {chat.messages
+        {/* {chat.messages
           .filter((msg) => msg.user === chat.activeUser)
           .map((msg) => (
             <div
@@ -88,7 +87,7 @@ export const Chat = () => {
                 <span>{msg.timestamp}</span>
               </div>
             </div>
-          ))}
+          ))} */}
         <div ref={endRef}></div>
       </div>
 
@@ -119,6 +118,7 @@ export const Chat = () => {
       </div>
     </div>
   );
+};
 };
 
 export default Chat;

@@ -36,10 +36,16 @@ export const UBLogin: React.FC = () => {
 
       // Dispatch data to the Redux store
       dispatch(setAuthData(response));
-      navigate("/"); // Navigate to the next page
+      navigate("/settings"); // Navigate to the next page
     } catch (err) {
       console.error("Login failed:", err);
       setWarning("Invalid username or password."); // Display a warning if login fails
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      handleLogin();
     }
   };
 
@@ -107,6 +113,7 @@ export const UBLogin: React.FC = () => {
             multiline={false}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
 
           {warning && (
