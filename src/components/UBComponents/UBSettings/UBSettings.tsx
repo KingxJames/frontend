@@ -13,133 +13,79 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import InputBox from "../../../common/inputBox/inputBox";
 import UBBreadcrumb from "../../../common/UBBreadcrumbs/UBBreadcrumbs";
 import { selectName } from "../../../../store/features/authSlice";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+
+
+function createData(
+  id: number,
+  campus: string,
+  Actions: string,
+ 
+) {
+  return { id, campus };
+}
+
+// const rows = [
+//   createData(1 , 159, 6.0),
+//   createData(2, 237, 9.0),
+//   createData(3, 262, 16.0),
+//   createData(4, 305, 3.7),
+//   createData(5, 356, 16.0),
+// ];
+
 
 export const UBSettings: React.FC = () => {
   const navigate = useNavigate();
   const name = useSelector(selectName);
   // const email = useSelector(selectEmail);
 
+  const handleShowTable = () => {
+    navigate("/campus");
+  };
+
+
+
   return (
     <>
-      <Box sx={{ padding: "2% 2% 0 2%" }}>
-        <UBBreadcrumb pageName="Settings" />
-      </Box>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Dessert (100g serving)</TableCell>
+              <TableCell align="right">Calories</TableCell>
+              <TableCell align="right">Fat&nbsp;(g)</TableCell>
+              <TableCell align="right">Carbs&nbsp;(g)</TableCell>
+              <TableCell align="right">Protein&nbsp;(g)</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow
+                key={row.name}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {row.name}
+                </TableCell>
+                <TableCell align="right">{row.calories}</TableCell>
+                <TableCell align="right">{row.fat}</TableCell>
+                <TableCell align="right">{row.carbs}</TableCell>
+                <TableCell align="right">{row.protein}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-      <Box
-        sx={{
-          backgroundColor: "#fff",
-          borderRadius: "8px",
-          maxWidth: "90vw", // Responsive width
-          width: "50%",
-          padding: "2%",
-          marginLeft: "2%",
-          marginTop: "2%",
-          display: "flex",
-          flexDirection: "column",
-          boxSizing: "border-box",
-          boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        {/* Header */}
-        <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-          Personal Information
-        </Typography>
-
-        {/* Profile Section */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            borderBottom: "2px solid #ccc",
-            padding: "10px 0",
-            gap: "10px",
-          }}
-        >
-          <img
-            src=""
-            alt="Profile"
-            style={{
-              width: "80px",
-              height: "80px",
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "2px solid #ccc",
-            }}
-          />
-
-          {/* Buttons aligned to the right */}
-          <Box sx={{ display: "flex", marginLeft: "auto", gap: 1 }}>
-            <Button
-              sx={{ border: "1px solid black", width: "40px", height: "40px" }}
-            >
-              <DeleteIcon />
-            </Button>
-            <Button>
-              <FileUploadIcon /> Upload
-            </Button>
-          </Box>
-        </Box>
-
-        {/* Input Fields */}
-        <Box
-          sx={{
-            backgroundColor: "#f9f9f9",
-            borderRadius: "5px",
-            padding: "20px",
-            marginTop: "20px",
-          }}
-        >
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={4}>
-              <InputBox
-                label="Name"
-                icon={PermIdentityIcon}
-                type="text"
-                text={name}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <InputBox
-                label="Email Address"
-                icon={EmailIcon}
-                type="text"
-                text=""
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <InputBox
-                label="Phone Number"
-                icon={LocalPhoneIcon}
-                type="text"
-                text=""
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <InputBox
-                label="Work Email"
-                icon={EmailIcon}
-                type="text"
-                text=""
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <InputBox
-                label="Organization"
-                icon={CorporateFareIcon}
-                type="text"
-                text=""
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <InputBox
-                label="Role"
-                icon={CompassCalibrationIcon}
-                type="text"
-                text=""
-              />
-            </Grid>
-          </Grid>
-        </Box>
+      <Box>
+        <Button onClick={handleShowTable}>Campus</Button>
+        <Button onClick={handleShowTable}> Buildings </Button>
       </Box>
     </>
   );
