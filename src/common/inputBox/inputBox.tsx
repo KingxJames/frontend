@@ -15,7 +15,7 @@ export const InputBox: React.FC<InputBoxProps> = ({
   text,
 }) => {
   return (
-    <div style={{ marginTop: "3%" }}>
+    <div style={{ marginTop: "1%"}}>
       <form action="">
         <label htmlFor={type} style={{ marginBottom: "8px", display: "block" }}>
           <b>{label}</b>

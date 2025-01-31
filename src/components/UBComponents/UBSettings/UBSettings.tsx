@@ -1,66 +1,66 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Box, Typography, Button } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import EmailIcon from "@mui/icons-material/Email";
-import CorporateFareIcon from "@mui/icons-material/CorporateFare";
-import UBBreadcrumb from "../../../common/UBBreadcrumbs/UBBreadcrumbs";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
+import CorporateFareIcon from "@mui/icons-material/CorporateFare";
 import CompassCalibrationIcon from "@mui/icons-material/CompassCalibration";
-import EditIcon from "@mui/icons-material/Edit";
-import { useSelector, useDispatch } from "react-redux";
-import { Box } from "@mui/material";
-import Button from "@mui/material/Button";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import InputBox from "../../../common/inputBox/inputBox";
-// import {
-//   selectUser,
-//   selectPhoneNumber,
-//   setPhoneNumber,
-//   setPersonalEmail,
-// } from "../../../../store/features/authSlice";
+import UBBreadcrumb from "../../../common/UBBreadcrumbs/UBBreadcrumbs";
+import { selectName } from "../../../../store/features/authSlice";
 
 export const UBSettings: React.FC = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const user = useSelector(selectUser);
-  // const phoneNumber = useSelector(selectPhoneNumber);
+  const name = useSelector(selectName);
+  // const email = useSelector(selectEmail);
 
   return (
     <>
-      <UBBreadcrumb pageName="Settings" />
+      <Box sx={{ padding: "2% 2% 0 2%" }}>
+        <UBBreadcrumb pageName="Settings" />
+      </Box>
+
       <Box
         sx={{
           backgroundColor: "#fff",
-          border: "1px solid #E0E0E0",
-          borderRadius: "5px",
-          height: "95vh", // Fixed height
-          width: "90vh", // Fixed width
+          borderRadius: "8px",
+          maxWidth: "90vw", // Responsive width
+          width: "50%",
           padding: "2%",
-          margin: "auto",
-          marginTop: "5%",
+          marginLeft: "2%",
+          marginTop: "2%",
           display: "flex",
           flexDirection: "column",
           boxSizing: "border-box",
+          boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
+        {/* Header */}
+        <Typography variant="h6" sx={{ marginBottom: "10px" }}>
+          Personal Information
+        </Typography>
+
         {/* Profile Section */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             borderBottom: "2px solid #ccc",
-            width: "100%", // Ensures it fits inside the parent
-            boxSizing: "border-box",
-            padding: "1% 0 2% 0",
+            padding: "10px 0",
+            gap: "10px",
           }}
         >
           <img
             src=""
-            alt=""
+            alt="Profile"
             style={{
-              width: "100px",
-              height: "100px",
+              width: "80px",
+              height: "80px",
               borderRadius: "50%",
               objectFit: "cover",
               border: "2px solid #ccc",
@@ -68,13 +68,7 @@ export const UBSettings: React.FC = () => {
           />
 
           {/* Buttons aligned to the right */}
-          <Box
-            sx={{
-              display: "flex",
-              marginLeft: "auto",
-              gap: 1,
-            }}
-          >
+          <Box sx={{ display: "flex", marginLeft: "auto", gap: 1 }}>
             <Button
               sx={{ border: "1px solid black", width: "40px", height: "40px" }}
             >
@@ -89,39 +83,62 @@ export const UBSettings: React.FC = () => {
         {/* Input Fields */}
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px", // Adds space between inputs
-            paddingTop: "10px", // Prevents input from touching the border
-            width: "100%", // Ensures inputs fit within the box
+            backgroundColor: "#f9f9f9",
+            borderRadius: "5px",
+            padding: "20px",
+            marginTop: "20px",
           }}
         >
-          <InputBox label="Name" icon={PermIdentityIcon} type="text" text="" />
-          <InputBox
-            label="Email Address"
-            icon={EmailIcon}
-            type="text"
-            text=""
-          />
-          <InputBox
-            label="Phone Number"
-            icon={LocalPhoneIcon}
-            type="text"
-            text=""
-          />
-          <InputBox label="Work Email" icon={EmailIcon} type="text" text="" />
-          <InputBox
-            label="Organization"
-            icon={CorporateFareIcon}
-            type="text"
-            text=""
-          />
-          <InputBox
-            label="Role"
-            icon={CompassCalibrationIcon}
-            type="text"
-            text=""
-          />
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={4}>
+              <InputBox
+                label="Name"
+                icon={PermIdentityIcon}
+                type="text"
+                text={name}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <InputBox
+                label="Email Address"
+                icon={EmailIcon}
+                type="text"
+                text=""
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <InputBox
+                label="Phone Number"
+                icon={LocalPhoneIcon}
+                type="text"
+                text=""
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <InputBox
+                label="Work Email"
+                icon={EmailIcon}
+                type="text"
+                text=""
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <InputBox
+                label="Organization"
+                icon={CorporateFareIcon}
+                type="text"
+                text=""
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <InputBox
+                label="Role"
+                icon={CompassCalibrationIcon}
+                type="text"
+                text=""
+              />
+            </Grid>
+          </Grid>
         </Box>
       </Box>
     </>

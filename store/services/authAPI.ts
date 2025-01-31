@@ -19,6 +19,7 @@ export const authAPI = baseAPI.injectEndpoints({
                     const { data } = await queryFulfilled;
 
                     if (data?.data?.token) {
+                        console.log(data.data);
                         dispatch(setAuthData({ ...data.data, username: input.username }));
                     }
                 } catch (e) {
