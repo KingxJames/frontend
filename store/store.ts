@@ -8,6 +8,7 @@ import dashboardReducer from "./features/dashboardSlice";
 import  messagesReducer  from "./features/messageSlice";
 import chatReducer from "./features/UBChat/chatSlice";
 import listReducer from "./features/UBChat/listSlice"
+import rolesReducer from "./features/roleSlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
@@ -28,6 +29,7 @@ export const store = configureStore({
     messages: messagesReducer,
     chat: persistedChatReducer, // Use persisted reducer here
     list: listReducer,
+    roles: rolesReducer,
     [baseAPI.reducerPath]: baseAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>

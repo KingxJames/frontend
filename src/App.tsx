@@ -20,9 +20,10 @@ import {
   IncidentReportsTable,
   IncidentStatusesTable,
   IncidentTypesTable,
-  RolesTable,
   UsersTable,
 } from "./common/crudTables/crudTables";
+
+import { RolesTable } from "./common/crudTables/roleTable";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -58,15 +59,15 @@ const App: React.FC = () => {
                 <Route path="/accessRights" element={<AccessRightsTable />} />
                 <Route path="/buildings" element={<BuildingsTable />} />
                 <Route path="/campuses" element={<CampusesTable />} />
+                <Route path="/incidentTypes" element={<IncidentTypesTable />} />
+                <Route path="/roles" element={<RolesTable />} />
+                <Route path="/users" element={<UsersTable />} />
                 <Route
                   path="/departmentMembers"
                   element={<DepartmentMembersTable />}
                 />
                 <Route path="/departments" element={<DepartmentsTable />} />
-                <Route
-                  path="/incidentFiles"
-                  element={<IncidentFilesTable />}
-                />
+                <Route path="/incidentFiles" element={<IncidentFilesTable />} />
                 <Route
                   path="/incidentReports"
                   element={<IncidentReportsTable />}
@@ -75,12 +76,6 @@ const App: React.FC = () => {
                   path="/incidentStatuses"
                   element={<IncidentStatusesTable />}
                 />
-                <Route
-                  path="/incidentTypes"
-                  element={<IncidentTypesTable />}
-                />
-                <Route path="/roles" element={<RolesTable />} />
-                <Route path="/users" element={<UsersTable />} />
               </Routes>
             </DefaultLayout>
           }
