@@ -18,6 +18,7 @@ import {
   useFetchRolesQuery,
   useCreateRoleMutation,
   useDeleteRoleMutation,
+  useUpdateRoleMutation,
 } from "./../../../store/services/roleAPI";
 import {
   setRoles,
@@ -29,9 +30,10 @@ import {
 
 export const RolesTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: rolesData, isLoading } = useFetchRolesQuery();
+  const { data: rolesData } = useFetchRolesQuery();
   const [createRole] = useCreateRoleMutation();
   const [deleteRole] = useDeleteRoleMutation();
+  const [updateRole] = useUpdateRoleMutation();
   const roles = useSelector(selectRoles);
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
@@ -108,22 +110,44 @@ export const RolesTable: React.FC = () => {
       console.error("Error adding role:", error);
     }
   };
+
   // Handle edit role - open dialog
   const handleEdit = (role: {
     id: number;
     roles: string;
     description: string;
   }) => {
-    setSelectedRole(role);
+    if (!role) return;
+    setSelectedRole(role); // Ensure selectedRole is set
     setOpenEdit(true);
   };
 
-  // Save edited role
-  const handleSaveEdit = () => {
-    if (selectedRole) {
-      dispatch(updateRoles(selectedRole)); // Dispatch updateRoles
+  const handleUpdateRole = async () => {
+    if (
+      !selectedRole ||
+      !selectedRole.roles.trim() ||
+      !selectedRole.description.trim()
+    ) {
+      alert("Both Role and Description fields are required.");
+      return;
+    }
+
+    try {
+      // Call the updateRole mutation
+      const updatedRole = await updateRole({
+        id: selectedRole.id,
+        roles: selectedRole.roles,
+        description: selectedRole.description,
+      }).unwrap();
+
+      // Update Redux store with the updated role
+      dispatch(updateRoles(updatedRole));
+
+      // Close the dialog and reset selectedRole
       setOpenEdit(false);
       setSelectedRole(null);
+    } catch (error) {
+      console.error("Error updating role:", error);
     }
   };
 
@@ -182,6 +206,7 @@ export const RolesTable: React.FC = () => {
             color="primary"
             startIcon={<AddIcon />}
             onClick={() => setOpenAdd(true)}
+            sx={{ marginRight: 2 }} // Adds spacing to the right
           >
             Add Role
           </Button>
@@ -252,7 +277,9 @@ export const RolesTable: React.FC = () => {
             value={selectedRole?.roles || ""}
             onChange={(e) =>
               setSelectedRole((prev) =>
-                prev ? { ...prev, roles: e.target.value } : prev
+                prev
+                  ? { ...prev, roles: e.target.value }
+                  : { id: 0, roles: e.target.value, description: "" }
               )
             }
           />
@@ -264,7 +291,9 @@ export const RolesTable: React.FC = () => {
             value={selectedRole?.description || ""}
             onChange={(e) =>
               setSelectedRole((prev) =>
-                prev ? { ...prev, description: e.target.value } : prev
+                prev
+                  ? { ...prev, description: e.target.value }
+                  : { id: 0, roles: "", description: e.target.value }
               )
             }
           />
@@ -273,7 +302,7 @@ export const RolesTable: React.FC = () => {
           <Button onClick={() => setOpenEdit(false)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleSaveEdit} color="primary">
+          <Button onClick={handleUpdateRole} color="primary">
             Save Changes
           </Button>
         </DialogActions>

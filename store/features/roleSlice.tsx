@@ -28,12 +28,12 @@ const roleSlice = createSlice({
     },
 
     updateRoles: (state, action: PayloadAction<IRole>) => {
-      state.roles = state.roles.map((roles) => {
-        if (roles.roles === action.payload.roles) {
-          return action.payload;
-        }
-        return roles;
-      });
+      const index = state.roles.findIndex(
+        (role) => role.id === action.payload.id
+      );
+      if (index !== -1) {
+        state.roles[index] = { ...state.roles[index], ...action.payload };
+      }
     },
     deleteRoles: (state, action: PayloadAction<number>) => {
       state.roles = state.roles.filter((roles) => roles.id !== action.payload);
@@ -41,6 +41,7 @@ const roleSlice = createSlice({
   },
 });
 
-export const { setRoles, addRoles, updateRoles, deleteRoles } = roleSlice.actions;
+export const { setRoles, addRoles, updateRoles, deleteRoles } =
+  roleSlice.actions;
 export const selectRoles = (state: RootState) => state.roles;
 export default roleSlice.reducer;
