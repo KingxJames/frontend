@@ -9,15 +9,7 @@ export const AccessRightsTable: React.FC = () => {
   return <div style={{ padding: "3%" }}>Access Rights Table</div>;
 };
 
-// export default accessRightsTable;
 
-export const BuildingsTable: React.FC = () => {
-  return <div style={{ padding: "3%" }}>Buildings Table</div>;
-};
-
-export const CampusesTable: React.FC = () => {
-  return <div style={{ padding: "3%" }}>Campuses Table</div>;
-};
 
 export const DepartmentMembersTable: React.FC = () => {
   return <div style={{ padding: "3%" }}>Department Members Table</div>;

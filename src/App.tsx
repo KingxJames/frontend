@@ -12,8 +12,6 @@ import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
 import UBMessenger from "./components/UBMessenger/UBMessenger";
 import {
   AccessRightsTable,
-  BuildingsTable,
-  CampusesTable,
   DepartmentMembersTable,
   DepartmentsTable,
   IncidentFilesTable,
@@ -23,6 +21,8 @@ import {
   UsersTable,
 } from "./common/crudTables/crudTables";
 
+import { CampusesTable } from "./common/crudTables/campusesTable"
+import { BuildingsTable } from "./common/crudTables/buildingsTable"
 import { RolesTable } from "./common/crudTables/roleTable";
 
 const App: React.FC = () => {

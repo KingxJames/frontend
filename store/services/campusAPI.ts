@@ -1,37 +1,42 @@
 import { baseAPI } from "./baseAPI";
+import { ICampus } from "../features/campusSlice";
 
 export const campusAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchCampuses: builder.query<any[], void>({
+    fetchCampuses: builder.query<ICampus[], void>({
       query: () => ({
-        url: "/v1/publicSafety/campus",
+        url: "/v1/publicSafety/campuses",
         method: "GET",
       }),
-      transformResponse: (response: { data: any[] }) => response.data,
+      transformResponse: (response: { data: ICampus[] }) => {
+        console.log("API Response:", response); // Log full response
+        console.log("Transformed Data:", response.data); // Log extracted data
+        return response.data;
+      },
     }),
-    fetchCampusById: builder.query<any, string>({
+    fetchCampusById: builder.query<ICampus, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/campus/${id}`,
+        url: `/v1/publicSafety/campuses/${id}`,
         method: "GET",
       }),
     }),
-    createCampus: builder.mutation<any, Partial<any>>({
+    createCampuses: builder.mutation<ICampus, Partial<ICampus>>({
       query: (campus) => ({
-        url: "/v1/publicSafety/campus",
+        url: "/v1/publicSafety/campuses",
         method: "POST",
         body: campus,
       }),
     }),
-    updateCampus: builder.mutation<any, { id: string; campus: Partial<any> }>({
+    updateCampuses: builder.mutation<ICampus, { id: number; campus: string }>({
       query: ({ id, campus }) => ({
-        url: `/v1/publicSafety/campus/${id}`,
+        url: `/v1/publicSafety/campuses/${id}`,
         method: "PUT",
         body: campus,
       }),
     }),
-    deleteCampus: builder.mutation<void, string>({
+    deleteCampuses: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/campus/${id}`,
+        url: `/v1/publicSafety/campuses/${id}`,
         method: "DELETE",
       }),
     }),
@@ -41,7 +46,7 @@ export const campusAPI = baseAPI.injectEndpoints({
 export const {
   useFetchCampusesQuery,
   useFetchCampusByIdQuery,
-  useCreateCampusMutation,
-  useUpdateCampusMutation,
-  useDeleteCampusMutation,
+  useCreateCampusesMutation,
+  useUpdateCampusesMutation,
+  useDeleteCampusesMutation,
 } = campusAPI;

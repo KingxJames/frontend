@@ -1,38 +1,40 @@
 import { baseAPI } from "./baseAPI";
+import { IBuilding } from "../features/buildingSlice";
 
 export const buildingsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchBuildings: builder.query<any[], void>({
+    fetchBuildings: builder.query<IBuilding[], void>({
       query: () => ({
         url: "/v1/publicSafety/buildings",
         method: "GET",
       }),
-      transformResponse: (response: { data: any[] }) => response.data,
+      transformResponse: (response: { data: IBuilding[] }) => {
+        console.log("API Response:", response); // Log full response
+        console.log("Transformed Data:", response.data); // Log extracted data
+        return response.data;
+      },
     }),
-    fetchBuildingById: builder.query<any, string>({
+    fetchBuildingById: builder.query<IBuilding, number>({
       query: (id) => ({
         url: `/v1/publicSafety/buildings/${id}`,
         method: "GET",
       }),
     }),
-    createBuilding: builder.mutation<any, Partial<any>>({
-      query: (building) => ({
+    createBuildings: builder.mutation<IBuilding, Partial<IBuilding>>({
+      query: (name) => ({
         url: "/v1/publicSafety/buildings",
         method: "POST",
-        body: building,
+        body: name,
       }),
     }),
-    updateBuilding: builder.mutation<
-      any,
-      { id: string; building: Partial<any> }
-    >({
-      query: ({ id, building }) => ({
+    updateBuildings: builder.mutation<IBuilding, { id: number; name: string; location: string; campusId: number }>({
+      query: ({ id, name, location, campusId }) => ({
         url: `/v1/publicSafety/buildings/${id}`,
         method: "PUT",
-        body: building,
+        body: { name, location, campusId },
       }),
     }),
-    deleteBuilding: builder.mutation<void, string>({
+    deleteBuildings: builder.mutation<void, string>({
       query: (id) => ({
         url: `/v1/publicSafety/buildings/${id}`,
         method: "DELETE",
@@ -44,7 +46,7 @@ export const buildingsAPI = baseAPI.injectEndpoints({
 export const {
   useFetchBuildingsQuery,
   useFetchBuildingByIdQuery,
-  useCreateBuildingMutation,
-  useUpdateBuildingMutation,
-  useDeleteBuildingMutation,
+  useCreateBuildingsMutation,
+  useUpdateBuildingsMutation,
+  useDeleteBuildingsMutation,
 } = buildingsAPI;
