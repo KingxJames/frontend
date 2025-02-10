@@ -15,6 +15,8 @@ import departmentsReducers from "./features/departmentSlice";
 import incidentStatusesReducer from "./features/incidentStatusSlice";
 import incidentTypesReducer from "./features/incidentTypeSlice";
 import messageCategoryReducer from "./features/messageCategoriesSlice";
+import departmentMemberReducer from "./features/departmentMemberSlice";
+import incidentFileReducer from "./features/incidentFileSlice";
 import usersReducer from "./features/userSlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
@@ -45,6 +47,8 @@ export const store = configureStore({
     incidentTypes: incidentTypesReducer,
     messageCategory: messageCategoryReducer,
     users: usersReducer,
+    departmentMembers: departmentMemberReducer,
+    incidentFiles: incidentFileReducer,
     [baseAPI.reducerPath]: baseAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>

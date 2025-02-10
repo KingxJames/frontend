@@ -15,7 +15,7 @@ const initialState: CampusInitialState = {
 };
 
 const campusSlice = createSlice({
-  name: "campus",
+  name: "campuses",
   initialState,
   reducers: {
     setCampuses: (state, action: PayloadAction<ICampus[]>) => {

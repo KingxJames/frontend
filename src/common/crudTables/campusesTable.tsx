@@ -54,10 +54,10 @@ export const CampusesTable: React.FC = () => {
 
   // Filter campuses based on search query
   const filteredCampuses = Array.isArray(campuses?.campus)
-  ? campuses.campus.filter((campus) =>
-      campus?.campus?.toLowerCase().includes(search.toLowerCase())
-    )
-  : [];
+    ? campuses.campus.filter((campus) =>
+        campus?.campus?.toLowerCase().includes(search.toLowerCase())
+      )
+    : [];
 
   // Handle delete
   const handleDelete = async (id: number) => {
@@ -108,9 +108,7 @@ export const CampusesTable: React.FC = () => {
   };
 
   // Handle edit campus - open dialog
-  const handleEdit = (campus: { 
-    id: number; campus: string 
-}) => {
+  const handleEdit = (campus: { id: number; campus: string }) => {
     if (!campus) return;
     setSelectedCampus(campus); // Ensure selectedCampus is set
     setOpenEdit(true);
@@ -121,13 +119,13 @@ export const CampusesTable: React.FC = () => {
       alert("The campus field is required.");
       return;
     }
-  
+
     try {
       const updatedCampus = await updateCampus({
         id: selectedCampus.id,
         campus: selectedCampus.campus,
       }).unwrap();
-  
+
       dispatch(updateCampuses(updatedCampus));
       setOpenEdit(false);
       setSelectedCampus(null);

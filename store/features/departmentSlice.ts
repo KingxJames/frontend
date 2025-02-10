@@ -3,8 +3,7 @@ import { RootState } from "../store";
 
 export interface IDepartment {
   id: number;
-  name: string;
-  message_id: number;
+  departments: string;
 }
 
 export interface DepartmentInitialState {

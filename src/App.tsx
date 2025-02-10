@@ -12,17 +12,17 @@ import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
 import UBMessenger from "./components/UBMessenger/UBMessenger";
 import {
   AccessRightsTable,
-  DepartmentMembersTable,
-  DepartmentsTable,
-  IncidentFilesTable,
   IncidentReportsTable,
   IncidentStatusesTable,
   IncidentTypesTable,
   UsersTable,
 } from "./common/crudTables/crudTables";
 
-import { CampusesTable } from "./common/crudTables/campusesTable"
-import { BuildingsTable } from "./common/crudTables/buildingsTable"
+import { IncidentFilesTable } from "./common/crudTables/incidentFilesTable";
+import { DepartmentsTable } from "./common/crudTables/departmentsTable";
+import { DepartmentMembersTable } from "./common/crudTables/departmentMembersTable";
+import { CampusesTable } from "./common/crudTables/campusesTable";
+import { BuildingsTable } from "./common/crudTables/buildingsTable";
 import { RolesTable } from "./common/crudTables/roleTable";
 
 const App: React.FC = () => {
