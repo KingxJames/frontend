@@ -12,12 +12,13 @@ import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
 import UBMessenger from "./components/UBMessenger/UBMessenger";
 import {
   AccessRightsTable,
-  IncidentReportsTable,
   IncidentStatusesTable,
   IncidentTypesTable,
   UsersTable,
 } from "./common/crudTables/crudTables";
 
+
+import { IncidentReportTable } from "./common/crudTables/incidentReportsTable";
 import { IncidentFilesTable } from "./common/crudTables/incidentFilesTable";
 import { DepartmentsTable } from "./common/crudTables/departmentsTable";
 import { DepartmentMembersTable } from "./common/crudTables/departmentMembersTable";
@@ -70,7 +71,7 @@ const App: React.FC = () => {
                 <Route path="/incidentFiles" element={<IncidentFilesTable />} />
                 <Route
                   path="/incidentReports"
-                  element={<IncidentReportsTable />}
+                  element={<IncidentReportTable />}
                 />
                 <Route
                   path="/incidentStatuses"

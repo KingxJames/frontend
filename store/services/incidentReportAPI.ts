@@ -1,58 +1,113 @@
 import { baseAPI } from "./baseAPI";
+import { IIncidentReport } from "../features/incidentReportSlice";
 
-export const incidentFilesAPI = baseAPI.injectEndpoints({
+export const incidentReportAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchIncidentFiles: builder.query<any[], void>({
+    fetchIncidentReport: builder.query<IIncidentReport[], void>({
       query: () => ({
-        url: "/v1/publicSafety/incidentFiles",
+        url: "/v1/publicSafety/incidentReports",
         method: "GET",
       }),
-      transformResponse: (response: { data: any[] }) => response.data,
+      transformResponse: (response: { data: IIncidentReport[] }) => {
+        console.log("API Response:", response); // Log full response
+        console.log("Transformed Data:", response.data); // Log extracted data
+        return response.data;
+      },
     }),
-    fetchIncidentFileById: builder.query<any, string>({
+    fetchIncidentReportById: builder.query<IIncidentReport, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/incidentFiles/${id}`,
+        url: `/v1/publicSafety/incidentReports/${id}`,
         method: "GET",
       }),
     }),
-    createIncidentFile: builder.mutation<any, Partial<any>>({
+    createIncidentReport: builder.mutation<
+      IIncidentReport,
+      Partial<IIncidentReport>
+    >({
       query: (incidentFile) => ({
-        url: "/v1/publicSafety/incidentFiles",
+        url: "/v1/publicSafety/incidentReports",
         method: "POST",
         body: incidentFile,
       }),
     }),
-    updateIncidentFile: builder.mutation<
-      any,
-      { id: string; incidentFile: Partial<any> }
+    updateIncidentReport: builder.mutation<
+      IIncidentReport,
+      {
+        id: number;
+        report: string;
+        disposition: string;
+        caseNumber: string;
+        action: string;
+        location: string;
+        uploadedBy: string;
+        frequency: string;
+        incidentReoccured: string;
+        incidentFileId: number;
+        incidentStatusId: number;
+        userId: number;
+        campusId: number;
+        buildingId: number;
+        incidentTypeId: number;
+      }
     >({
-      query: ({ id, incidentFile }) => ({
-        url: `/v1/publicSafety/incidentFiles/${id}`,
+      query: ({
+        id,
+        report,
+        disposition,
+        caseNumber,
+        action,
+        location,
+        uploadedBy,
+        frequency,
+        incidentReoccured,
+        incidentFileId,
+        incidentStatusId,
+        userId,
+        campusId,
+        buildingId,
+        incidentTypeId,
+      }) => ({
+        url: `/v1/publicSafety/incidentReports/${id}`,
         method: "PUT",
-        body: incidentFile,
+        body: {
+          report,
+          disposition,
+          caseNumber,
+          action,
+          location,
+          uploadedBy,
+          frequency,
+          incidentReoccured,
+          incidentFileId,
+          incidentStatusId,
+          userId,
+          campusId,
+          buildingId,
+          incidentTypeId,
+        },
       }),
     }),
-    deleteIncidentFile: builder.mutation<void, string>({
+    deleteIncidentReport: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/incidentFiles/${id}`,
+        url: `/v1/publicSafety/incidentReports/${id}`,
         method: "DELETE",
       }),
     }),
-      incidnetReportTotal: builder.query<any, void>({
-        query: () => ({
-          url: "/v1/publicSafety/incidentFilesTotal",
-          method: "GET",
-        }),
-        transformResponse: (response: { data: any }) => response.data,
+    incidnetReportTotal: builder.query<IIncidentReport, void>({
+      query: () => ({
+        url: "/v1/publicSafety/incidentReportTotal",
+        method: "GET",
+      }),
+      transformResponse: (response: { data: IIncidentReport }) => response.data,
     }),
   }),
 });
 
 export const {
-  useFetchIncidentFilesQuery,
-  useFetchIncidentFileByIdQuery,
-  useCreateIncidentFileMutation,
-  useUpdateIncidentFileMutation,
-  useDeleteIncidentFileMutation,
-  useIncidnetReportTotalQuery
-} = incidentFilesAPI;
+  useFetchIncidentReportQuery,
+  useFetchIncidentReportByIdQuery,
+  useCreateIncidentReportMutation,
+  useUpdateIncidentReportMutation,
+  useDeleteIncidentReportMutation,
+  useIncidnetReportTotalQuery,
+} = incidentReportAPI;
