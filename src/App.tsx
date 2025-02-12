@@ -12,12 +12,11 @@ import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
 import UBMessenger from "./components/UBMessenger/UBMessenger";
 import {
   AccessRightsTable,
-  IncidentStatusesTable,
-  IncidentTypesTable,
-  UsersTable,
 } from "./common/crudTables/crudTables";
 
-
+import { UsersTable } from "./common/crudTables/usersTable";
+import { IncidentTypesTable } from "./common/crudTables/incidentTypesTable";
+import { IncidentStatusesTable } from "./common/crudTables/incidentStatusesTable";
 import { IncidentReportTable } from "./common/crudTables/incidentReportsTable";
 import { IncidentFilesTable } from "./common/crudTables/incidentFilesTable";
 import { DepartmentsTable } from "./common/crudTables/departmentsTable";

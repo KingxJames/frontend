@@ -1,32 +1,75 @@
 import { baseAPI } from "./baseAPI";
+import { IUser } from "../features/userSlice";
 
 export const userAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchUser: builder.query<any[], void>({
+    fetchUser: builder.query<IUser[], void>({
       query: () => ({
         url: "/v1/publicSafety/users",
         method: "GET",
       }),
-      transformResponse: (response: { data: any[] }) => response.data,
+      transformResponse: (response: { data: IUser[] }) => {
+        console.log("API Response:", response); // Log full response
+        console.log("Transformed Data:", response.data); // Log extracted data
+        return response.data;
+      },
     }),
-    fetchUserById: builder.query<any, string>({
+    fetchUserById: builder.query<IUser, string>({
       query: (id) => ({
         url: `/v1/publicSafety/users/${id}`,
         method: "GET",
       }),
     }),
-    createUser: builder.mutation<any, Partial<any>>({
+    createUser: builder.mutation<IUser, Partial<IUser>>({
       query: (user) => ({
         url: "/v1/publicSafety/users",
         method: "POST",
         body: user,
       }),
     }),
-    updateUser: builder.mutation<any, { id: string; user: Partial<any> }>({
-      query: ({ id, user }) => ({
+    updateUser: builder.mutation<
+      IUser,
+      {
+        id: number;
+        name: string;
+        username: string;
+        email: string;
+        phoneNo: string;
+        organization: string;
+        picture: string;
+        domain: string;
+        password: string;
+        roleId: number;
+        senderId: number;
+      }
+    >({
+      query: ({
+        id,
+        name,
+        email,
+        username,
+        phoneNo,
+        organization,
+        picture,
+        domain,
+        password,
+        roleId,
+        senderId,
+      }) => ({
         url: `/v1/publicSafety/users/${id}`,
         method: "PUT",
-        body: user,
+        body: {
+          name,
+          username,
+          email,
+          phoneNo,
+          organization,
+          picture,
+          domain,
+          password,
+          roleId,
+          senderId,
+        },
       }),
     }),
     deleteUser: builder.mutation<void, string>({
@@ -35,12 +78,12 @@ export const userAPI = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
     }),
-    usersTotal: builder.query<any, void>({
+    usersTotal: builder.query<IUser, void>({
       query: () => ({
         url: "/v1/publicSafety/usersTotal",
         method: "GET",
       }),
-      transformResponse: (response: { data: any }) => response.data,
+      transformResponse: (response: { data: IUser }) => response.data,
     }),
   }),
 });

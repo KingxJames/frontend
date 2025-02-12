@@ -105,34 +105,50 @@ export const IncidentReportTable: React.FC = () => {
     }
   };
 
-  // Handle export to CSV
   const handleExport = () => {
+    const csvHeaders = [
+      "ID",
+      "report",
+      "disposition",
+      "caseNumber",
+      "action",
+      "location",
+      "uploadedBy",
+      "frequency",
+      "incidentReoccured",
+      "incidentFileId",
+      "incidentStatusId",
+      "userId",
+      "campusId",
+      "buildingId",
+      "incidentTypeId",
+    ];
+
+    const csvRows = incidentReports.incidentReports.map((incidentReport) =>
+      [
+        incidentReport.id,
+        incidentReport.report,
+        incidentReport.disposition,
+        incidentReport.caseNumber,
+        incidentReport.action,
+        incidentReport.location,
+        incidentReport.uploadedBy,
+        incidentReport.frequency,
+        incidentReport.incidentReoccured,
+        incidentReport.incidentFileId,
+        incidentReport.incidentStatusId,
+        incidentReport.userId,
+        incidentReport.campusId,
+        incidentReport.buildingId,
+        incidentReport.incidentTypeId,
+      ]
+        .map((field) => `"${String(field).replace(/"/g, '""')}"`) // Ensure proper CSV formatting
+        .join(",")
+    );
+
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      [
-        "ID,report,disposition,caseNumber,action,location,uploadedBy,frequency,incidentReoccured,incidentFileId,incidentStatusId,userId,campusId,buildingId,incidentTypeId",
-      ]
-        .concat(
-          incidentReports.incidentReports.map(
-            (incidentReport) =>
-              `${incidentReport.id}, 
-            ${incidentReport.report}, 
-            ${incidentReport.disposition}, 
-            ${incidentReport.caseNumber}, 
-            ${incidentReport.action}, 
-            ${incidentReport.location}, 
-            ${incidentReport.uploadedBy}, 
-            ${incidentReport.frequency}, 
-            ${incidentReport.incidentReoccured}, 
-            ${incidentReport.incidentFileId}, 
-            ${incidentReport.incidentStatusId}, 
-            ${incidentReport.userId}, 
-            ${incidentReport.campusId}, 
-            ${incidentReport.buildingId}, 
-            ${incidentReport.incidentTypeId}`
-          )
-        )
-        .join("\n");
+      [csvHeaders.join(","), ...csvRows].join("\n");
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -140,6 +156,7 @@ export const IncidentReportTable: React.FC = () => {
     link.setAttribute("download", "incidentReports.csv");
     document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link); // Cleanup
   };
 
   const handleAddIncidentReport = async () => {

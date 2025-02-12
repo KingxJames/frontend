@@ -1,47 +1,55 @@
-import { baseAPI } from './baseAPI';
+import { baseAPI } from "./baseAPI";
+import { IIncidentStatus } from "../features/incidentStatusSlice";
 
 export const incidentStatusAPI = baseAPI.injectEndpoints({
-    endpoints: (builder) => ({
-        fetchIncidentStatuses: builder.query<any[], void>({
-            query: () => ({
-                url: '/v1/publicSafety/incidentStatuses',
-                method: 'GET'
-            }),
-            transformResponse: (response: { data: any[] }) => response.data
-        }),
-        fetchIncidentStatusById: builder.query<any, string>({
-            query: (id) => ({
-                url: `/v1/publicSafety/incidentStatuses/${id}`,
-                method: 'GET'
-            })
-        }),
-        createIncidentStatus: builder.mutation<any, Partial<any>>({
-            query: (incidentStatus) => ({
-                url: '/v1/publicSafety/incidentStatuses',
-                method: 'POST',
-                body: incidentStatus
-            })
-        }),
-        updateIncidentStatus: builder.mutation<any, { id: string; incidentStatus: Partial<any> }>({
-            query: ({ id, incidentStatus }) => ({
-                url: `/v1/publicSafety/incidentStatuses/${id}`,
-                method: 'PUT',
-                body: incidentStatus
-            })
-        }),
-        deleteIncidentStatus: builder.mutation<void, string>({
-            query: (id) => ({
-                url: `/v1/publicSafety/incidentStatuses/${id}`,
-                method: 'DELETE'
-            })
-        })
-    })
+  endpoints: (builder) => ({
+    fetchIncidentStatuses: builder.query<IIncidentStatus[], void>({
+      query: () => ({
+        url: "/v1/publicSafety/incidentStatuses",
+        method: "GET",
+      }),
+      transformResponse: (response: { data: IIncidentStatus[] }) => {
+        console.log("API Response:", response); // Log full response
+        console.log("Transformed Data:", response.data); // Log extracted data
+        return response.data;
+      },
+    }),
+    fetchIncidentStatusById: builder.query<IIncidentStatus, string>({
+      query: (id) => ({
+        url: `/v1/publicSafety/incidentStatuses/${id}`,
+        method: "GET",
+      }),
+    }),
+    createIncidentStatus: builder.mutation<
+      IIncidentStatus,
+      Partial<IIncidentStatus>
+    >({
+      query: (incidentStatus) => ({
+        url: "/v1/publicSafety/incidentStatuses",
+        method: "POST",
+        body: incidentStatus,
+      }),
+    }),
+    updateIncidentStatus: builder.mutation<IIncidentStatus,{ id: number; statuses: string }>({
+      query: ({ id, statuses }) => ({
+        url: `/v1/publicSafety/incidentStatuses/${id}`,
+        method: "PUT",
+        body: { statuses },
+      }),
+    }),
+    deleteIncidentStatus: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/v1/publicSafety/incidentStatuses/${id}`,
+        method: "DELETE",
+      }),
+    }),
+  }),
 });
 
 export const {
-    useFetchIncidentStatusesQuery,
-    useFetchIncidentStatusByIdQuery,
-    useCreateIncidentStatusMutation,
-    useUpdateIncidentStatusMutation,
-    useDeleteIncidentStatusMutation
+  useFetchIncidentStatusesQuery,
+  useFetchIncidentStatusByIdQuery,
+  useCreateIncidentStatusMutation,
+  useUpdateIncidentStatusMutation,
+  useDeleteIncidentStatusMutation,
 } = incidentStatusAPI;

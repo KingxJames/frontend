@@ -4,7 +4,7 @@ import { RootState } from "../store";
 export interface IIncidentType {
   id: number;
   icon: string;
-  name: string;
+  type: string;
   message: string;
 }
 

@@ -1,35 +1,42 @@
 import { baseAPI } from "./baseAPI";
+import { IIncidentType } from "../features/incidentTypeSlice";
 
 export const incidentTypesAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchIncidentTypes: builder.query<any[], void>({
+    fetchIncidentTypes: builder.query<IIncidentType[], void>({
       query: () => ({
         url: "/v1/publicSafety/incidentTypes",
         method: "GET",
       }),
-      transformResponse: (response: { data: any[] }) => response.data,
+      transformResponse: (response: { data: IIncidentType[] }) => {
+        console.log("API Response:", response); // Log full response
+        console.log("Transformed Data:", response.data); // Log extracted data
+        return response.data;
+      },
     }),
-    fetchIncidentTypeById: builder.query<any, string>({
+    fetchIncidentTypeById: builder.query<IIncidentType, string>({
       query: (id) => ({
         url: `/v1/publicSafety/incidentTypes/${id}`,
         method: "GET",
       }),
     }),
-    createIncidentType: builder.mutation<any, Partial<any>>({
-      query: (incidentType) => ({
-        url: "/v1/publicSafety/incidentTypes",
-        method: "POST",
-        body: incidentType,
-      }),
-    }),
+    createIncidentType: builder.mutation<IIncidentType, Partial<IIncidentType>>(
+      {
+        query: (incidentType) => ({
+          url: "/v1/publicSafety/incidentTypes",
+          method: "POST",
+          body: incidentType,
+        }),
+      }
+    ),
     updateIncidentType: builder.mutation<
-      any,
-      { id: string; incidentType: Partial<any> }
+      IIncidentType,
+      { id: number; type: string; icon: string; message: string }
     >({
-      query: ({ id, incidentType }) => ({
+      query: ({ id, type, icon, message }) => ({
         url: `/v1/publicSafety/incidentTypes/${id}`,
         method: "PUT",
-        body: incidentType,
+        body: { type, icon, message },
       }),
     }),
     deleteIncidentType: builder.mutation<void, string>({

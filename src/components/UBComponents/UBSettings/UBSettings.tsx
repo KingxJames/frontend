@@ -22,6 +22,12 @@ export const UBSettings: React.FC = () => {
       "Incident Types": "/incidentTypes",
       "Roles": "/roles",
       "Users": "/users",
+      "Menus": "/menus",
+      "Menu Roles": "/menuRoles",
+      "Message Categories": "/messageCategories",
+      "Recipients": "/recipients",
+      "Submenus": "/submenus",
+      "User Campuses": "/userCampuses"
     };
   
     if (routes[text]) {
@@ -43,6 +49,13 @@ export const UBSettings: React.FC = () => {
           "Incident Types",
           "Roles",
           "Users",
+          "Menus",
+          "Menu Roles",
+          "Message Categories",
+          "Recipients",
+          "Submenus",
+          "User Campuses",
+          "User Statuses"
         ].map((text, index) => (
           <Grid item xs={4} key={index} sx={{ display: "flex", justifyContent: "left" }}>
             <UBButton text={text} onClick={() => handleShowTable(text)}/>

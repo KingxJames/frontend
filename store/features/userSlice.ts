@@ -6,10 +6,13 @@ export interface IUser {
   name: string;
   username: string;
   email: string;
-  work_email: string;
-  phone_no: string;
+  phoneNo: string;
   organization: string;
   picture: string;
+  domain: string;
+  password: string;
+  roleId: number;
+  senderId: number;
 }
 
 export interface UserInitialState {
