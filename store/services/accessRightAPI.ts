@@ -24,12 +24,12 @@ export const accessRightAPI = baseAPI.injectEndpoints({
         }),
         updateAccessRight: builder.mutation<
         any,
-        { id: string; accessRight: Partial<any> }
+        { id: number; description: string; roleId: number; }
         >({
-        query: ({ id, accessRight }) => ({
+        query: ({ id, description, roleId}) => ({
             url: `/v1/publicSafety/accessRights/${id}`,
             method: "PUT",
-            body: accessRight,
+            body: { description, roleId },
         }),
         }),
         deleteAccessRight: builder.mutation<void, string>({

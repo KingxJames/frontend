@@ -15,66 +15,62 @@ import AddIcon from "@mui/icons-material/Add";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  useFetchAccessRightsQuery,
-  useCreateAccessRightMutation,
-  useDeleteAccessRightMutation,
-  useUpdateAccessRightMutation,
-} from "./../../../store/services/accessRightAPI";
+  useFetchMenusQuery,
+  useCreateMenuMutation,
+  useDeleteMenuMutation,
+  useUpdateMenuMutation,
+} from "./../../../store/services/menuAPI";
 import {
-  setAccessRights,
-  updateAccessRights,
-  addAccessRights,
-  deleteAccessRights,
-  selectAccessRights,
-} from "./../../../store/features/accessRightSlice";
+  setMenus,
+  updateMenus,
+  addMenus,
+  deleteMenus,
+  selectMenus,
+} from "./../../../store/features/menuSlice";
 
-export const AccessRightsTable: React.FC = () => {
+export const MenuTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: accessRightData } = useFetchAccessRightsQuery();
-  const [createAccessRight] = useCreateAccessRightMutation();
-  const [deleteAccessRight] = useDeleteAccessRightMutation();
-  const [updateAccessRight] = useUpdateAccessRightMutation();
-  const accessRights = useSelector(selectAccessRights);
+  const { data: menusData } = useFetchMenusQuery();
+  const [createMenu] = useCreateMenuMutation();
+  const [deleteMenu] = useDeleteMenuMutation();
+  const [updateMenu] = useUpdateMenuMutation();
+  const menus = useSelector(selectMenus);
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [newAccessRight, setNewAccessRight] = useState({
-    description: "",
-    roleId: 0,
-  });
-  const [selectedAccessRight, setSelectedAccessRight] = useState<{
+  const [newMenu, setNewMenu] = useState({ name: "", icon: "", path: "" });
+  const [selectedMenu, setSelectedMenu] = useState<{
     id: number;
-    description: string;
-    roleId: number;
+    name: string;
+    icon: string;
+    path: string;
   } | null>(null);
 
   // Fetch roles when component mounts
   useEffect(() => {
-    if (accessRightData) {
-      dispatch(setAccessRights(accessRightData)); // Store roles in Redux
+    if (menusData) {
+      dispatch(setMenus(menusData)); // Store roles in Redux
     }
-  }, [accessRightData, dispatch]);
+  }, [menusData, dispatch]);
 
   // Filter roles based on search query
-  const filteredAccessRights = accessRights.accessRights
-    ? accessRights.accessRights.filter((accessRight) =>
-        accessRight.description?.toLowerCase().includes(search.toLowerCase())
+  const filteredMenus = menus.menus
+    ? menus.menus.filter((menu) =>
+        menu.name?.toLowerCase().includes(search.toLowerCase())
       )
     : [];
 
   // Handle delete
   const handleDelete = async (id: number) => {
     try {
-      const accessRightToDelete = accessRights.accessRights.find(
-        (accessRight) => accessRight.id === id
-      );
-      if (accessRightToDelete) {
-        await deleteAccessRight(accessRightToDelete.id.toString()).unwrap(); // Call the delete mutation
-        dispatch(deleteAccessRights(accessRightToDelete.id)); // Update Redux store
+      const menuToDelete = menus.menus.find((menu) => menu.id === id);
+      if (menuToDelete) {
+        await deleteMenu(menuToDelete.id.toString()).unwrap(); // Call the delete mutation
+        dispatch(deleteMenus(menuToDelete.id)); // Update Redux store
       }
     } catch (error) {
-      console.error("Error deleting role:", error);
+      console.error("Error deleting Menu:", error);
     }
   };
 
@@ -82,11 +78,10 @@ export const AccessRightsTable: React.FC = () => {
   const handleExport = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      ["ID,Description,Role ID"]
+      ["ID,name,icon,path"]
         .concat(
-          accessRights.accessRights.map(
-            (accessRight) =>
-              `${accessRight.id},${accessRight.description}, ${accessRight.roleId}`
+          menus.menus.map(
+            (menu) => `${menu.id},${menu.name},${menu.icon},${menu.path}`
           )
         )
         .join("\n");
@@ -94,72 +89,77 @@ export const AccessRightsTable: React.FC = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "accessRight.csv");
+    link.setAttribute("download", "menu.csv");
     document.body.appendChild(link);
     link.click();
   };
 
   // Handle add new role
-  const handleAddAccessRight = async () => {
+  const handleAddMenu = async () => {
     try {
-      const response = await createAccessRight({
-        description: newAccessRight.description,
-        roleId: newAccessRight.roleId,
+      const response = await createMenu({
+        name: newMenu.name,
+        icon: newMenu.icon,
+        path: newMenu.path,
       }).unwrap();
 
       if (response) {
-        dispatch(addAccessRights(response)); // Update Redux store with the newly created role
-        setNewAccessRight({ description: "", roleId: 0 });
+        dispatch(addMenus(response)); // Update Redux store with the newly created role
+        setNewMenu({ name: "", icon: "", path: "" });
         setOpenAdd(false);
       }
     } catch (error) {
-      console.error("Error adding accessRight:", error);
+      console.error("Error adding menu:", error);
     }
   };
 
   // Handle edit role - open dialog
-  const handleEdit = (accessRight: {
+  const handleEdit = (menu: {
     id: number;
-    description: string;
-    roleId: number;
+    name: string;
+    icon: string;
+    path: string;
   }) => {
-    if (!accessRight) return;
-    setSelectedAccessRight(accessRight); // Ensure selectedRole is set
+    if (!menu) return;
+    setSelectedMenu(menu); // Ensure selectedRole is set
     setOpenEdit(true);
   };
 
-  const handleUpdateAccessRight = async () => {
+  const handleUpdateMenu = async () => {
     if (
-      !selectedAccessRight ||
-      !selectedAccessRight.description.trim() ||
-      !selectedAccessRight.roleId
+      !selectedMenu ||
+      !selectedMenu.name.trim() ||
+      !selectedMenu.icon.trim() ||
+      !selectedMenu.path.trim()
     ) {
-      alert("Both RoleId and Description fields are required.");
+      alert("Both name, icon, and path fields are required.");
       return;
     }
 
     try {
       // Call the updateRole mutation
-      const updatedAccessRight = await updateAccessRight({
-        id: selectedAccessRight.id,
-        description: selectedAccessRight.description,
-        roleId: selectedAccessRight.roleId,
+      const updatedMenu = await updateMenu({
+        id: selectedMenu.id,
+        name: selectedMenu.name,
+        icon: selectedMenu.icon,
+        path: selectedMenu.path,
       }).unwrap();
 
       // Update Redux store with the updated role
-      dispatch(updateAccessRights(updatedAccessRight));
+      dispatch(updateMenus(updatedMenu));
 
       // Close the dialog and reset selectedRole
       setOpenEdit(false);
-      setSelectedAccessRight(null);
+      setSelectedMenu(null);
     } catch (error) {
-      console.error("Error updating Access Right:", error);
+      console.error("Error updating menu:", error);
     }
   };
 
   const columns: GridColDef[] = [
-    { field: "description", headerName: "Description", flex: 2 },
-    { field: "roleId", headerName: "Role ID", flex: 2 },
+    { field: "name", headerName: "Name", flex: 1 },
+    { field: "icon", headerName: "Icon", flex: 1 },
+    { field: "path", headerName: "Path", flex: 2 },
     {
       field: "actions",
       headerName: "Actions",
@@ -167,8 +167,9 @@ export const AccessRightsTable: React.FC = () => {
       renderCell: (params) => {
         const row = params.row as {
           id: number;
-          description: string;
-          roleId: number;
+          name: string;
+          icon: string;
+          path: string;
         };
         return (
           <div>
@@ -199,7 +200,7 @@ export const AccessRightsTable: React.FC = () => {
         }}
       >
         <TextField
-          label="Search Access Right"
+          label="Search Menu"
           variant="outlined"
           size="small"
           value={search}
@@ -214,7 +215,7 @@ export const AccessRightsTable: React.FC = () => {
             onClick={() => setOpenAdd(true)}
             sx={{ marginRight: 2 }} // Adds spacing to the right
           >
-            Add Access Right
+            Add Menu
           </Button>
           <Button
             variant="contained"
@@ -229,7 +230,7 @@ export const AccessRightsTable: React.FC = () => {
 
       {/* Data Grid */}
       <DataGrid
-        rows={filteredAccessRights}
+        rows={filteredMenus}
         columns={columns}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10]}
@@ -238,41 +239,39 @@ export const AccessRightsTable: React.FC = () => {
 
       {/* Add Role Dialog */}
       <Dialog open={openAdd} onClose={() => setOpenAdd(false)}>
-        <DialogTitle>Add New Access Right</DialogTitle>
+        <DialogTitle>Add New Menu</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="Access Right "
+            label="Menu Name"
             fullWidth
             variant="outlined"
-            value={newAccessRight.description}
-            onChange={(e) =>
-              setNewAccessRight({
-                ...newAccessRight,
-                description: e.target.value,
-              })
-            }
+            value={newMenu.name}
+            onChange={(e) => setNewMenu({ ...newMenu, name: e.target.value })}
           />
           <TextField
             margin="dense"
-            label="Description"
+            label="Icon"
             fullWidth
             variant="outlined"
-            value={newAccessRight.roleId}
-            onChange={(e) =>
-              setNewAccessRight({
-                ...newAccessRight,
-                roleId: Number(e.target.value),
-              })
-            }
+            value={newMenu.icon}
+            onChange={(e) => setNewMenu({ ...newMenu, icon: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Path"
+            fullWidth
+            variant="outlined"
+            value={newMenu.path}
+            onChange={(e) => setNewMenu({ ...newMenu, path: e.target.value })}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenAdd(false)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleAddAccessRight} color="primary">
+          <Button onClick={handleAddMenu} color="primary">
             Add
           </Button>
         </DialogActions>
@@ -280,34 +279,48 @@ export const AccessRightsTable: React.FC = () => {
 
       {/* Edit Role Dialog */}
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
-        <DialogTitle>Edit Access Right</DialogTitle>
+        <DialogTitle>Edit Menu</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="Access Right"
+            label="Menu Name"
             fullWidth
             variant="outlined"
-            value={selectedAccessRight?.description || ""}
+            value={selectedMenu?.name || ""}
             onChange={(e) =>
-              setSelectedAccessRight((prev) =>
+              setSelectedMenu((prev) =>
                 prev
-                  ? { ...prev, description: e.target.value }
-                  : { id: 0, description: e.target.value, roleId: 0 }
+                  ? { ...prev, name: e.target.value }
+                  : { id: 0, name: e.target.value, icon: "", path: "" }
+              )     
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Icon"
+            fullWidth
+            variant="outlined"
+            value={selectedMenu?.icon || ""}
+            onChange={(e) =>
+              setSelectedMenu((prev) =>
+                prev
+                  ? { ...prev, icon: e.target.value }
+                  : { id: 0, name: "", icon: e.target.value, path: "" }
               )
             }
           />
           <TextField
             margin="dense"
-            label="Role ID"
+            label="Path"
             fullWidth
             variant="outlined"
-            value={selectedAccessRight?.roleId || 0}
+            value={selectedMenu?.path || ""}            
             onChange={(e) =>
-              setSelectedAccessRight((prev) =>
+              setSelectedMenu((prev) =>
                 prev
-                  ? { ...prev, roleId: Number(e.target.value) }
-                  : { id: 0, description: "", roleId: Number(e.target.value) }
+                  ? { ...prev, path: e.target.value }
+                  : { id: 0, name: "", icon: "", path: e.target.value }
               )
             }
           />
@@ -316,13 +329,16 @@ export const AccessRightsTable: React.FC = () => {
           <Button onClick={() => setOpenEdit(false)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleUpdateAccessRight} color="primary">
+          <Button onClick={handleUpdateMenu} color="primary">
             Save Changes
           </Button>
         </DialogActions>
       </Dialog>
     </div>
   );
+
+
 };
 
-export default AccessRightsTable;
+
+export default MenuTable;

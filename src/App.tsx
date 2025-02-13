@@ -10,10 +10,9 @@ import { AnonymousTips } from "./pages/Messages/AnonymousTips/AnonymousTips";
 import { Emergencies } from "./pages/Messages/Emergencies/Emergencies";
 import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
 import UBMessenger from "./components/UBMessenger/UBMessenger";
-import {
-  AccessRightsTable,
-} from "./common/crudTables/crudTables";
 
+import { MenuTable } from "./common/crudTables/menuTable";
+import { AccessRightsTable } from "./common/crudTables/accessRightsTable";
 import { UsersTable } from "./common/crudTables/usersTable";
 import { IncidentTypesTable } from "./common/crudTables/incidentTypesTable";
 import { IncidentStatusesTable } from "./common/crudTables/incidentStatusesTable";
@@ -76,6 +75,7 @@ const App: React.FC = () => {
                   path="/incidentStatuses"
                   element={<IncidentStatusesTable />}
                 />
+                <Route path="/menus" element={<MenuTable />} />
               </Routes>
             </DefaultLayout>
           }

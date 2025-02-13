@@ -1,36 +1,33 @@
 import { baseAPI } from "./baseAPI";
-
+import { IRecipient } from "../features/recipientSlice";
 
 export const recipientsAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        fetchRecipients: builder.query<any[], void>({
+        fetchRecipients: builder.query<IRecipient[], void>({
         query: () => ({
             url: "/v1/publicSafety/recipients",
             method: "GET",
         }),
-        transformResponse: (response: { data: any[] }) => response.data,
+        transformResponse: (response: { data: IRecipient[] }) => response.data,
         }),
-        fetchRecipientById: builder.query<any, string>({
+        fetchRecipientById: builder.query<IRecipient, string>({
         query: (id) => ({
             url: `/v1/publicSafety/recipients/${id}`,
             method: "GET",
         }),
         }),
-        createRecipient: builder.mutation<any, Partial<any>>({
+        createRecipient: builder.mutation<IRecipient, Partial<IRecipient>>({
         query: (recipient) => ({
             url: "/v1/publicSafety/recipients",
             method: "POST",
             body: recipient,
         }),
         }),
-        updateRecipient: builder.mutation<
-        any,
-        { id: string; recipient: Partial<any> }
-        >({
-        query: ({ id, recipient }) => ({
+        updateRecipient: builder.mutation<IRecipient, { id: number; userId: number; messageId: number }>({
+        query: ({ id, userId, messageId }) => ({
             url: `/v1/publicSafety/recipients/${id}`,
             method: "PUT",
-            body: recipient,
+            body: { userId, messageId },
         }),
         }),
         deleteRecipient: builder.mutation<void, string>({

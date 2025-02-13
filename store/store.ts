@@ -20,7 +20,9 @@ import incidentFileReducer from "./features/incidentFileSlice";
 import incidentReportReducer from "./features/incidentReportSlice";
 import accessRightReducer from "./features/accessRightSlice";
 import menuRoleReducer from "./features/menuRoleSlice";
+import menuReducer from "./features/menuSlice";
 import usersReducer from "./features/userSlice";
+import recipientReducer from "./features/recipientSlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
@@ -55,6 +57,8 @@ export const store = configureStore({
     incidentReports: incidentReportReducer,
     accessRights: accessRightReducer,
     menuRoles: menuRoleReducer,
+    menus: menuReducer,
+    recipients: recipientReducer,
     [baseAPI.reducerPath]: baseAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>
