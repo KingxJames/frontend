@@ -50,7 +50,7 @@ export const store = configureStore({
     departments: departmentsReducers,
     incidentStatuses: incidentStatusesReducer,
     incidentTypes: incidentTypesReducer,
-    messageCategory: messageCategoryReducer,
+    messageCategories: messageCategoryReducer,
     users: usersReducer,
     departmentMembers: departmentMemberReducer,
     incidentFiles: incidentFileReducer,

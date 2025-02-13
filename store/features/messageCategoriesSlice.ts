@@ -7,45 +7,50 @@ export interface IMessageCategory {
 }
 
 export interface MessageCategoryInitialState {
-  messageCategory: IMessageCategory[];
+  messageCategories: IMessageCategory[];
 }
 
 const initialState: MessageCategoryInitialState = {
-  messageCategory: [],
+  messageCategories: [],
 };
 
 const messageCategorySlice = createSlice({
-  name: "messageCategory",
+  name: "messageCategories",
   initialState,
   reducers: {
-    setMessageCategory: (state, action: PayloadAction<IMessageCategory[]>) => {
-      return { ...state, messageCategory: action.payload };
+    setMessageCategories: (state, action: PayloadAction<IMessageCategory[]>) => {
+      return { ...state, messageCategories: action.payload };
     },
 
-    addMessageCategory: (state, action: PayloadAction<IMessageCategory>) => {
-      state.messageCategory.push(action.payload); 
+    addMessageCategories: (state, action: PayloadAction<IMessageCategory>) => {
+      state.messageCategories.push(action.payload);
     },
 
-    updateMessageCategory: (state, action: PayloadAction<IMessageCategory>) => {
-      const index = state.messageCategory.findIndex(
+    updateMessageCategories: (state, action: PayloadAction<IMessageCategory>) => {
+      const index = state.messageCategories.findIndex(
         (messageCategory) => messageCategory.id === action.payload.id
       );
       if (index !== -1) {
-        state.messageCategory[index] = {
-          ...state.messageCategory[index],
+        state.messageCategories[index] = {
+          ...state.messageCategories[index],
           ...action.payload,
         };
       }
     },
-    deleteMessageCategory: (state, action: PayloadAction<number>) => {
-      state.messageCategory = state.messageCategory.filter(
-        (messageCategory) => messageCategory.id !== action.payload
+    deleteMessageCategories: (state, action: PayloadAction<number>) => {
+      state.messageCategories = state.messageCategories.filter(
+        (messageCategories) => messageCategories.id !== action.payload
       );
     },
   },
 });
 
-export const { setMessageCategory, addMessageCategory, updateMessageCategory, deleteMessageCategory } =
-messageCategorySlice.actions;
-export const selectMessageCategorySlice = (state: RootState) => state.messageCategory;
+export const {
+  setMessageCategories,
+  addMessageCategories,
+  updateMessageCategories,
+  deleteMessageCategories,
+} = messageCategorySlice.actions;
+
+export const selectMessageCategories = (state: RootState) =>  state.messageCategories;
 export default messageCategorySlice.reducer;

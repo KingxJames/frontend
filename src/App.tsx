@@ -11,6 +11,8 @@ import { Emergencies } from "./pages/Messages/Emergencies/Emergencies";
 import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
 import UBMessenger from "./components/UBMessenger/UBMessenger";
 
+import { RecipientTable } from "./common/crudTables/recipientTable";
+import { MessageCategoriesTable } from "./common/crudTables/messageCategoriesTable";
 import { MenuTable } from "./common/crudTables/menuTable";
 import { AccessRightsTable } from "./common/crudTables/accessRightsTable";
 import { UsersTable } from "./common/crudTables/usersTable";
@@ -76,6 +78,11 @@ const App: React.FC = () => {
                   element={<IncidentStatusesTable />}
                 />
                 <Route path="/menus" element={<MenuTable />} />
+                <Route
+                  path="/messageCategories"
+                  element={<MessageCategoriesTable />}
+                />
+                <Route path="/recipients" element={<RecipientTable />} />
               </Routes>
             </DefaultLayout>
           }

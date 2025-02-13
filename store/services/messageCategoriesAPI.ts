@@ -1,21 +1,22 @@
 import { baseAPI } from "./baseAPI";
+import { IMessageCategory } from "../features/messageCategoriesSlice";
 
 export const messageCategoriesAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchMessageCategories: builder.query<any[], void>({
+    fetchMessageCategories: builder.query<IMessageCategory[], void>({
       query: () => ({
         url: "/v1/publicSafety/messageCategories",
         method: "GET",
       }),
-      transformResponse: (response: { data: any[] }) => response.data,
+      transformResponse: (response: { data: IMessageCategory[] }) => response.data,
     }),
-    fetchMessageCategoryById: builder.query<any, string>({
+    fetchMessageCategoryById: builder.query<IMessageCategory, string>({
       query: (id) => ({
         url: `/v1/publicSafety/messageCategories/${id}`,
         method: "GET",
       }),
     }),
-    createMessageCategory: builder.mutation<any, Partial<any>>({
+    createMessageCategory: builder.mutation<IMessageCategory, Partial<IMessageCategory>>({
       query: (messageCategory) => ({
         url: "/v1/publicSafety/messageCategories",
         method: "POST",
@@ -23,13 +24,13 @@ export const messageCategoriesAPI = baseAPI.injectEndpoints({
       }),
     }),
     updateMessageCategory: builder.mutation<
-      any,
-      { id: string; messageCategory: Partial<any> }
+      IMessageCategory,
+      { id: number; category: string }
     >({
-      query: ({ id, messageCategory }) => ({
+      query: ({ id, category }) => ({
         url: `/v1/publicSafety/messageCategories/${id}`,
         method: "PUT",
-        body: messageCategory,
+        body: category,
       }),
     }),
     deleteMessageCategory: builder.mutation<void, string>({
