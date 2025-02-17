@@ -10,7 +10,8 @@ import { AnonymousTips } from "./pages/Messages/AnonymousTips/AnonymousTips";
 import { Emergencies } from "./pages/Messages/Emergencies/Emergencies";
 import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
 import UBMessenger from "./components/UBMessenger/UBMessenger";
-
+import { UserStatusesTable } from "./common/crudTables/userStatusesTable";
+import { UserCampusTable } from "./common/crudTables/userCampusesTable";
 import { RecipientTable } from "./common/crudTables/recipientTable";
 import { MessageCategoriesTable } from "./common/crudTables/messageCategoriesTable";
 import { MenuTable } from "./common/crudTables/menuTable";
@@ -22,6 +23,7 @@ import { IncidentReportTable } from "./common/crudTables/incidentReportsTable";
 import { IncidentFilesTable } from "./common/crudTables/incidentFilesTable";
 import { DepartmentsTable } from "./common/crudTables/departmentsTable";
 import { DepartmentMembersTable } from "./common/crudTables/departmentMembersTable";
+import { SubMenusTable } from "./common/crudTables/subMenusTable";
 import { CampusesTable } from "./common/crudTables/campusesTable";
 import { BuildingsTable } from "./common/crudTables/buildingsTable";
 import { RolesTable } from "./common/crudTables/roleTable";
@@ -83,6 +85,9 @@ const App: React.FC = () => {
                   element={<MessageCategoriesTable />}
                 />
                 <Route path="/recipients" element={<RecipientTable />} />
+                <Route path="/subMenus" element={<SubMenusTable />} />
+                <Route path="/userCampuses" element={<UserCampusTable />} />
+                <Route path="/userStatuses" element={<UserStatusesTable />} />
               </Routes>
             </DefaultLayout>
           }

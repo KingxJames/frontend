@@ -1,21 +1,22 @@
 import { baseAPI } from "./baseAPI";
+import { IUserStatus } from "../features/userStatusSlice";
 
 export const userStatusAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchUserStatuses: builder.query<any[], void>({
+    fetchUserStatuses: builder.query<IUserStatus[], void>({
       query: () => ({
         url: "/v1/publicSafety/userStatuses",
         method: "GET",
       }),
-      transformResponse: (response: { data: any[] }) => response.data,
+      transformResponse: (response: { data: IUserStatus[] }) => response.data,
     }),
-    fetchUserStatusById: builder.query<any, string>({
+    fetchUserStatusById: builder.query<IUserStatus, string>({
       query: (id) => ({
         url: `/v1/publicSafety/userStatuses/${id}`,
         method: "GET",
       }),
     }),
-    createUserStatus: builder.mutation<any, Partial<any>>({
+    createUserStatus: builder.mutation<IUserStatus, Partial<IUserStatus>>({
       query: (userStatus) => ({
         url: "/v1/publicSafety/userStatuses",
         method: "POST",
@@ -23,13 +24,13 @@ export const userStatusAPI = baseAPI.injectEndpoints({
       }),
     }),
     updateUserStatus: builder.mutation<
-      any,
-      { id: string; userStatus: Partial<any> }
+      IUserStatus,
+      { id: number; userStatuses: string }
     >({
-      query: ({ id, userStatus }) => ({
+      query: ({ id, userStatuses }) => ({
         url: `/v1/publicSafety/userStatuses/${id}`,
         method: "PUT",
-        body: userStatus,
+        body: { userStatuses },
       }),
     }),
     deleteUserStatus: builder.mutation<void, string>({

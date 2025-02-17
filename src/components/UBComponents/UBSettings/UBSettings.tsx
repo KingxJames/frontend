@@ -27,7 +27,8 @@ export const UBSettings: React.FC = () => {
       "Message Categories": "/messageCategories",
       "Recipients": "/recipients",
       "Submenus": "/submenus",
-      "User Campuses": "/userCampuses"
+      "User Campuses": "/userCampuses",
+      "User Statuses": "/userStatuses"
     };
   
     if (routes[text]) {

@@ -23,6 +23,9 @@ import menuRoleReducer from "./features/menuRoleSlice";
 import menuReducer from "./features/menuSlice";
 import usersReducer from "./features/userSlice";
 import recipientReducer from "./features/recipientSlice";
+import subMenuReducer from "./features/subMenusSlice";
+import userCampusesReducer from "./features/userCampusSlice";
+import userStatusesReducer from "./features/userStatusSlice"
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
@@ -59,6 +62,9 @@ export const store = configureStore({
     menuRoles: menuRoleReducer,
     menus: menuReducer,
     recipients: recipientReducer,
+    subMenus: subMenuReducer,
+    userCampuses: userCampusesReducer,
+    userStatuses: userStatusesReducer,
     [baseAPI.reducerPath]: baseAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>
