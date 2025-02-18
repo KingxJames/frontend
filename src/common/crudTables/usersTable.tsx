@@ -30,7 +30,7 @@ import {
 
 export const UsersTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: usersData } = useFetchUserQuery();
+  const { data: usersData, refetch } = useFetchUserQuery();
   const [createUser] = useCreateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser] = useUpdateUserMutation();
@@ -86,6 +86,9 @@ export const UsersTable: React.FC = () => {
       if (userToDelete) {
         await deleteUser(userToDelete.id.toString()).unwrap(); // Call the delete mutation
         dispatch(deleteUsers(userToDelete.id)); // Update Redux store
+
+        // Force re-fetch to get the latest data
+        await refetch();
       }
     } catch (error) {
       console.error("Error deleting users:", error);
@@ -132,6 +135,7 @@ export const UsersTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addUsers(response)); // Update Redux store with the newly created role
         setNewUser({
           name: "",
@@ -217,6 +221,7 @@ export const UsersTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "username", headerName: "Username", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },

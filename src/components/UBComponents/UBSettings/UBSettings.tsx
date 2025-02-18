@@ -22,11 +22,11 @@ export const UBSettings: React.FC = () => {
       "Incident Types": "/incidentTypes",
       "Roles": "/roles",
       "Users": "/users",
-      "Menus": "/menus",
+      // "Menus": "/menus",
       "Menu Roles": "/menuRoles",
       "Message Categories": "/messageCategories",
-      "Recipients": "/recipients",
-      "Submenus": "/submenus",
+      // "Recipients": "/recipients",
+      // "Submenus": "/submenus",
       "User Campuses": "/userCampuses",
       "User Statuses": "/userStatuses"
     };
@@ -50,11 +50,11 @@ export const UBSettings: React.FC = () => {
           "Incident Types",
           "Roles",
           "Users",
-          "Menus",
+          // "Menus",
           "Menu Roles",
           "Message Categories",
-          "Recipients",
-          "Submenus",
+          // "Recipients",
+          // "Submenus",
           "User Campuses",
           "User Statuses"
         ].map((text, index) => (

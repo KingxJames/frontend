@@ -30,7 +30,7 @@ import {
 
 export const DepartmentMembersTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: departmentMembersData } = useFetchDepartmentMembersQuery();
+  const { data: departmentMembersData, refetch } = useFetchDepartmentMembersQuery();
   const [createDepartmentMember] = useCreateDepartmentMemberMutation();
   const [deleteDepartmentMember] = useDeleteDepartmentMemberMutation();
   const [updateDepartmentMember] = useUpdateDepartmentMemberMutation();
@@ -77,6 +77,9 @@ export const DepartmentMembersTable: React.FC = () => {
           departmentMemberToDelete.id.toString()
         ).unwrap(); // Call the delete mutation
         dispatch(deleteDepartmentMembers(departmentMemberToDelete.id)); // Update Redux store
+
+        // Force re-fetch to get the latest data
+        await refetch();
       }
     } catch (error) {
       console.error("Error deleting departmember:", error);
@@ -113,6 +116,7 @@ export const DepartmentMembersTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addDepartmentMembers(response)); // Update Redux store with the newly created role
         setNewDepartmentMember({ department_id: 0, user_id: 0 });
         setOpenAdd(false);
@@ -163,6 +167,7 @@ export const DepartmentMembersTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "departmentId", headerName: "Department ID", flex: 1 },
     { field: "userId", headerName: "User ID", flex: 1 },
     {

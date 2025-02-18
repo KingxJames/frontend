@@ -30,7 +30,7 @@ import {
 
 export const AccessRightsTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: accessRightData } = useFetchAccessRightsQuery();
+  const { data: accessRightData, refetch } = useFetchAccessRightsQuery(); //refetch updates the data in the table after a mutation is triggered.
   const [createAccessRight] = useCreateAccessRightMutation();
   const [deleteAccessRight] = useDeleteAccessRightMutation();
   const [updateAccessRight] = useUpdateAccessRightMutation();
@@ -72,6 +72,9 @@ export const AccessRightsTable: React.FC = () => {
       if (accessRightToDelete) {
         await deleteAccessRight(accessRightToDelete.id.toString()).unwrap(); // Call the delete mutation
         dispatch(deleteAccessRights(accessRightToDelete.id)); // Update Redux store
+
+        // Force re-fetch to get the latest data
+        await refetch();
       }
     } catch (error) {
       console.error("Error deleting role:", error);
@@ -108,6 +111,7 @@ export const AccessRightsTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch(); // Force re-fetch to get the latest data
         dispatch(addAccessRights(response)); // Update Redux store with the newly created role
         setNewAccessRight({ description: "", roleId: 0 });
         setOpenAdd(false);
@@ -123,7 +127,10 @@ export const AccessRightsTable: React.FC = () => {
     description: string;
     roleId: number;
   }) => {
-    if (!accessRight) return;
+    if (!accessRight) {
+      console.error("Invalid accessRight object received:", accessRight);
+      return;
+    }
     setSelectedAccessRight(accessRight); // Ensure selectedRole is set
     setOpenEdit(true);
   };
@@ -158,6 +165,7 @@ export const AccessRightsTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "description", headerName: "Description", flex: 2 },
     { field: "roleId", headerName: "Role ID", flex: 2 },
     {
@@ -256,7 +264,7 @@ export const AccessRightsTable: React.FC = () => {
           />
           <TextField
             margin="dense"
-            label="Description"
+            label="Role ID"
             fullWidth
             variant="outlined"
             value={newAccessRight.roleId}

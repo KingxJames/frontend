@@ -3,20 +3,20 @@ import { RootState } from "../store";
 
 export interface IIncidentReport {
   id: number;
-  report: string;
-  disposition: string;
-  caseNumber: string;
   action: string;
-  location: string;
-  uploadedBy: string;
-  frequency: string;
-  incidentReoccured: string;
-  incidentFileId: number;
-  incidentStatusId: number;
-  userId: number;
-  campusId: number;
   buildingId: number;
-  incidentTypeId: number;
+  campusId: number;
+  caseNumber: string;
+  disposition: string;
+  frequency: number;
+  incidentFileId: number;
+  incidentReoccured: string;
+  incidentStatusId: number;
+  incidentTypeId: string;
+  location: string;
+  report: string;
+  uploadedBy: string;
+  userId: number;
 }
 
 export interface IncidentReportState {
@@ -58,7 +58,12 @@ export const incidentReportSlice = createSlice({
   },
 });
 
-export const { setIncidentReports, addIncidentReports, updateIncidentReports, deleteIncidentReports } = incidentReportSlice.actions;
+export const {
+  setIncidentReports,
+  addIncidentReports,
+  updateIncidentReports,
+  deleteIncidentReports,
+} = incidentReportSlice.actions;
 
 export const selectIncidentReports = (state: RootState) =>
   state.incidentReports;

@@ -30,7 +30,7 @@ import {
 
 export const CampusesTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: campusesData } = useFetchCampusesQuery();
+  const { data: campusesData, refetch } = useFetchCampusesQuery();
   const [createCampus] = useCreateCampusesMutation();
   const [deleteCampus] = useDeleteCampusesMutation();
   const [updateCampus] = useUpdateCampusesMutation();
@@ -59,18 +59,37 @@ export const CampusesTable: React.FC = () => {
       )
     : [];
 
+  // // Handle delete
+  // const handleDelete = async (id: number) => {
+  //   try {
+  //     const campusToDelete = campuses.campus.find((campus) => campus.id === id);
+  //     if (campusToDelete) {
+  //       await deleteCampus(campusToDelete.id.toString()).unwrap(); // Call the delete mutation
+  //       dispatch(deleteCampuses(campusToDelete.id)); // Update Redux store
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting campus:", error);
+  //   }
+  // };
+
   // Handle delete
-  const handleDelete = async (id: number) => {
-    try {
-      const campusToDelete = campuses.campus.find((campus) => campus.id === id);
-      if (campusToDelete) {
-        await deleteCampus(campusToDelete.id.toString()).unwrap(); // Call the delete mutation
-        dispatch(deleteCampuses(campusToDelete.id)); // Update Redux store
+    const handleDelete = async (id: number) => {
+      try {
+        const campusToDelete = campuses.campus.find(
+          (campus) => campus.id === id
+        );
+        if (campusToDelete) {
+          await deleteCampus(campusToDelete.id.toString()).unwrap(); // Call the delete mutation
+          dispatch(deleteCampuses(campusToDelete.id)); // Update Redux store
+  
+          // Force re-fetch to get the latest data
+          await refetch();
+        }
+      } catch (error) {
+        console.error("Error deleting campus:", error);
       }
-    } catch (error) {
-      console.error("Error deleting campus:", error);
-    }
-  };
+    };
+  
 
   // Handle export to CSV
   const handleExport = () => {
@@ -98,6 +117,7 @@ export const CampusesTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addCampuses(response)); // Update Redux store with the newly created campus
         setNewCampus({ campus: "" });
         setOpenAdd(false);
@@ -135,6 +155,7 @@ export const CampusesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "campus", headerName: "Campus", flex: 1 },
     {
       field: "actions",

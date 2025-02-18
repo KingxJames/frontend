@@ -30,7 +30,7 @@ import {
 
 export const RecipientTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: recipientData } = useFetchRecipientsQuery();
+  const { data: recipientData, refetch } = useFetchRecipientsQuery();
   const [createRecipient] = useCreateRecipientMutation();
   const [deleteRecipient] = useDeleteRecipientMutation();
   const [updateRecipient] = useUpdateRecipientMutation();
@@ -111,6 +111,7 @@ export const RecipientTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addRecipients(response)); // Update Redux store with the newly created role
         setNewRecipient({ userId: 0, messageId: 0 });
         setOpenAdd(false);
@@ -161,6 +162,7 @@ export const RecipientTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "userId", headerName: "User ID", flex: 1 },
     { field: "messageId", headerName: "Message ID", flex: 1 },
     {

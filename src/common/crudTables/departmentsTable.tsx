@@ -30,7 +30,7 @@ import {
 
 export const DepartmentsTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: departmentsData } = useFetchDepartmentsQuery();
+  const { data: departmentsData, refetch } = useFetchDepartmentsQuery();
   const [createDepartment] = useCreateDepartmentMutation();
   const [deleteDepartment] = useDeleteDepartmentMutation();
   const [updateDepartment] = useUpdateDepartmentMutation();
@@ -70,6 +70,9 @@ export const DepartmentsTable: React.FC = () => {
       if (departmentToDelete) {
         await deleteDepartment(departmentToDelete.id.toString()).unwrap(); // Call the delete mutation
         dispatch(deleteDepartments(departmentToDelete.id)); // Update Redux store
+
+        // Force re-fetch to get the latest data
+        await refetch();
       }
     } catch (error) {
       console.error("Error deleting department:", error);
@@ -83,8 +86,7 @@ export const DepartmentsTable: React.FC = () => {
       ["ID,Departments"]
         .concat(
           departments.departments.map(
-            (department) =>
-              `${department.id},${department.departments}`
+            (department) => `${department.id},${department.departments}`
           )
         )
         .join("\n");
@@ -105,8 +107,9 @@ export const DepartmentsTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addDepartments(response)); // Update Redux store with the newly created role
-        setNewDepartment({ departments: "",});
+        setNewDepartment({ departments: "" });
         setOpenAdd(false);
       }
     } catch (error) {
@@ -115,20 +118,14 @@ export const DepartmentsTable: React.FC = () => {
   };
 
   // Handle edit role - open dialog
-  const handleEdit = (department: {
-    id: number;
-    departments: string;
-  }) => {
+  const handleEdit = (department: { id: number; departments: string }) => {
     if (!department) return;
     setSelectedDepartment(department); // Ensure selectedRole is set
     setOpenEdit(true);
   };
 
   const handleUpdateDepartment = async () => {
-    if (
-      !selectedDepartment ||
-      !selectedDepartment.departments.trim()
-    ) {
+    if (!selectedDepartment || !selectedDepartment.departments.trim()) {
       alert("Both departments fields are required.");
       return;
     }
@@ -152,6 +149,7 @@ export const DepartmentsTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "departments", headerName: "Department", flex: 1 },
     {
       field: "actions",

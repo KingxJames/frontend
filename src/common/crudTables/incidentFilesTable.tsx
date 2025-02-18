@@ -30,7 +30,7 @@ import {
 
 export const IncidentFilesTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: incidentFilesData } = useFetchIncidentFilesQuery();
+  const { data: incidentFilesData, refetch } = useFetchIncidentFilesQuery();
   const [createIncidentFile] = useCreateIncidentFileMutation();
   const [deleteIncidentFile] = useDeleteIncidentFileMutation();
   const [updateIncidentFile] = useUpdateIncidentFileMutation();
@@ -74,6 +74,8 @@ export const IncidentFilesTable: React.FC = () => {
       if (incidentFilesToDelete) {
         await deleteIncidentFile(incidentFilesToDelete.id.toString()).unwrap(); // Call the delete mutation
         dispatch(deleteIncidentFiles(incidentFilesToDelete.id)); // Update Redux store
+        // Force re-fetch to get the latest data
+        await refetch();
       }
     } catch (error) {
       console.error("Error deleting IncidentFiles:", error);
@@ -111,6 +113,7 @@ export const IncidentFilesTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addIncidentFiles(response)); // Update Redux store with the newly created role
         setNewIncidentFile({ path: "", comment: "", messageId: 0 });
         setOpenAdd(false);
@@ -164,6 +167,7 @@ export const IncidentFilesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "path", headerName: "Incident files", flex: 1 },
     { field: "comment", headerName: "Comment", flex: 2 },
     { field: "messageId", headerName: "Message ID", flex: 1 },
@@ -312,7 +316,12 @@ export const IncidentFilesTable: React.FC = () => {
               setSelectedIncidentFile((prev) =>
                 prev
                   ? { ...prev, path: e.target.value }
-                  : { id: 0, path: e.target.value, comment:  e.target.value, messageId: 0 }
+                  : {
+                      id: 0,
+                      path: e.target.value,
+                      comment: e.target.value,
+                      messageId: 0,
+                    }
               )
             }
           />
@@ -326,7 +335,12 @@ export const IncidentFilesTable: React.FC = () => {
               setSelectedIncidentFile((prev) =>
                 prev
                   ? { ...prev, comment: e.target.value }
-                  : { id: 0, path: e.target.value, comment:  e.target.value, messageId: 0 }
+                  : {
+                      id: 0,
+                      path: e.target.value,
+                      comment: e.target.value,
+                      messageId: 0,
+                    }
               )
             }
           />
@@ -341,7 +355,12 @@ export const IncidentFilesTable: React.FC = () => {
               setSelectedIncidentFile((prev) =>
                 prev
                   ? { ...prev, comment: e.target.value }
-                  : { id: 0, path: e.target.value, comment: e.target.value, messageId: 0 }
+                  : {
+                      id: 0,
+                      path: e.target.value,
+                      comment: e.target.value,
+                      messageId: 0,
+                    }
               )
             }
           />

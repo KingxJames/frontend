@@ -30,7 +30,8 @@ import {
 
 export const MessageCategoriesTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: messsageCategoriesData } = useFetchMessageCategoriesQuery();
+  const { data: messsageCategoriesData, refetch } =
+    useFetchMessageCategoriesQuery();
   const [createMessageCategory] = useCreateMessageCategoryMutation();
   const [deleteMessageCategory] = useDeleteMessageCategoryMutation();
   const [updateMessageCategory] = useUpdateMessageCategoryMutation();
@@ -72,6 +73,9 @@ export const MessageCategoriesTable: React.FC = () => {
           messageCategoryToDelete.id.toString()
         ).unwrap(); // Call the delete mutation
         dispatch(deleteMessageCategories(messageCategoryToDelete.id)); // Update Redux store
+
+        // Force re-fetch to get the latest data
+        await refetch();
       }
     } catch (error) {
       console.error("Error deletingMessage Categories:", error);
@@ -107,6 +111,7 @@ export const MessageCategoriesTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addMessageCategories(response)); // Update Redux store with the newly created role
         setNewMessageCategory({ category: "" });
         setOpenAdd(false);
@@ -148,6 +153,7 @@ export const MessageCategoriesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "category", headerName: "Category", flex: 1 },
     {
       field: "actions",
@@ -272,7 +278,6 @@ export const MessageCategoriesTable: React.FC = () => {
               )
             }
           />
-        
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEdit(false)} color="secondary">

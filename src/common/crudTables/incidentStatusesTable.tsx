@@ -30,7 +30,7 @@ import {
 
 export const IncidentStatusesTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: incidentStatusData } = useFetchIncidentStatusesQuery();
+  const { data: incidentStatusData, refetch } = useFetchIncidentStatusesQuery();
   const [createIncidentStatus] = useCreateIncidentStatusMutation();
   const [deleteIncidentStatus] = useDeleteIncidentStatusMutation();
   const [updateIncidentStatus] = useUpdateIncidentStatusMutation();
@@ -70,6 +70,8 @@ export const IncidentStatusesTable: React.FC = () => {
           incidentStatusToDelete.id.toString()
         ).unwrap(); // Call the delete mutation
         dispatch(deleteIncidentStatuses(incidentStatusToDelete.id)); // Update Redux store
+        // Force re-fetch to get the latest data
+        await refetch();
       }
     } catch (error) {
       console.error("Error deleting incidentStatus:", error);
@@ -80,7 +82,7 @@ export const IncidentStatusesTable: React.FC = () => {
   const handleExport = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      ["ID,statuses"]
+      ["ID,Statuses"]
         .concat(
           incidentStatuses.statuses.map(
             (incidentStatus) =>
@@ -105,6 +107,7 @@ export const IncidentStatusesTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addIncidentStatuses(response)); // Update Redux store with the newly created role
         setNewIncidentStatus({ statuses: "" });
         setOpenAdd(false);
@@ -146,6 +149,7 @@ export const IncidentStatusesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "statuses", headerName: "Status", flex: 1 },
     {
       field: "actions",
@@ -185,7 +189,7 @@ export const IncidentStatusesTable: React.FC = () => {
         }}
       >
         <TextField
-          label="Search Incident Tables"
+          label="Search Incident Statuses"
           variant="outlined"
           size="small"
           value={search}
@@ -233,7 +237,12 @@ export const IncidentStatusesTable: React.FC = () => {
             fullWidth
             variant="outlined"
             value={newIncidentStatus.statuses}
-            onChange={(e) => setNewIncidentStatus({ ...newIncidentStatus, statuses: e.target.value })}
+            onChange={(e) =>
+              setNewIncidentStatus({
+                ...newIncidentStatus,
+                statuses: e.target.value,
+              })
+            }
           />
         </DialogContent>
         <DialogActions>
@@ -277,7 +286,6 @@ export const IncidentStatusesTable: React.FC = () => {
       </Dialog>
     </div>
   );
-
 };
 
 export default IncidentStatusesTable;

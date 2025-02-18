@@ -1,31 +1,29 @@
 import { baseAPI } from "./baseAPI";
+import { IAccessRight } from "../features/accessRightSlice";
 
 export const accessRightAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        fetchAccessRights: builder.query<any[], void>({
+        fetchAccessRights: builder.query<IAccessRight[], void>({
         query: () => ({
             url: "/v1/publicSafety/accessRights",
             method: "GET",
         }),
-        transformResponse: (response: { data: any[] }) => response.data,
+        transformResponse: (response: { data: IAccessRight[] }) => response.data,
         }),
-        fetchAccessRightById: builder.query<any, string>({
+        fetchAccessRightById: builder.query<IAccessRight, string>({
         query: (id) => ({
             url: `/v1/publicSafety/accessRights/${id}`,
             method: "GET",
         }),
         }),
-        createAccessRight: builder.mutation<any, Partial<any>>({
+        createAccessRight: builder.mutation<IAccessRight, Partial<IAccessRight>>({
         query: (accessRight) => ({
             url: "/v1/publicSafety/accessRights",
             method: "POST",
             body: accessRight,
         }),
         }),
-        updateAccessRight: builder.mutation<
-        any,
-        { id: number; description: string; roleId: number; }
-        >({
+        updateAccessRight: builder.mutation<IAccessRight,Partial<IAccessRight>>({
         query: ({ id, description, roleId}) => ({
             url: `/v1/publicSafety/accessRights/${id}`,
             method: "PUT",

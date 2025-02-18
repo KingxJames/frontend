@@ -30,7 +30,7 @@ import {
 
 export const RolesTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: rolesData } = useFetchRolesQuery();
+  const { data: rolesData, refetch } = useFetchRolesQuery();
   const [createRole] = useCreateRoleMutation();
   const [deleteRole] = useDeleteRoleMutation();
   const [updateRole] = useUpdateRoleMutation();
@@ -67,6 +67,9 @@ export const RolesTable: React.FC = () => {
       if (roleToDelete) {
         await deleteRole(roleToDelete.id.toString()).unwrap(); // Call the delete mutation
         dispatch(deleteRoles(roleToDelete.id)); // Update Redux store
+
+        // Force re-fetch to get the latest data
+        await refetch();
       }
     } catch (error) {
       console.error("Error deleting role:", error);
@@ -102,6 +105,7 @@ export const RolesTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addRoles(response)); // Update Redux store with the newly created role
         setNewRole({ roles: "", description: "" });
         setOpenAdd(false);
@@ -152,6 +156,7 @@ export const RolesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "roles", headerName: "Role", flex: 1 },
     { field: "description", headerName: "Description", flex: 2 },
     {

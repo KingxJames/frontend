@@ -31,7 +31,7 @@ import {
 
 export const IncidentReportTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: incidentReportsData } = useFetchIncidentReportQuery();
+  const { data: incidentReportsData, refetch } = useFetchIncidentReportQuery();
   const [createIncidentReport] = useCreateIncidentReportMutation();
   const [deleteIncidentReport] = useDeleteIncidentReportMutation();
   const [updateIncidentReport] = useUpdateIncidentReportMutation();
@@ -41,38 +41,38 @@ export const IncidentReportTable: React.FC = () => {
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [newIncidentReport, setNewIncidentReport] = useState({
-    report: "",
-    disposition: "",
-    caseNumber: "",
     action: "",
-    location: "",
-    uploadedBy: "",
-    frequency: "",
-    incidentReoccured: "",
-    incidentFileId: 0,
-    incidentStatusId: 0,
-    userId: 0,
-    campusId: 0,
     buildingId: 0,
-    incidentTypeId: 0,
+    campusId: 0,
+    caseNumber: "",
+    disposition: "",
+    frequency: 0,
+    incidentFileId: 0,
+    incidentReoccured: new Date().toLocaleDateString('en-CA'), // This will give you the date in YYYY-MM-DD format
+    incidentStatusId: 0,
+    incidentTypeId: "",
+    location: "",
+    report: "",
+    uploadedBy: "",
+    userId: 0,
   });
 
   const [selectedIncidentReport, setSelectedIncidentReport] = useState<{
     id: number;
-    report: string;
-    disposition: string;
-    caseNumber: string;
     action: string;
-    location: string;
-    uploadedBy: string;
-    frequency: string;
-    incidentReoccured: string;
-    incidentFileId: number;
-    incidentStatusId: number;
-    userId: number;
-    campusId: number;
     buildingId: number;
-    incidentTypeId: number;
+    campusId: number;
+    caseNumber: string;
+    disposition: string;
+    frequency: number;
+    incidentFileId: number;
+    incidentReoccured: string;
+    incidentStatusId: number;
+    incidentTypeId: string;
+    location: string;
+    report: string;
+    uploadedBy: string;
+    userId: number;
   } | null>(null);
 
   // Fetch roles when component mounts
@@ -108,39 +108,39 @@ export const IncidentReportTable: React.FC = () => {
   const handleExport = () => {
     const csvHeaders = [
       "ID",
-      "report",
-      "disposition",
-      "caseNumber",
-      "action",
-      "location",
-      "uploadedBy",
-      "frequency",
-      "incidentReoccured",
-      "incidentFileId",
-      "incidentStatusId",
-      "userId",
-      "campusId",
-      "buildingId",
-      "incidentTypeId",
+      "Action",
+      "BuildingId",
+      "CampusId",
+      "CaseNumber",
+      "Disposition",
+      "Frequency",
+      "IncidentFileId",
+      "IncidentReoccured",
+      "IncidentStatusId",
+      "IncidentTypeId",
+      "Location",
+      "Report",
+      "UploadedBy",
+      "UserId",
     ];
 
     const csvRows = incidentReports.incidentReports.map((incidentReport) =>
       [
         incidentReport.id,
-        incidentReport.report,
-        incidentReport.disposition,
-        incidentReport.caseNumber,
         incidentReport.action,
-        incidentReport.location,
-        incidentReport.uploadedBy,
-        incidentReport.frequency,
-        incidentReport.incidentReoccured,
-        incidentReport.incidentFileId,
-        incidentReport.incidentStatusId,
-        incidentReport.userId,
-        incidentReport.campusId,
         incidentReport.buildingId,
+        incidentReport.campusId,
+        incidentReport.caseNumber,
+        incidentReport.disposition,
+        incidentReport.frequency,
+        incidentReport.incidentFileId,
+        incidentReport.incidentReoccured,
+        incidentReport.incidentStatusId,
         incidentReport.incidentTypeId,
+        incidentReport.location,
+        incidentReport.report,
+        incidentReport.uploadedBy,
+        incidentReport.userId,
       ]
         .map((field) => `"${String(field).replace(/"/g, '""')}"`) // Ensure proper CSV formatting
         .join(",")
@@ -162,23 +162,24 @@ export const IncidentReportTable: React.FC = () => {
   const handleAddIncidentReport = async () => {
     try {
       const response = await createIncidentReport({
-        report: newIncidentReport.report,
-        disposition: newIncidentReport.disposition,
-        caseNumber: newIncidentReport.caseNumber,
         action: newIncidentReport.action,
-        location: newIncidentReport.location,
-        uploadedBy: newIncidentReport.uploadedBy,
-        frequency: newIncidentReport.frequency,
-        incidentReoccured: newIncidentReport.incidentReoccured,
-        incidentFileId: newIncidentReport.incidentFileId,
-        incidentStatusId: newIncidentReport.incidentStatusId,
-        userId: newIncidentReport.userId,
-        campusId: newIncidentReport.campusId,
         buildingId: newIncidentReport.buildingId,
+        campusId: newIncidentReport.campusId,
+        caseNumber: newIncidentReport.caseNumber,
+        disposition: newIncidentReport.disposition,
+        frequency: newIncidentReport.frequency,
+        incidentFileId: newIncidentReport.incidentFileId,
+        incidentReoccured: newIncidentReport.incidentReoccured,
+        incidentStatusId: newIncidentReport.incidentStatusId,
         incidentTypeId: newIncidentReport.incidentTypeId,
+        location: newIncidentReport.location,
+        report: newIncidentReport.report,
+        uploadedBy: newIncidentReport.uploadedBy,
+        userId: newIncidentReport.userId,
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addIncidentReports(response)); // Update Redux store with the newly created role
         setNewIncidentReport({
           report: "",
@@ -187,14 +188,14 @@ export const IncidentReportTable: React.FC = () => {
           action: "",
           location: "",
           uploadedBy: "",
-          frequency: "",
+          frequency: 0,
           incidentReoccured: "",
           incidentFileId: 0,
           incidentStatusId: 0,
           userId: 0,
           campusId: 0,
           buildingId: 0,
-          incidentTypeId: 0,
+          incidentTypeId: "",
         });
         setOpenAdd(false);
       }
@@ -212,14 +213,14 @@ export const IncidentReportTable: React.FC = () => {
     action: string;
     location: string;
     uploadedBy: string;
-    frequency: string;
+    frequency: number;
     incidentReoccured: string;
     incidentFileId: number;
     incidentStatusId: number;
     userId: number;
     campusId: number;
     buildingId: number;
-    incidentTypeId: number;
+    incidentTypeId: string;
   }) => {
     if (!incidentReport) return;
     setSelectedIncidentReport(incidentReport); // Ensure selectedRole is set
@@ -235,7 +236,7 @@ export const IncidentReportTable: React.FC = () => {
       !selectedIncidentReport.action.trim() ||
       !selectedIncidentReport.location.trim() ||
       !selectedIncidentReport.uploadedBy.trim() ||
-      !selectedIncidentReport.frequency.trim() ||
+      !selectedIncidentReport.frequency ||
       !selectedIncidentReport.incidentReoccured.trim() ||
       !selectedIncidentReport.incidentFileId ||
       !selectedIncidentReport.incidentStatusId ||
@@ -280,6 +281,7 @@ export const IncidentReportTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "report", headerName: "Incident Report", flex: 1 },
     { field: "disposition", headerName: "Disposition", flex: 1 },
     { field: "caseNumber", headerName: "Case Number", flex: 1 },
@@ -307,14 +309,14 @@ export const IncidentReportTable: React.FC = () => {
           action: string;
           location: string;
           uploadedBy: string;
-          frequency: string;
+          frequency: number;
           incidentReoccured: string;
           incidentFileId: number;
           incidentStatusId: number;
           userId: number;
           campusId: number;
           buildingId: number;
-          incidentTypeId: number;
+          incidentTypeId: string;
         };
         return (
           <div>
@@ -378,7 +380,7 @@ export const IncidentReportTable: React.FC = () => {
         rows={filteredIncidentReports}
         columns={columns}
         initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 10]}
+        pageSizeOptions={[5, 10, 15]}
         disableRowSelectionOnClick
       />
 
@@ -474,7 +476,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setNewIncidentReport({
                 ...newIncidentReport,
-                frequency: e.target.value,
+                frequency: Number(e.target.value),
               })
             }
           />
@@ -500,7 +502,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setNewIncidentReport({
                 ...newIncidentReport,
-                incidentFileId: parseInt(e.target.value),
+                incidentFileId: Number(e.target.value),
               })
             }
           />
@@ -513,7 +515,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setNewIncidentReport({
                 ...newIncidentReport,
-                incidentStatusId: parseInt(e.target.value),
+                incidentStatusId: Number(e.target.value),
               })
             }
           />
@@ -526,7 +528,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setNewIncidentReport({
                 ...newIncidentReport,
-                userId: parseInt(e.target.value),
+                userId: Number(e.target.value),
               })
             }
           />
@@ -539,7 +541,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setNewIncidentReport({
                 ...newIncidentReport,
-                campusId: parseInt(e.target.value),
+                campusId: Number(e.target.value),
               })
             }
           />
@@ -552,7 +554,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setNewIncidentReport({
                 ...newIncidentReport,
-                buildingId: parseInt(e.target.value),
+                buildingId: Number(e.target.value),
               })
             }
           />
@@ -565,7 +567,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setNewIncidentReport({
                 ...newIncidentReport,
-                incidentTypeId: parseInt(e.target.value),
+                incidentTypeId: e.target.value,
               })
             }
           />
@@ -603,14 +605,14 @@ export const IncidentReportTable: React.FC = () => {
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -633,14 +635,14 @@ export const IncidentReportTable: React.FC = () => {
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -663,14 +665,14 @@ export const IncidentReportTable: React.FC = () => {
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -693,14 +695,14 @@ export const IncidentReportTable: React.FC = () => {
                       action: e.target.value,
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -723,14 +725,14 @@ export const IncidentReportTable: React.FC = () => {
                       action: "",
                       location: e.target.value,
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -753,14 +755,14 @@ export const IncidentReportTable: React.FC = () => {
                       action: "",
                       location: "",
                       uploadedBy: e.target.value,
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -774,23 +776,23 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setSelectedIncidentReport((prev) =>
                 prev
-                  ? { ...prev, frequency: e.target.value }
+                  ? { ...prev, frequency: Number(e.target.value) }
                   : {
                       id: 0,
                       report: "",
                       disposition: "",
-                      caseNumber: e.target.value,
+                      caseNumber: "",
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: e.target.value,
+                      frequency: Number(e.target.value),
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -809,18 +811,18 @@ export const IncidentReportTable: React.FC = () => {
                       id: 0,
                       report: "",
                       disposition: "",
-                      caseNumber: e.target.value,
+                      caseNumber: "",
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: e.target.value,
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -834,23 +836,23 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setSelectedIncidentReport((prev) =>
                 prev
-                  ? { ...prev, incidentFileId: parseInt(e.target.value) }
+                  ? { ...prev, incidentFileId: Number(e.target.value) }
                   : {
                       id: 0,
                       report: "",
                       disposition: "",
-                      caseNumber: e.target.value,
+                      caseNumber: "",
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
-                      incidentFileId: parseInt(e.target.value),
+                      incidentFileId: Number(e.target.value),
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -864,7 +866,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setSelectedIncidentReport((prev) =>
                 prev
-                  ? { ...prev, incidentStatusId: parseInt(e.target.value) }
+                  ? { ...prev, incidentStatusId: Number(e.target.value) }
                   : {
                       id: 0,
                       report: "",
@@ -873,14 +875,14 @@ export const IncidentReportTable: React.FC = () => {
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
-                      incidentStatusId: parseInt(e.target.value),
+                      incidentStatusId: Number(e.target.value),
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -894,7 +896,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setSelectedIncidentReport((prev) =>
                 prev
-                  ? { ...prev, userId: parseInt(e.target.value) }
+                  ? { ...prev, userId: Number(e.target.value) }
                   : {
                       id: 0,
                       report: "",
@@ -903,14 +905,14 @@ export const IncidentReportTable: React.FC = () => {
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
-                      userId: parseInt(e.target.value),
+                      userId: Number(e.target.value),
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -924,7 +926,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setSelectedIncidentReport((prev) =>
                 prev
-                  ? { ...prev, campusId: parseInt(e.target.value) }
+                  ? { ...prev, campusId: Number(e.target.value) }
                   : {
                       id: 0,
                       report: "",
@@ -933,14 +935,14 @@ export const IncidentReportTable: React.FC = () => {
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
-                      campusId: parseInt(e.target.value),
+                      campusId: Number(e.target.value),
                       buildingId: 0,
-                      incidentTypeId: 0,
+                      incidentTypeId: "",
                     }
               )
             }
@@ -954,23 +956,23 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setSelectedIncidentReport((prev) =>
                 prev
-                  ? { ...prev, buildingId: parseInt(e.target.value) }
+                  ? { ...prev, buildingId: Number(e.target.value) }
                   : {
                       id: 0,
                       report: "",
                       disposition: "",
-                      caseNumber: e.target.value,
+                      caseNumber: "",
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
-                      buildingId: parseInt(e.target.value),
-                      incidentTypeId: 0,
+                      buildingId: Number(e.target.value),
+                      incidentTypeId: "",
                     }
               )
             }
@@ -984,7 +986,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setSelectedIncidentReport((prev) =>
                 prev
-                  ? { ...prev, incidentTypeId: parseInt(e.target.value) }
+                  ? { ...prev, incidentTypeId: e.target.value }
                   : {
                       id: 0,
                       report: "",
@@ -993,14 +995,14 @@ export const IncidentReportTable: React.FC = () => {
                       action: "",
                       location: "",
                       uploadedBy: "",
-                      frequency: "",
+                      frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
                       incidentStatusId: 0,
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: parseInt(e.target.value),
+                      incidentTypeId: e.target.value,
                     }
               )
             }

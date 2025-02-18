@@ -8,7 +8,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  dividerClasses,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -31,7 +30,7 @@ import {
 
 export const IncidentTypesTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: incidentTypesData } = useFetchIncidentTypesQuery();
+  const { data: incidentTypesData, refetch } = useFetchIncidentTypesQuery();
   const [createIncidentType] = useCreateIncidentTypeMutation();
   const [deleteIncidentType] = useDeleteIncidentTypeMutation();
   const [updateIncidentType] = useUpdateIncidentTypeMutation();
@@ -75,6 +74,9 @@ export const IncidentTypesTable: React.FC = () => {
       if (incidentTypeToDelete) {
         await deleteIncidentType(incidentTypeToDelete.id.toString()).unwrap(); // Call the delete mutation
         dispatch(deleteIncidentTypes(incidentTypeToDelete.id)); // Update Redux store
+
+        // Force re-fetch to get the latest data
+        await refetch();
       }
     } catch (error) {
       console.error("Error deleting incidnet Type:", error);
@@ -112,6 +114,7 @@ export const IncidentTypesTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addIncidentTypes(response)); // Update Redux store with the newly created role
         setNewIncidentType({ type: "", icon: "", message: "" });
         setOpenAdd(false);
@@ -165,9 +168,10 @@ export const IncidentTypesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "type", headerName: "Type", flex: 1 },
     { field: "icon", headerName: "Icon", flex: 1 },
-    { field: "message", headerName: "Message", flex: 3 },
+    { field: "message", headerName: "Description", flex: 3 },
 
     {
       field: "actions",
@@ -274,7 +278,7 @@ export const IncidentTypesTable: React.FC = () => {
 
           <TextField
             margin="dense"
-            label="Message"
+            label="Description"
             fullWidth
             variant="outlined"
             value={newIncidentType.message}
@@ -331,7 +335,7 @@ export const IncidentTypesTable: React.FC = () => {
           />
           <TextField
             margin="dense"
-            label="Message"
+            label="Description"
             fullWidth
             variant="outlined"
             value={selectedIncidentType?.message || ""}

@@ -30,7 +30,7 @@ import {
 
 export const UserCampusTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: userCampusData } = useFetchUserCampusesQuery();
+  const { data: userCampusData, refetch } = useFetchUserCampusesQuery();
   const [createUserCampus] = useCreateUserCampusMutation();
   const [deleteUserCampus] = useDeleteUserCampusMutation();
   const [updateUserCampus] = useUpdateUserCampusMutation();
@@ -79,6 +79,8 @@ export const UserCampusTable: React.FC = () => {
       if (userCampusToDelete) {
         await deleteUserCampus(userCampusToDelete.id.toString()).unwrap(); // Call the delete mutation
         dispatch(deleteUserCampuses(userCampusToDelete.id)); // Update Redux store
+        // Force re-fetch to get the latest data
+        await refetch();
       }
     } catch (error) {
       console.error("Error deleting user campus:", error);
@@ -116,6 +118,7 @@ export const UserCampusTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
+        await refetch();
         dispatch(addUserCampuses(response)); // Update Redux store with the newly created role
         setNewUserCampus({ userId: 0, campusId: 0, primaryCampus: true });
         setOpenAdd(false);
@@ -169,6 +172,7 @@ export const UserCampusTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "userId", headerName: "User ID", flex: 1 },
     { field: "campusId", headerName: "Campus ID", flex: 1 },
     { field: "primaryCampus", headerName: "Primary Campus", flex: 1 },

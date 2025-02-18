@@ -79,13 +79,13 @@ const App: React.FC = () => {
                   path="/incidentStatuses"
                   element={<IncidentStatusesTable />}
                 />
-                <Route path="/menus" element={<MenuTable />} />
+                {/* <Route path="/menus" element={<MenuTable />} /> */}
                 <Route
                   path="/messageCategories"
                   element={<MessageCategoriesTable />}
                 />
-                <Route path="/recipients" element={<RecipientTable />} />
-                <Route path="/subMenus" element={<SubMenusTable />} />
+                {/* <Route path="/recipients" element={<RecipientTable />} /> */}
+                {/* <Route path="/subMenus" element={<SubMenusTable />} /> */}
                 <Route path="/userCampuses" element={<UserCampusTable />} />
                 <Route path="/userStatuses" element={<UserStatusesTable />} />
               </Routes>

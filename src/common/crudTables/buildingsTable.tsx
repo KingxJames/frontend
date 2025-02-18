@@ -30,7 +30,7 @@ import {
 
 export const BuildingsTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: buildingsData } = useFetchBuildingsQuery();
+  const { data: buildingsData, refetch } = useFetchBuildingsQuery();
   const [createBuilding] = useCreateBuildingsMutation();
   const [deleteBuilding] = useDeleteBuildingsMutation();
   const [updateBuilding] = useUpdateBuildingsMutation();
@@ -63,14 +63,24 @@ export const BuildingsTable: React.FC = () => {
       )
     : [];
 
+// Handle delete
   const handleDelete = async (id: number) => {
     try {
-      await deleteBuilding(id.toString()).unwrap();
-      dispatch(deleteBuildings(id));
+      const buildingToDelete = buildings.buildings.find(
+        (building) => building.id === id
+      );
+      if (buildingToDelete) {
+        await deleteBuilding(buildingToDelete.id.toString()).unwrap(); // Call the delete mutation
+        dispatch(deleteBuildings(buildingToDelete.id)); // Update Redux store
+
+        // Force re-fetch to get the latest data
+        await refetch();
+      }
     } catch (error) {
-      console.error("Error deleting building:", error);
+      console.error("Error deleting role:", error);
     }
   };
+
 
   const handleExport = () => {
     const csvContent =
@@ -93,12 +103,20 @@ export const BuildingsTable: React.FC = () => {
 
   const handleAddBuilding = async () => {
     try {
-      const response = await createBuilding(newBuilding).unwrap();
-      dispatch(addBuildings(response));
-      setNewBuilding({ name: "", location: "", campusId: 0 });
-      setOpenAdd(false);
+      const response = await createBuilding({
+        name: newBuilding.name,
+        location: newBuilding.location,
+        campusId: newBuilding.campusId,
+      }).unwrap();
+
+      if (response) {
+        await refetch(); // Force re-fetch to get the latest data
+        dispatch(addBuildings(response))
+        setNewBuilding({ name: "", location: "", campusId: 0 });
+        setOpenAdd(false);
+      }
     } catch (error) {
-      console.error("Error adding building:", error);
+      console.error("Error adding Building:", error);
     }
   };
 
@@ -133,6 +151,7 @@ export const BuildingsTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", flex: 1 },
     { field: "name", headerName: "Building", flex: 1 },
     { field: "location", headerName: "Building Location", flex: 2 },
     { field: "campusId", headerName: "Campus ID", flex: 2 },
@@ -236,7 +255,6 @@ export const BuildingsTable: React.FC = () => {
               setNewBuilding({ ...newBuilding, location: e.target.value })
             }
             sx={{ marginBottom: 2 }} // Adds spacing
-
           />
           <TextField
             label="Campus Id"

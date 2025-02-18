@@ -40,14 +40,14 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
         action: string;
         location: string;
         uploadedBy: string;
-        frequency: string;
+        frequency: number;
         incidentReoccured: string;
         incidentFileId: number;
         incidentStatusId: number;
         userId: number;
         campusId: number;
         buildingId: number;
-        incidentTypeId: number;
+        incidentTypeId: string;
       }
     >({
       query: ({

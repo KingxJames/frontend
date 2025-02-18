@@ -5,7 +5,7 @@ export interface IBuilding {
   id: number;
   name: string;
   location: string;
-  campus_id: number;
+  campusId: number;
 }
 
 export interface BuildingInitialState {
