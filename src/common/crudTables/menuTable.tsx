@@ -293,7 +293,7 @@ export const MenuTable: React.FC = () => {
                 prev
                   ? { ...prev, name: e.target.value }
                   : { id: 0, name: e.target.value, icon: "", path: "" }
-              )     
+              )
             }
           />
           <TextField
@@ -315,7 +315,7 @@ export const MenuTable: React.FC = () => {
             label="Path"
             fullWidth
             variant="outlined"
-            value={selectedMenu?.path || ""}            
+            value={selectedMenu?.path || ""}
             onChange={(e) =>
               setSelectedMenu((prev) =>
                 prev
@@ -336,9 +336,6 @@ export const MenuTable: React.FC = () => {
       </Dialog>
     </div>
   );
-
-
 };
-
 
 export default MenuTable;

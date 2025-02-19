@@ -155,6 +155,7 @@ export const AccessRightsTable: React.FC = () => {
 
       // Update Redux store with the updated role
       dispatch(updateAccessRights(updatedAccessRight));
+      refetch(); // Force re-fetch to get the latest data
 
       // Close the dialog and reset selectedRole
       setOpenEdit(false);

@@ -15,7 +15,7 @@ const initialState: accessRightInitialState = {
   accessRights: [],
 };
 
-const accessRightSlice = createSlice({
+export const accessRightSlice = createSlice({
   name: "accessRight",
   initialState,
   reducers: {

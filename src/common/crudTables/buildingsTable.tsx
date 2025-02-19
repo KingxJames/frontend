@@ -63,7 +63,7 @@ export const BuildingsTable: React.FC = () => {
       )
     : [];
 
-// Handle delete
+  // Handle delete
   const handleDelete = async (id: number) => {
     try {
       const buildingToDelete = buildings.buildings.find(
@@ -80,7 +80,6 @@ export const BuildingsTable: React.FC = () => {
       console.error("Error deleting role:", error);
     }
   };
-
 
   const handleExport = () => {
     const csvContent =
@@ -111,7 +110,7 @@ export const BuildingsTable: React.FC = () => {
 
       if (response) {
         await refetch(); // Force re-fetch to get the latest data
-        dispatch(addBuildings(response))
+        dispatch(addBuildings(response));
         setNewBuilding({ name: "", location: "", campusId: 0 });
         setOpenAdd(false);
       }
@@ -143,6 +142,7 @@ export const BuildingsTable: React.FC = () => {
     try {
       const updatedBuilding = await updateBuilding(selectedBuilding).unwrap();
       dispatch(updateBuildings(updatedBuilding));
+      refetch();
       setOpenEdit(false);
       setSelectedBuilding(null);
     } catch (error) {

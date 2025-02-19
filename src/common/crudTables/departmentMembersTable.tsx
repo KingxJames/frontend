@@ -116,7 +116,6 @@ export const DepartmentMembersTable: React.FC = () => {
       }).unwrap();
 
       if (response) {
-        await refetch();
         dispatch(addDepartmentMembers(response)); // Update Redux store with the newly created role
         setNewDepartmentMember({ department_id: 0, user_id: 0 });
         setOpenAdd(false);
@@ -158,6 +157,8 @@ export const DepartmentMembersTable: React.FC = () => {
       // Update Redux store with the updated role
       dispatch(updateDepartmentMembers(updatedDepartmentMember));
 
+      // Force re-fetch to get the latest data
+      await refetch();
       // Close the dialog and reset selectedRole
       setOpenEdit(false);
       setSelectedDepartmentMember(null);
@@ -301,7 +302,7 @@ export const DepartmentMembersTable: React.FC = () => {
           />
           <TextField
             margin="dense"
-            label="Description"
+            label="User ID"
             fullWidth
             variant="outlined"
             value={selectedDepartmentMember?.userId || ""}

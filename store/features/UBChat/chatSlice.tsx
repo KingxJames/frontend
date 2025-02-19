@@ -47,7 +47,7 @@ const initialState: IChatState = {
   searchText: "",
 };
 
-const chatSlice = createSlice({
+export const chatSlice = createSlice({
   name: "chats",
   initialState,
   reducers: {

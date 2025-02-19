@@ -17,7 +17,7 @@ const initialState: SubMenuInitialState = {
   subMenus: [],
 };
 
-const subMenuSlice = createSlice({
+export const subMenuSlice = createSlice({
   name: "subMenus",
   initialState,
   reducers: {

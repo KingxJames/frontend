@@ -21,7 +21,7 @@ const initialState: DashboardInitialState = {
   },
 };
 
-const dashboardSlice = createSlice({
+export const dashboardSlice = createSlice({
   name: "dashboard",
   initialState,
   reducers: {

@@ -8,7 +8,8 @@ export const messageCategoriesAPI = baseAPI.injectEndpoints({
         url: "/v1/publicSafety/messageCategories",
         method: "GET",
       }),
-      transformResponse: (response: { data: IMessageCategory[] }) => response.data,
+      transformResponse: (response: { data: IMessageCategory[] }) =>
+        response.data,
     }),
     fetchMessageCategoryById: builder.query<IMessageCategory, string>({
       query: (id) => ({
@@ -16,7 +17,10 @@ export const messageCategoriesAPI = baseAPI.injectEndpoints({
         method: "GET",
       }),
     }),
-    createMessageCategory: builder.mutation<IMessageCategory, Partial<IMessageCategory>>({
+    createMessageCategory: builder.mutation<
+      IMessageCategory,
+      Partial<IMessageCategory>
+    >({
       query: (messageCategory) => ({
         url: "/v1/publicSafety/messageCategories",
         method: "POST",
@@ -30,7 +34,7 @@ export const messageCategoriesAPI = baseAPI.injectEndpoints({
       query: ({ id, category }) => ({
         url: `/v1/publicSafety/messageCategories/${id}`,
         method: "PUT",
-        body: category,
+        body: { category },
       }),
     }),
     deleteMessageCategory: builder.mutation<void, string>({

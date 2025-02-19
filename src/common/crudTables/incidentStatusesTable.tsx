@@ -139,6 +139,7 @@ export const IncidentStatusesTable: React.FC = () => {
 
       // Update Redux store with the updated role
       dispatch(updateIncidentStatuses(updatedIncidentStatus));
+      refetch(); // Force re-fetch to get the latest data
 
       // Close the dialog and reset selectedRole
       setOpenEdit(false);

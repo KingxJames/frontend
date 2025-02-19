@@ -59,37 +59,21 @@ export const CampusesTable: React.FC = () => {
       )
     : [];
 
-  // // Handle delete
-  // const handleDelete = async (id: number) => {
-  //   try {
-  //     const campusToDelete = campuses.campus.find((campus) => campus.id === id);
-  //     if (campusToDelete) {
-  //       await deleteCampus(campusToDelete.id.toString()).unwrap(); // Call the delete mutation
-  //       dispatch(deleteCampuses(campusToDelete.id)); // Update Redux store
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deleting campus:", error);
-  //   }
-  // };
-
   // Handle delete
-    const handleDelete = async (id: number) => {
-      try {
-        const campusToDelete = campuses.campus.find(
-          (campus) => campus.id === id
-        );
-        if (campusToDelete) {
-          await deleteCampus(campusToDelete.id.toString()).unwrap(); // Call the delete mutation
-          dispatch(deleteCampuses(campusToDelete.id)); // Update Redux store
-  
-          // Force re-fetch to get the latest data
-          await refetch();
-        }
-      } catch (error) {
-        console.error("Error deleting campus:", error);
+  const handleDelete = async (id: number) => {
+    try {
+      const campusToDelete = campuses.campus.find((campus) => campus.id === id);
+      if (campusToDelete) {
+        await deleteCampus(campusToDelete.id.toString()).unwrap(); // Call the delete mutation
+        dispatch(deleteCampuses(campusToDelete.id)); // Update Redux store
+
+        // Force re-fetch to get the latest data
+        await refetch();
       }
-    };
-  
+    } catch (error) {
+      console.error("Error deleting campus:", error);
+    }
+  };
 
   // Handle export to CSV
   const handleExport = () => {
@@ -147,6 +131,8 @@ export const CampusesTable: React.FC = () => {
       }).unwrap();
 
       dispatch(updateCampuses(updatedCampus));
+      await refetch();
+
       setOpenEdit(false);
       setSelectedCampus(null);
     } catch (error) {

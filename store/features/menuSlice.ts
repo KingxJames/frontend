@@ -16,7 +16,7 @@ const initialState: IMenuInitialState = {
   menus: [],
 };
 
-const menuSlice = createSlice({
+export const menuSlice = createSlice({
   name: "menu",
   initialState,
   reducers: {

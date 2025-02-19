@@ -16,8 +16,8 @@ const initialState: BuildingInitialState = {
   buildings: [],
 };
 
-const buildingSlice = createSlice({
-  name: "buildings",
+export const buildingSlice = createSlice({
+  name: "building",
   initialState,
   reducers: {
     setBuildings: (state, action: PayloadAction<IBuilding[]>) => {

@@ -15,7 +15,7 @@ const initialState: RecipientInitialState = {
   recipients: [],
 };
 
-const recipientSlice = createSlice({
+export const recipientSlice = createSlice({
   name: "recipients",
   initialState,
   reducers: {

@@ -27,7 +27,7 @@ const initialState: MessagesInitialState = {
   messages: [],
 };
 
-const messagesSlice = createSlice({
+export const messagesSlice = createSlice({
   name: "messages",
   initialState,
   reducers: {

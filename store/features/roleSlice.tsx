@@ -15,7 +15,7 @@ const initialState: RoleInitialState = {
   roles: [],
 };
 
-const roleSlice = createSlice({
+export const roleSlice = createSlice({
   name: "roles",
   initialState,
   reducers: {

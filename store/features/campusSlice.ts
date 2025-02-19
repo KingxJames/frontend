@@ -14,7 +14,7 @@ const initialState: CampusInitialState = {
   campus: [],
 };
 
-const campusSlice = createSlice({
+export const campusSlice = createSlice({
   name: "campuses",
   initialState,
   reducers: {

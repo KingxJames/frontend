@@ -245,7 +245,7 @@ export const IncidentReportTable: React.FC = () => {
       !selectedIncidentReport.buildingId ||
       !selectedIncidentReport.incidentTypeId
     ) {
-      alert("Both fields are required.");
+      alert("fields are required.");
       return;
     }
 
@@ -271,6 +271,7 @@ export const IncidentReportTable: React.FC = () => {
 
       // Update Redux store with the updated role
       dispatch(updateIncidentReports(updatedIncidentReport));
+      refetch();
 
       // Close the dialog and reset selectedRole
       setOpenEdit(false);
@@ -589,7 +590,7 @@ export const IncidentReportTable: React.FC = () => {
           <TextField
             autoFocus
             margin="dense"
-            label="Report"
+            label="Incident Report"
             fullWidth
             variant="outlined"
             value={selectedIncidentReport?.report || ""}

@@ -14,7 +14,7 @@ const initialState: IncidentStatusInitialState = {
   statuses: [],
 };
 
-const incidentStatustSlice = createSlice({
+export const incidentStatustSlice = createSlice({
   name: "incidentStatuses",
   initialState,
   reducers: {

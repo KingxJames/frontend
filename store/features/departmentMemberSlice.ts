@@ -15,7 +15,7 @@ const initialState: departmentMembersInitialState = {
   departmentMembers: [],
 };
 
-const departmentMembersSlice = createSlice({
+export const departmentMembersSlice = createSlice({
   name: "departmentMembers",
   initialState,
   reducers: {

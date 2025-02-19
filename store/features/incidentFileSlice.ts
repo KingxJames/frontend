@@ -16,7 +16,7 @@ const initialState: IncidentFileInitialState = {
   incidentFiles: [],
 };
 
-const incidentFilesSlice = createSlice({
+export const incidentFilesSlice = createSlice({
   name: "incidentFiles",
   initialState,
   reducers: {

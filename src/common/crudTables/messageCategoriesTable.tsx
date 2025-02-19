@@ -144,6 +144,9 @@ export const MessageCategoriesTable: React.FC = () => {
       // Update Redux store with the updated role
       dispatch(updateMessageCategories(updatedMessageCategory));
 
+      // Force re-fetch to get the latest data
+      await refetch();
+
       // Close the dialog and reset selectedRole
       setOpenEdit(false);
       setSelectedMessageCategory(null);

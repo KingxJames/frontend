@@ -147,7 +147,9 @@ export const RolesTable: React.FC = () => {
       // Update Redux store with the updated role
       dispatch(updateRoles(updatedRole));
 
-      // Close the dialog and reset selectedRole
+      // Force re-fetch to get the latest data
+      await refetch(); // Close the dialog and reset selectedRole
+      
       setOpenEdit(false);
       setSelectedRole(null);
     } catch (error) {

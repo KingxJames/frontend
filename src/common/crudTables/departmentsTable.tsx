@@ -140,6 +140,9 @@ export const DepartmentsTable: React.FC = () => {
       // Update Redux store with the updated role
       dispatch(updateDepartments(updatedDepartment));
 
+      // Force re-fetch to get the latest data
+      await refetch();
+
       // Close the dialog and reset selectedRole
       setOpenEdit(false);
       setSelectedDepartment(null);

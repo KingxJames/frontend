@@ -27,7 +27,7 @@ export const buildingsAPI = baseAPI.injectEndpoints({
         body: name,
       }),
     }),
-    updateBuildings: builder.mutation<IBuilding, { id: number; name: string; location: string; campusId: number }>({
+    updateBuildings: builder.mutation<IBuilding, Partial<IBuilding>>({
       query: ({ id, name, location, campusId }) => ({
         url: `/v1/publicSafety/buildings/${id}`,
         method: "PUT",

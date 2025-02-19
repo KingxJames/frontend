@@ -16,7 +16,7 @@ const initialState: IncidentTypeInitialState = {
   incidentTypes: [],
 };
 
-const incidnetTypesSlice = createSlice({
+export const incidnetTypesSlice = createSlice({
   name: "incidentTypes",
   initialState,
   reducers: {

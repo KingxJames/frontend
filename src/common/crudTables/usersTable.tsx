@@ -212,6 +212,9 @@ export const UsersTable: React.FC = () => {
       // Update Redux store with the updated role
       dispatch(updateUsers(updatedUser));
 
+      // Force re-fetch to get the latest data
+      await refetch();
+
       // Close the dialog and reset selectedRole
       setOpenEdit(false);
       setSelectedUser(null);

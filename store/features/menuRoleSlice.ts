@@ -15,7 +15,7 @@ const initialState: MenuRoleInitialState = {
   menuRoles: [],
 };
 
-const menuRoleSlice = createSlice({
+export const menuRoleSlice = createSlice({
   name: "menuRoles",
   initialState,
   reducers: {

@@ -14,7 +14,7 @@ const initialState: MessageCategoryInitialState = {
   messageCategories: [],
 };
 
-const messageCategorySlice = createSlice({
+export const messageCategorySlice = createSlice({
   name: "messageCategories",
   initialState,
   reducers: {

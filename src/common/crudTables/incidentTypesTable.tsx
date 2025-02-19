@@ -159,6 +159,9 @@ export const IncidentTypesTable: React.FC = () => {
       // Update Redux store with the updated role
       dispatch(updateIncidentTypes(updatedIncidentType));
 
+      // Force re-fetch to get the latest data
+      await refetch();
+
       // Close the dialog and reset selectedRole
       setOpenEdit(false);
       setSelectedIncidentType(null);
