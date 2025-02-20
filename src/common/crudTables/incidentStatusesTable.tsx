@@ -150,7 +150,7 @@ export const IncidentStatusesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "statuses", headerName: "Status", flex: 1 },
     {
       field: "actions",

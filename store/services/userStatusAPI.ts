@@ -8,7 +8,11 @@ export const userStatusAPI = baseAPI.injectEndpoints({
         url: "/v1/publicSafety/userStatuses",
         method: "GET",
       }),
-      transformResponse: (response: { data: IUserStatus[] }) => response.data,
+      transformResponse: (response: { data: IUserStatus[] }) => {
+        console.log("API Response:", response); // Log full response
+        console.log("Transformed Data:", response.data); // Log extracted data
+        return response.data;
+      },
     }),
     fetchUserStatusById: builder.query<IUserStatus, string>({
       query: (id) => ({

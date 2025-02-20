@@ -168,9 +168,9 @@ export const DepartmentMembersTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "departmentId", headerName: "Department ID", flex: 1 },
-    { field: "userId", headerName: "User ID", flex: 1 },
+    // { field: "userId", headerName: "User ID", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",

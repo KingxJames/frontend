@@ -150,7 +150,7 @@ export const UserStatusesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "userStatuses", headerName: "User Status", flex: 1 },
     {
       field: "actions",

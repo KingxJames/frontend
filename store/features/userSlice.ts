@@ -9,10 +9,13 @@ export interface IUser {
   phoneNo: string;
   organization: string;
   picture: string;
-  domain: string;
   password: string;
   roleId: number;
-  senderId: number;
+  userStatusId: number;
+  campusId: number;
+  roles: string;
+  campuses: string;
+  userStatuses: string;
 }
 
 export interface UserInitialState {

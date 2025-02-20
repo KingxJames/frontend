@@ -20,6 +20,9 @@ import {
   useDeleteUserMutation,
   useUpdateUserMutation,
 } from "./../../../store/services/userAPI";
+import { useFetchRolesQuery } from "../../../store/services/roleAPI";
+import { useFetchCampusesQuery } from "../../../store/services/campusAPI";
+import { useFetchUserStatusesQuery } from "../../../store/services/userStatusAPI";
 import {
   setUsers,
   updateUsers,
@@ -31,6 +34,9 @@ import {
 export const UsersTable: React.FC = () => {
   const dispatch = useDispatch();
   const { data: usersData, refetch } = useFetchUserQuery();
+  const { data: rolesData } = useFetchRolesQuery();
+  const { data: campusesData } = useFetchCampusesQuery();
+  const { data: userStatusesData } = useFetchUserStatusesQuery();
   const [createUser] = useCreateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser] = useUpdateUserMutation();
@@ -46,10 +52,8 @@ export const UsersTable: React.FC = () => {
     phoneNo: "",
     organization: "",
     picture: "",
-    domain: "",
     password: "",
     roleId: 0,
-    senderId: 0,
   });
   const [selectedUser, setSelectedUser] = useState<{
     id: number;
@@ -62,15 +66,25 @@ export const UsersTable: React.FC = () => {
     domain: string;
     password: string;
     roleId: number;
-    senderId: number;
   } | null>(null);
 
-  // Fetch roles when component mounts
   useEffect(() => {
     if (usersData) {
-      dispatch(setUsers(usersData)); // Store roles in Redux
+      const mappedUsers = usersData.map((user) => ({
+        ...user,
+        role: rolesData?.find((role) => role.id === user.roleId)?.roles || "",
+        campus:
+          campusesData?.find((campus) => campus.id === user.campusId)?.campus ||
+          "",
+        userStatus:
+          userStatusesData?.find(
+            (userStatuses) => userStatuses.id === user.userStatusId
+          )?.userStatuses || "Unknown Status",
+      }));
+
+      dispatch(setUsers(mappedUsers)); // Store mapped users in Redux
     }
-  }, [usersData, dispatch]);
+  }, [usersData, rolesData, campusesData, userStatusesData, dispatch]);
 
   // Filter roles based on search query
   const filteredUsers = users.users
@@ -105,7 +119,7 @@ export const UsersTable: React.FC = () => {
         .concat(
           users.users.map(
             (user) =>
-              `${user.id},${user.name},${user.username},${user.email},${user.phoneNo},${user.organization},${user.picture},${user.domain},${user.password},${user.roleId},${user.senderId}`
+              `${user.id},${user.name},${user.username},${user.email},${user.phoneNo},${user.organization},${user.picture},${user.password},${user.roleId}`
           )
         )
         .join("\n");
@@ -128,10 +142,8 @@ export const UsersTable: React.FC = () => {
         phoneNo: newUser.phoneNo,
         organization: newUser.organization,
         picture: newUser.picture,
-        domain: newUser.domain,
         password: newUser.password,
         roleId: newUser.roleId,
-        senderId: newUser.senderId,
       }).unwrap();
 
       if (response) {
@@ -144,10 +156,8 @@ export const UsersTable: React.FC = () => {
           phoneNo: "",
           organization: "",
           picture: "",
-          domain: "",
           password: "",
           roleId: 0,
-          senderId: 0,
         });
         setOpenAdd(false);
       }
@@ -184,10 +194,8 @@ export const UsersTable: React.FC = () => {
       !selectedUser.phoneNo.trim() ||
       !selectedUser.organization.trim() ||
       !selectedUser.picture.trim() ||
-      !selectedUser.domain.trim() ||
       !selectedUser.password.trim() ||
-      !selectedUser.roleId ||
-      !selectedUser.senderId
+      !selectedUser.roleId
     ) {
       alert("All fields are required.");
       return;
@@ -203,10 +211,8 @@ export const UsersTable: React.FC = () => {
         phoneNo: selectedUser.phoneNo,
         organization: selectedUser.organization,
         picture: selectedUser.picture,
-        domain: selectedUser.domain,
         password: selectedUser.password,
         roleId: selectedUser.roleId,
-        senderId: selectedUser.senderId,
       }).unwrap();
 
       // Update Redux store with the updated role
@@ -224,17 +230,16 @@ export const UsersTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "username", headerName: "Username", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
-    { field: "phoneNo", headerName: "Phone No", flex: 1 },
     { field: "organization", headerName: "Organization", flex: 1 },
     { field: "picture", headerName: "Picture", flex: 1 },
-    { field: "domain", headerName: "Domain", flex: 1 },
     { field: "password", headerName: "Password", flex: 1 },
-    { field: "roleId", headerName: "Role ID", flex: 1 },
-    { field: "senderId", headerName: "Sender ID", flex: 1 },
+    { field: "role", headerName: "Role", flex: 1 },
+    { field: "campus", headerName: "Campus", flex: 1 },
+    { field: "userStatus", headerName: "Status", flex: 1 },
+
     {
       field: "actions",
       headerName: "Actions",
@@ -350,16 +355,7 @@ export const UsersTable: React.FC = () => {
             value={newUser.email}
             onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
           />
-          <TextField
-            margin="dense"
-            label="Phone No"
-            fullWidth
-            variant="outlined"
-            value={newUser.phoneNo}
-            onChange={(e) =>
-              setNewUser({ ...newUser, phoneNo: e.target.value })
-            }
-          />
+
           <TextField
             margin="dense"
             label="Organization"
@@ -380,14 +376,7 @@ export const UsersTable: React.FC = () => {
               setNewUser({ ...newUser, picture: e.target.value })
             }
           />
-          <TextField
-            margin="dense"
-            label="Domain"
-            fullWidth
-            variant="outlined"
-            value={newUser.domain}
-            onChange={(e) => setNewUser({ ...newUser, domain: e.target.value })}
-          />
+
           <TextField
             margin="dense"
             label="Password"
@@ -396,26 +385,6 @@ export const UsersTable: React.FC = () => {
             value={newUser.password}
             onChange={(e) =>
               setNewUser({ ...newUser, password: e.target.value })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Role"
-            fullWidth
-            variant="outlined"
-            value={newUser.roleId}
-            onChange={(e) =>
-              setNewUser({ ...newUser, roleId: Number(e.target.value) })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Sender"
-            fullWidth
-            variant="outlined"
-            value={newUser.senderId}
-            onChange={(e) =>
-              setNewUser({ ...newUser, senderId: Number(e.target.value) })
             }
           />
         </DialogContent>
@@ -515,32 +484,6 @@ export const UsersTable: React.FC = () => {
 
           <TextField
             margin="dense"
-            label="Phone No"
-            fullWidth
-            variant="outlined"
-            value={selectedUser?.phoneNo || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, phoneNo: e.target.value }
-                  : {
-                      id: 0,
-                      name: "",
-                      username: "",
-                      email: "",
-                      phoneNo: e.target.value,
-                      organization: "",
-                      picture: "",
-                      domain: "",
-                      password: "",
-                      roleId: 0,
-                      senderId: 0,
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
             label="Organization"
             fullWidth
             variant="outlined"
@@ -593,32 +536,6 @@ export const UsersTable: React.FC = () => {
           />
           <TextField
             margin="dense"
-            label="Domain"
-            fullWidth
-            variant="outlined"
-            value={selectedUser?.domain || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, domain: e.target.value }
-                  : {
-                      id: 0,
-                      name: "",
-                      username: "",
-                      email: "",
-                      phoneNo: "",
-                      organization: "",
-                      picture: "",
-                      domain: e.target.value,
-                      password: "",
-                      roleId: 0,
-                      senderId: 0,
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
             label="Password"
             fullWidth
             variant="outlined"
@@ -639,58 +556,6 @@ export const UsersTable: React.FC = () => {
                       password: e.target.value,
                       roleId: 0,
                       senderId: 0,
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Role"
-            fullWidth
-            variant="outlined"
-            value={selectedUser?.roleId || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, roleId: Number(e.target.value) }
-                  : {
-                      id: 0,
-                      name: "",
-                      username: "",
-                      email: "",
-                      phoneNo: "",
-                      organization: "",
-                      picture: "",
-                      domain: "",
-                      password: "",
-                      roleId: Number(e.target.value),
-                      senderId: 0,
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Sender"
-            fullWidth
-            variant="outlined"
-            value={selectedUser?.senderId || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, senderId: Number(e.target.value) }
-                  : {
-                      id: 0,
-                      name: "",
-                      username: "",
-                      email: "",
-                      phoneNo: "",
-                      organization: "",
-                      picture: "",
-                      domain: "",
-                      password: "",
-                      roleId: 0,
-                      senderId: Number(e.target.value),
                     }
               )
             }

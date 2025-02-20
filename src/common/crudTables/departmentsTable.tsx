@@ -152,7 +152,7 @@ export const DepartmentsTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "departments", headerName: "Department", flex: 1 },
     {
       field: "actions",

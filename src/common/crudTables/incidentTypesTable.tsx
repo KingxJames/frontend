@@ -171,10 +171,10 @@ export const IncidentTypesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "type", headerName: "Type", flex: 1 },
     { field: "icon", headerName: "Icon", flex: 1 },
-    { field: "message", headerName: "Description", flex: 3 },
+    // { field: "message", headerName: "Description", flex: 3 },
 
     {
       field: "actions",

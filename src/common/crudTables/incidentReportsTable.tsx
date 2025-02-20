@@ -282,7 +282,7 @@ export const IncidentReportTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "report", headerName: "Incident Report", flex: 1 },
     { field: "disposition", headerName: "Disposition", flex: 1 },
     { field: "caseNumber", headerName: "Case Number", flex: 1 },
@@ -291,12 +291,12 @@ export const IncidentReportTable: React.FC = () => {
     { field: "uploadedBy", headerName: "Uploaded By", flex: 1 },
     { field: "frequency", headerName: "Frequency", flex: 1 },
     { field: "incidentReoccured", headerName: "Incident Reoccured", flex: 1 },
-    { field: "incidentFileId", headerName: "Incident File ID", flex: 1 },
-    { field: "incidentStatusId", headerName: "Incident Status ID", flex: 1 },
-    { field: "userId", headerName: "User ID", flex: 1 },
-    { field: "campusId", headerName: "Campus ID", flex: 1 },
-    { field: "buildingId", headerName: "Building ID", flex: 1 },
-    { field: "incidentTypeId", headerName: "Incident Type ID", flex: 1 },
+    // { field: "incidentFileId", headerName: "Incident File ID", flex: 1 },
+    // { field: "incidentStatusId", headerName: "Incident Status ID", flex: 1 },
+    // { field: "userId", headerName: "User ID", flex: 1 },
+    // { field: "campusId", headerName: "Campus ID", flex: 1 },
+    // { field: "buildingId", headerName: "Building ID", flex: 1 },
+    // { field: "incidentTypeId", headerName: "Incident Type ID", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",

@@ -113,8 +113,10 @@ export const AccessRightsTable: React.FC = () => {
       if (response) {
         await refetch(); // Force re-fetch to get the latest data
         dispatch(addAccessRights(response)); // Update Redux store with the newly created role
-        setNewAccessRight({ description: "", roleId: 0 });
+        // setNewAccessRight({ description: "", roleId: 0 });
+
         setOpenAdd(false);
+        setSelectedAccessRight(null);
       }
     } catch (error) {
       console.error("Error adding accessRight:", error);
@@ -166,9 +168,9 @@ export const AccessRightsTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "description", headerName: "Description", flex: 2 },
-    { field: "roleId", headerName: "Role ID", flex: 2 },
+    // { field: "roleId", headerName: "Role ID", flex: 2 },
     {
       field: "actions",
       headerName: "Actions",

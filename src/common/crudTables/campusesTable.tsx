@@ -141,7 +141,7 @@ export const CampusesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "campus", headerName: "Campus", flex: 1 },
     {
       field: "actions",

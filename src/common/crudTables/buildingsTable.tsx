@@ -21,6 +21,13 @@ import {
   useUpdateBuildingsMutation,
 } from "../../../store/services/buildingsAPI";
 import {
+  useFetchCampusesQuery,
+  // useCreateCampusesMutation,
+  // useDeleteCampusesMutation,
+  // useUpdateCampusesMutation,
+} from "../../../store/services/campusAPI";
+
+import {
   setBuildings,
   updateBuildings,
   addBuildings,
@@ -28,13 +35,23 @@ import {
   selectBuildings,
 } from "../../../store/features/buildingSlice";
 
+// import {
+//   setCampuses,
+//   updateCampuses,
+//   addCampuses,
+//   deleteCampuses,
+//   selectCampuses,
+// } from "../../../store/features/campusSlice";
+
 export const BuildingsTable: React.FC = () => {
   const dispatch = useDispatch();
   const { data: buildingsData, refetch } = useFetchBuildingsQuery();
+  const { data: campusData } = useFetchCampusesQuery();
   const [createBuilding] = useCreateBuildingsMutation();
   const [deleteBuilding] = useDeleteBuildingsMutation();
   const [updateBuilding] = useUpdateBuildingsMutation();
   const buildings = useSelector(selectBuildings);
+
 
   const [search, setSearch] = useState("");
   const [openAdd, setOpenAdd] = useState(false);
@@ -53,9 +70,16 @@ export const BuildingsTable: React.FC = () => {
 
   useEffect(() => {
     if (buildingsData) {
-      dispatch(setBuildings(buildingsData));
+      // Map campusId to campus name (example logic)
+      const mappedBuildings = buildingsData.map((building) => ({
+        ...building,
+        campus:
+          campusData?.find((campus) => campus.id === building.campusId)
+            ?.campus || "",
+      }));
+      dispatch(setBuildings(mappedBuildings));
     }
-  }, [buildingsData, dispatch]);
+  }, [buildingsData, campusData, dispatch]);
 
   const filteredBuildings = buildings.buildings
     ? buildings.buildings.filter((building) =>
@@ -151,10 +175,11 @@ export const BuildingsTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "name", headerName: "Building", flex: 1 },
     { field: "location", headerName: "Building Location", flex: 2 },
-    { field: "campusId", headerName: "Campus ID", flex: 2 },
+    { field: "campus", headerName: "Campus", flex: 2 },
+    // { field: "campusId", headerName: "Campus ID", flex: 2 },
     {
       field: "actions",
       headerName: "Actions",

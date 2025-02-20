@@ -158,7 +158,7 @@ export const RolesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "roles", headerName: "Role", flex: 1 },
     { field: "description", headerName: "Description", flex: 2 },
     {

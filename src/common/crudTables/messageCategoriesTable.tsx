@@ -156,7 +156,7 @@ export const MessageCategoriesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
+    // { field: "id", headerName: "ID", flex: 1 },
     { field: "category", headerName: "Category", flex: 1 },
     {
       field: "actions",
