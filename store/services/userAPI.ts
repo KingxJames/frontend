@@ -36,9 +36,15 @@ export const userAPI = baseAPI.injectEndpoints({
         email: string;
         phoneNo: string;
         organization: string;
+        domain: string;
         picture: string;
         password: string;
         roleId: number;
+        campusId: number;
+        campus: string;
+        userStatusId: number;
+        userStatuses: string;
+        roles: string;
       }
     >({
       query: ({
@@ -48,9 +54,16 @@ export const userAPI = baseAPI.injectEndpoints({
         username,
         phoneNo,
         organization,
+        domain,
         picture,
         password,
         roleId,
+        campusId,
+        campus,
+        userStatusId,
+        userStatuses,
+        roles,
+        
       }) => ({
         url: `/v1/publicSafety/users/${id}`,
         method: "PUT",
@@ -60,9 +73,16 @@ export const userAPI = baseAPI.injectEndpoints({
           email,
           phoneNo,
           organization,
+          domain,
           picture,
           password,
           roleId,
+          campusId,
+          campus,
+          userStatusId,
+          userStatuses,
+          roles,
+
         },
       }),
     }),

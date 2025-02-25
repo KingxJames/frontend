@@ -11,11 +11,12 @@ export interface IUser {
   picture: string;
   password: string;
   roleId: number;
-  userStatusId: number;
-  campusId: number;
   roles: string;
-  campuses: string;
+  userStatusId: number;
   userStatuses: string;
+  campusId: number;
+  campus: string;
+  domain: string;
 }
 
 export interface UserInitialState {
@@ -35,7 +36,7 @@ export const userSlice = createSlice({
     },
 
     addUsers: (state, action: PayloadAction<IUser>) => {
-      state.users.push(action.payload); 
+      state.users.push(action.payload);
     },
 
     updateUsers: (state, action: PayloadAction<IUser>) => {
@@ -52,6 +53,7 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setUsers, addUsers, updateUsers, deleteUsers } = userSlice.actions;
-export const selectUsers = ( state: RootState) => state.users;
+export const { setUsers, addUsers, updateUsers, deleteUsers } =
+  userSlice.actions;
+export const selectUsers = (state: RootState) => state.users;
 export default userSlice.reducer;

@@ -28,10 +28,10 @@ export const buildingsAPI = baseAPI.injectEndpoints({
       }),
     }),
     updateBuildings: builder.mutation<IBuilding, Partial<IBuilding>>({
-      query: ({ id, name, location, campusId }) => ({
+      query: ({ id, name, location, campusId, campus }) => ({
         url: `/v1/publicSafety/buildings/${id}`,
         method: "PUT",
-        body: { name, location, campusId },
+        body: { name, location, campusId, campus },
       }),
     }),
     deleteBuildings: builder.mutation<void, string>({

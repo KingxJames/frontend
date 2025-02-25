@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import {
   IconButton,
@@ -21,8 +22,16 @@ import {
   useUpdateUserMutation,
 } from "./../../../store/services/userAPI";
 import { useFetchRolesQuery } from "../../../store/services/roleAPI";
-import { useFetchCampusesQuery } from "../../../store/services/campusAPI";
-import { useFetchUserStatusesQuery } from "../../../store/services/userStatusAPI";
+import {
+  useFetchCampusesQuery,
+  useUpdateCampusesMutation,
+  useCreateCampusesMutation,
+} from "../../../store/services/campusAPI";
+import {
+  useUpdateUserStatusMutation,
+  useFetchUserStatusesQuery,
+} from "../../../store/services/userStatusAPI";
+import { useUpdateRoleMutation } from "../../../store/services/roleAPI";
 import {
   setUsers,
   updateUsers,
@@ -30,6 +39,15 @@ import {
   deleteUsers,
   selectUsers,
 } from "./../../../store/features/userSlice";
+
+import {
+  updateCampuses,
+  selectCampuses,
+} from "../../../store/features/campusSlice";
+
+import { updateUserStatuses } from "../../../store/features/userStatusSlice";
+import { updateRoles } from "../../../store/features/roleSlice";
+import { Form } from "react-router-dom";
 
 export const UsersTable: React.FC = () => {
   const dispatch = useDispatch();
@@ -40,6 +58,9 @@ export const UsersTable: React.FC = () => {
   const [createUser] = useCreateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser] = useUpdateUserMutation();
+  const [updateCampus] = useUpdateCampusesMutation();
+  const [updateUserStatus] = useUpdateUserStatusMutation();
+  const [updateRole] = useUpdateRoleMutation();
   const users = useSelector(selectUsers);
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
@@ -53,8 +74,17 @@ export const UsersTable: React.FC = () => {
     organization: "",
     picture: "",
     password: "",
+    domain: "",
     roleId: 0,
+    roles: "",
+    campusId: 0,
+    campus: "",
+    userStatusId: 0,
+    userStatuses: "",
   });
+  const [newCampus, setNewCampus] = useState({ campus: "" });
+  const [newUserStatus, setNewUserStatus] = useState({ userStatuses: "" });
+  const [newRole, setNewRole] = useState({ roles: "", description: "" });
   const [selectedUser, setSelectedUser] = useState<{
     id: number;
     name: string;
@@ -66,6 +96,27 @@ export const UsersTable: React.FC = () => {
     domain: string;
     password: string;
     roleId: number;
+    roles: string;
+    campus: string;
+    userStatuses: string;
+    campusId: number;
+    userStatusId: number;
+  } | null>(null);
+
+  const [selectedCampus, setSelectedCampus] = useState<{
+    id: number;
+    campus: string;
+  } | null>(null);
+
+  const [selectedRole, setSelectedRole] = useState<{
+    id: number;
+    roles: string;
+    description: string;
+  } | null>(null);
+
+  const [selectedUserStatus, setSelectedUserStatus] = useState<{
+    id: number;
+    userStatuses: string;
   } | null>(null);
 
   useEffect(() => {
@@ -79,7 +130,7 @@ export const UsersTable: React.FC = () => {
         userStatus:
           userStatusesData?.find(
             (userStatuses) => userStatuses.id === user.userStatusId
-          )?.userStatuses || "Unknown Status",
+          )?.userStatuses || "",
       }));
 
       dispatch(setUsers(mappedUsers)); // Store mapped users in Redux
@@ -113,13 +164,11 @@ export const UsersTable: React.FC = () => {
   const handleExport = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      [
-        "ID,Name,Username,Email,Phone No,Organization,Picture,Domain,Password,RoleID,Sender ID",
-      ]
+      ["ID,Name,Username,Email,,Organization,Picture,Role,User Status,Campus"]
         .concat(
           users.users.map(
             (user) =>
-              `${user.id},${user.name},${user.username},${user.email},${user.phoneNo},${user.organization},${user.picture},${user.password},${user.roleId}`
+              `${user.id},${user.name},${user.username},${user.email},${user.organization},${user.picture},${user.roles},${user.userStatuses},${user.campus}`
           )
         )
         .join("\n");
@@ -157,7 +206,13 @@ export const UsersTable: React.FC = () => {
           organization: "",
           picture: "",
           password: "",
+          domain: "",
           roleId: 0,
+          roles: "",
+          campusId: 0,
+          campus: "",
+          userStatusId: 0,
+          userStatuses: "",
         });
         setOpenAdd(false);
       }
@@ -175,13 +230,29 @@ export const UsersTable: React.FC = () => {
     phoneNo: string;
     organization: string;
     picture: string;
-    domain: string;
     password: string;
     roleId: number;
-    senderId: number;
+    roles: string;
+    userStatusId: number;
+    userStatuses: string;
+    campusId: number;
+    campus: string;
+    domain: string;
   }) => {
-    if (!user) return;
     setSelectedUser(user); // Ensure selectedRole is set
+    setSelectedRole({
+      id: user.roleId,
+      roles: user.roles,
+      description: "",
+    });
+    setSelectedCampus({
+      id: user.campusId,
+      campus: user.campus,
+    });
+    setSelectedUserStatus({
+      id: user.userStatusId,
+      userStatuses: user.userStatuses,
+    });
     setOpenEdit(true);
   };
 
@@ -190,40 +261,77 @@ export const UsersTable: React.FC = () => {
       !selectedUser ||
       !selectedUser.name.trim() ||
       !selectedUser.username.trim() ||
+      // !selectedUser.phoneNo || 
       !selectedUser.email.trim() ||
-      !selectedUser.phoneNo.trim() ||
-      !selectedUser.organization.trim() ||
+      !selectedUser.organization.trim() || 
       !selectedUser.picture.trim() ||
-      !selectedUser.password.trim() ||
-      !selectedUser.roleId
+      !selectedUser.domain.trim() ||
+      !selectedRole?.id || // Ensure role is selected
+      !selectedUserStatus?.id || // Ensure user status is selected
+      !selectedCampus?.id // Ensure campus is selected
     ) {
       alert("All fields are required.");
       return;
     }
 
     try {
-      // Call the updateRole mutation
-      const updatedUser = await updateUser({
-        id: selectedUser.id,
-        name: selectedUser.name,
-        username: selectedUser.username,
-        email: selectedUser.email,
-        phoneNo: selectedUser.phoneNo,
-        organization: selectedUser.organization,
-        picture: selectedUser.picture,
-        password: selectedUser.password,
-        roleId: selectedUser.roleId,
+      //ensure user has the updated campusId
+      const updatedUser = {
+        ...selectedUser,
+        campusId: selectedCampus.id, // Assign the correct campusId
+        campus: selectedCampus.campus,
+        userStatusId: selectedUserStatus.id,
+        userStatuses: selectedUserStatus?.userStatuses,
+        roleId: selectedRole.id,
+        roles: selectedRole?.roles,
+      };
+      
+      //Api call to update user
+      const updatedUserResponse = await updateUser({
+        ...updatedUser,
+        // userStatusId: selectedUserStatus.id,
+        // userStatuses: selectedUserStatus?.userStatuses,
+        // roleId: selectedRole.id,
+        // roles: selectedRole?.roles,
+        // campusId: selectedCampus.id,
+        // campus: selectedCampus.campus,
       }).unwrap();
+      dispatch(updateUsers(updatedUserResponse));
 
-      // Update Redux store with the updated role
-      dispatch(updateUsers(updatedUser));
+      //update campus only if it's modified
+      if (selectedCampus) {
+        const updatedCampus = {
+          id: selectedCampus.id,
+          campus: selectedCampus.campus,
+        };
+        dispatch(updateCampuses(updatedCampus));
+      }
 
-      // Force re-fetch to get the latest data
-      await refetch();
+      //update userStatus only if it's modified
+      if (selectedUserStatus) {
+        const updatedUserStatus = {
+          id: selectedUserStatus.id,
+          userStatuses: selectedUserStatus.userStatuses,
+        };
+        dispatch(updateUserStatuses(updatedUserStatus));
+      }
 
-      // Close the dialog and reset selectedRole
+      //update role only if it's modified
+      if (selectedRole) {
+        const updatedRole = {
+          id: selectedRole.id,
+          roles: selectedRole.roles,
+          description: selectedRole.description,
+        };
+        dispatch(updateRoles(updatedRole));
+      }
+
+      refetch();
       setOpenEdit(false);
       setSelectedUser(null);
+      setSelectedRole(null);
+      setSelectedCampus(null);
+      setSelectedUserStatus(null);
     } catch (error) {
       console.error("Error updating user:", error);
     }
@@ -235,7 +343,6 @@ export const UsersTable: React.FC = () => {
     { field: "email", headerName: "Email", flex: 1 },
     { field: "organization", headerName: "Organization", flex: 1 },
     { field: "picture", headerName: "Picture", flex: 1 },
-    { field: "password", headerName: "Password", flex: 1 },
     { field: "role", headerName: "Role", flex: 1 },
     { field: "campus", headerName: "Campus", flex: 1 },
     { field: "userStatus", headerName: "Status", flex: 1 },
@@ -253,10 +360,14 @@ export const UsersTable: React.FC = () => {
           phoneNo: string;
           organization: string;
           picture: string;
-          domain: string;
           password: string;
           roleId: number;
-          senderId: number;
+          roles: string;
+          userStatusId: number;
+          userStatuses: string;
+          campusId: number;
+          campus: string;
+          domain: string;
         };
         return (
           <div>
@@ -376,17 +487,6 @@ export const UsersTable: React.FC = () => {
               setNewUser({ ...newUser, picture: e.target.value })
             }
           />
-
-          <TextField
-            margin="dense"
-            label="Password"
-            fullWidth
-            variant="outlined"
-            value={newUser.password}
-            onChange={(e) =>
-              setNewUser({ ...newUser, password: e.target.value })
-            }
-          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenAdd(false)} color="secondary">
@@ -399,7 +499,13 @@ export const UsersTable: React.FC = () => {
       </Dialog>
 
       {/* Edit Role Dialog */}
-      <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
+      <Dialog
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        fullWidth
+        maxWidth="lg"
+      >
+        {" "}
         <DialogTitle>Edit User</DialogTitle>
         <DialogContent>
           <TextField
@@ -424,7 +530,11 @@ export const UsersTable: React.FC = () => {
                       domain: "",
                       password: "",
                       roleId: 0,
-                      senderId: 0,
+                      roles: "",
+                      campusId: 0,
+                      campus: "",
+                      userStatusId: 0,
+                      userStatuses: "",
                     }
               )
             }
@@ -450,7 +560,11 @@ export const UsersTable: React.FC = () => {
                       domain: "",
                       password: "",
                       roleId: 0,
-                      senderId: 0,
+                      roles: "",
+                      campusId: 0,
+                      campus: "",
+                      userStatusId: 0,
+                      userStatuses: "",
                     }
               )
             }
@@ -476,12 +590,15 @@ export const UsersTable: React.FC = () => {
                       domain: "",
                       password: "",
                       roleId: 0,
-                      senderId: 0,
+                      roles: "",
+                      campusId: 0,
+                      campus: "",
+                      userStatusId: 0,
+                      userStatuses: "",
                     }
               )
             }
           />
-
           <TextField
             margin="dense"
             label="Organization"
@@ -503,7 +620,11 @@ export const UsersTable: React.FC = () => {
                       domain: "",
                       password: "",
                       roleId: 0,
-                      senderId: 0,
+                      roles: "",
+                      campusId: 0,
+                      campus: "",
+                      userStatusId: 0,
+                      userStatuses: "",
                     }
               )
             }
@@ -529,37 +650,110 @@ export const UsersTable: React.FC = () => {
                       domain: "",
                       password: "",
                       roleId: 0,
-                      senderId: 0,
+                      roles: "",
+                      campusId: 0,
+                      campus: "",
+                      userStatusId: 0,
+                      userStatuses: "",
                     }
               )
             }
           />
-          <TextField
-            margin="dense"
-            label="Password"
-            fullWidth
-            variant="outlined"
-            value={selectedUser?.password || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, password: e.target.value }
-                  : {
-                      id: 0,
-                      name: "",
-                      username: "",
-                      email: "",
-                      phoneNo: "",
-                      organization: "",
-                      picture: "",
-                      domain: "",
-                      password: e.target.value,
-                      roleId: 0,
-                      senderId: 0,
-                    }
-              )
-            }
-          />
+
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>Role</InputLabel>
+            <Select
+              value={selectedRole?.id || ""}
+              onChange={(e) => {
+                const role = rolesData?.find((r) => r.id === e.target.value);
+                if (role) {
+                  setSelectedRole({
+                    id: role.id,
+                    roles: role.roles,
+                    description: role.description,
+                  });
+
+                  // Ensure `selectedUser` is updated
+                  setSelectedUser((prev) =>
+                    prev
+                      ? { ...prev, roleId: role.id, roles: role.roles }
+                      : prev
+                  );
+                }
+              }}
+              label="Role"
+            >
+              {rolesData?.map((role) => (
+                <MenuItem key={role.id} value={role.id}>
+                  {role.roles}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>User Status</InputLabel>
+            <Select
+              value={selectedUser?.userStatusId || ""}
+              onChange={(e) => {
+                const userStatus = userStatusesData?.find(
+                  (u) => u.id === e.target.value
+                );
+                if (userStatus) {
+                  setSelectedUserStatus({
+                    id: userStatus.id,
+                    userStatuses: userStatus.userStatuses,
+                  });
+                  setSelectedUser((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          userStatusId: userStatus.id,
+                          userStatuses: userStatus.userStatuses,
+                        }
+                      : null
+                  );
+                }
+              }}
+              label="User Status"
+            >
+              {userStatusesData?.map((userStatus) => (
+                <MenuItem key={userStatus.id} value={userStatus.id}>
+                  {userStatus.userStatuses}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>Campus</InputLabel>
+            <Select
+              value={selectedUser?.campusId || ""}
+              onChange={(e) => {
+                const campus = campusesData?.find(
+                  (c) => c.id === e.target.value
+                );
+                if (campus) {
+                  setSelectedCampus({
+                    id: campus.id,
+                    campus: campus.campus,
+                  });
+                  setSelectedUser((prev) =>
+                    prev
+                      ? { ...prev, campusId: campus.id, campus: campus.campus }
+                      : null
+                  );
+                }
+              }}
+              label="Campus"
+            >
+              {campusesData?.map((campus) => (
+                <MenuItem key={campus.id} value={campus.id}>
+                  {campus.campus}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEdit(false)} color="secondary">

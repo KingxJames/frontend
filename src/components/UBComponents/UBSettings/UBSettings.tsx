@@ -11,7 +11,6 @@ export const UBSettings: React.FC = () => {
 
   const handleShowTable = (text: string) => {
     const routes: Record<string, string> = {
-      "Access Rights": "/accessRights",
       "Buildings": "/buildings",
       "Campuses": "/campuses",
       "Incident Files": "/incidentFiles",
@@ -22,7 +21,6 @@ export const UBSettings: React.FC = () => {
       "Users": "/users",
       "Message Categories": "/messageCategories",
       "User Campuses": "/userCampuses",
-      "User Statuses": "/userStatuses"
     };
   
     if (routes[text]) {
@@ -33,7 +31,6 @@ export const UBSettings: React.FC = () => {
     <div style={{ padding: "3%" }}>
       <Grid container spacing={3}>
         {[
-          "Access Rights",
           "Buildings",
           "Campuses",
           "Incident Files",
@@ -44,7 +41,6 @@ export const UBSettings: React.FC = () => {
           "Users",
           "Message Categories",
           "User Campuses",
-          "User Statuses"
         ].map((text, index) => (
           <Grid item xs={4} key={index} sx={{ display: "flex", justifyContent: "left" }}>
             <UBButton text={text} onClick={() => handleShowTable(text)}/>

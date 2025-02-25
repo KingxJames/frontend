@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import {
   IconButton,
@@ -24,7 +25,7 @@ import {
   useFetchCampusesQuery,
   // useCreateCampusesMutation,
   // useDeleteCampusesMutation,
-  // useUpdateCampusesMutation,
+  useUpdateCampusesMutation,
 } from "../../../store/services/campusAPI";
 
 import {
@@ -35,13 +36,13 @@ import {
   selectBuildings,
 } from "../../../store/features/buildingSlice";
 
-// import {
-//   setCampuses,
-//   updateCampuses,
-//   addCampuses,
-//   deleteCampuses,
-//   selectCampuses,
-// } from "../../../store/features/campusSlice";
+import {
+  setCampuses,
+  updateCampuses,
+  // addCampuses,
+  // deleteCampuses,
+  selectCampuses,
+} from "../../../store/features/campusSlice";
 
 export const BuildingsTable: React.FC = () => {
   const dispatch = useDispatch();
@@ -50,9 +51,9 @@ export const BuildingsTable: React.FC = () => {
   const [createBuilding] = useCreateBuildingsMutation();
   const [deleteBuilding] = useDeleteBuildingsMutation();
   const [updateBuilding] = useUpdateBuildingsMutation();
+  const [updateCampus] = useUpdateCampusesMutation();
   const buildings = useSelector(selectBuildings);
-
-
+  const campuses = useSelector(selectCampuses);
   const [search, setSearch] = useState("");
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -61,11 +62,17 @@ export const BuildingsTable: React.FC = () => {
     location: "",
     campusId: 0,
   });
+  const [newCampus, setNewCampus] = useState({ campus: "" });
   const [selectedBuilding, setSelectedBuilding] = useState<{
     id: number;
     name: string;
     location: string;
     campusId: number;
+    campus: string;
+  } | null>(null);
+  const [selectedCampus, setSelectedCampus] = useState<{
+    id: number;
+    campus: string;
   } | null>(null);
 
   useEffect(() => {
@@ -148,8 +155,10 @@ export const BuildingsTable: React.FC = () => {
     name: string;
     location: string;
     campusId: number;
+    campus: string;
   }) => {
     setSelectedBuilding(building);
+    setSelectedCampus({ id: building.campusId, campus: building.campus });
     setOpenEdit(true);
   };
 
@@ -157,29 +166,50 @@ export const BuildingsTable: React.FC = () => {
     if (
       !selectedBuilding ||
       !selectedBuilding.name.trim() ||
-      !selectedBuilding.location.trim()
+      !selectedBuilding.location.trim() ||
+      !selectedCampus?.id ||
+      !selectedCampus?.campus.trim()
     ) {
-      alert("Both name and building location fields are required.");
+      alert("All fields are required.");
       return;
     }
 
     try {
-      const updatedBuilding = await updateBuilding(selectedBuilding).unwrap();
-      dispatch(updateBuildings(updatedBuilding));
+      // Ensure building has the updated campusId
+      const updatedBuilding = {
+        ...selectedBuilding,
+        campusId: selectedCampus.id, // Assign the correct campusId
+        campus: selectedCampus.campus,
+      };
+
+      // API call to update building
+      const updatedBuildingResponse = await updateBuilding(
+        updatedBuilding
+      ).unwrap();
+      dispatch(updateBuildings(updatedBuildingResponse));
+
+      // Update campus only if it's modified
+      if (selectedCampus) {
+        const updatedCampus = {
+          id: selectedCampus.id,
+          campus: selectedCampus.campus,
+        };
+        dispatch(updateCampuses(updatedCampus));
+      }
+
       refetch();
       setOpenEdit(false);
       setSelectedBuilding(null);
+      setSelectedCampus(null);
     } catch (error) {
       console.error("Error updating building:", error);
     }
   };
 
   const columns: GridColDef[] = [
-    // { field: "id", headerName: "ID", flex: 1 },
     { field: "name", headerName: "Building", flex: 1 },
     { field: "location", headerName: "Building Location", flex: 2 },
     { field: "campus", headerName: "Campus", flex: 2 },
-    // { field: "campusId", headerName: "Campus ID", flex: 2 },
     {
       field: "actions",
       headerName: "Actions",
@@ -190,6 +220,7 @@ export const BuildingsTable: React.FC = () => {
           name: string;
           location: string;
           campusId: number;
+          campus: string;
         };
         return (
           <div>
@@ -281,19 +312,26 @@ export const BuildingsTable: React.FC = () => {
             }
             sx={{ marginBottom: 2 }} // Adds spacing
           />
-          <TextField
-            label="Campus Id"
-            fullWidth
-            variant="outlined"
-            value={newBuilding.campusId}
-            onChange={(e) =>
-              setNewBuilding({
-                ...newBuilding,
-                campusId: Number(e.target.value),
-              })
-            }
-            sx={{ marginBottom: 2 }} // Adds spacing
-          />
+          <FormControl margin="dense" fullWidth variant="outlined">
+            <InputLabel>Campus</InputLabel>
+            <Select
+              value={selectedCampus?.campus || ""}
+              onChange={(e) =>
+                setSelectedCampus((prev) =>
+                  prev
+                    ? { ...prev, campus: e.target.value }
+                    : { id: 0, campus: e.target.value }
+                )
+              }
+              label="Campus"
+            >
+              {campuses?.campus?.map((campus) => (
+                <MenuItem key={campus.id} value={campus.campus}>
+                  {campus.campus}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenAdd(false)} color="secondary">
@@ -333,18 +371,26 @@ export const BuildingsTable: React.FC = () => {
             }
             sx={{ marginBottom: 2 }} // Adds spacing
           />
-          <TextField
-            label="Campus Id"
-            fullWidth
-            variant="outlined"
-            value={selectedBuilding?.campusId || ""}
-            onChange={(e) =>
-              setSelectedBuilding((prev) =>
-                prev ? { ...prev, campusId: Number(e.target.value) } : null
-              )
-            }
-            sx={{ marginBottom: 2 }} // Adds spacing
-          />
+
+          <FormControl margin="dense" fullWidth variant="outlined">
+            <InputLabel>Campus</InputLabel>
+            <Select
+              value={selectedCampus?.id || ""}
+              onChange={(e) => {
+                const campus = campusData?.find((c) => c.id === e.target.value);
+                if (campus) {
+                  setSelectedCampus({ id: campus.id, campus: campus.campus });
+                }
+              }}
+              label="Campus"
+            >
+              {campusData?.map((campus) => (
+                <MenuItem key={campus.id} value={campus.id}>
+                  {campus.campus}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEdit(false)} color="secondary">
