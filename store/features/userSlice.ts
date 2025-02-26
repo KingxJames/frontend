@@ -16,6 +16,8 @@ export interface IUser {
   userStatuses: string;
   campusId: number;
   campus: string;
+  userCampusId: number;
+  primaryCampus: boolean;
   domain: string;
 }
 

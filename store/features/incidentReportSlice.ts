@@ -12,7 +12,8 @@ export interface IIncidentReport {
   incidentFileId: number;
   incidentReoccured: string;
   incidentStatusId: number;
-  incidentTypeId: string;
+  statuses: string;
+  incidentTypeId: number;
   location: string;
   report: string;
   uploadedBy: string;

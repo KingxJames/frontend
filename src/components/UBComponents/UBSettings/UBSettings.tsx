@@ -11,18 +11,11 @@ export const UBSettings: React.FC = () => {
 
   const handleShowTable = (text: string) => {
     const routes: Record<string, string> = {
-      "Buildings": "/buildings",
-      "Campuses": "/campuses",
-      "Incident Files": "/incidentFiles",
+      Buildings: "/buildings",
       "Incident Reports": "/incidentReports",
-      "Incident Statuses": "/incidentStatuses",
-      "Incident Types": "/incidentTypes",
-      "Roles": "/roles",
-      "Users": "/users",
-      "Message Categories": "/messageCategories",
-      "User Campuses": "/userCampuses",
+      Users: "/users",
     };
-  
+
     if (routes[text]) {
       navigate(routes[text]);
     }
@@ -30,20 +23,14 @@ export const UBSettings: React.FC = () => {
   return (
     <div style={{ padding: "3%" }}>
       <Grid container spacing={3}>
-        {[
-          "Buildings",
-          "Campuses",
-          "Incident Files",
-          "Incident Reports",
-          "Incident Statuses",
-          "Incident Types",
-          "Roles",
-          "Users",
-          "Message Categories",
-          "User Campuses",
-        ].map((text, index) => (
-          <Grid item xs={4} key={index} sx={{ display: "flex", justifyContent: "left" }}>
-            <UBButton text={text} onClick={() => handleShowTable(text)}/>
+        {["Buildings", "Incident Reports", "Users"].map((text, index) => (
+          <Grid
+            item
+            xs={4}
+            key={index}
+            sx={{ display: "flex", justifyContent: "left" }}
+          >
+            <UBButton text={text} onClick={() => handleShowTable(text)} />
           </Grid>
         ))}
       </Grid>

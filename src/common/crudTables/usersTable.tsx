@@ -32,6 +32,7 @@ import {
   useFetchUserStatusesQuery,
 } from "../../../store/services/userStatusAPI";
 import { useUpdateRoleMutation } from "../../../store/services/roleAPI";
+import { useFetchUserCampusesQuery } from "../../../store/services/userCampusAPI";
 import {
   setUsers,
   updateUsers,
@@ -47,6 +48,8 @@ import {
 
 import { updateUserStatuses } from "../../../store/features/userStatusSlice";
 import { updateRoles } from "../../../store/features/roleSlice";
+import { selectUserCampuses } from "../../../store/features/userCampusSlice";
+
 import { Form } from "react-router-dom";
 
 export const UsersTable: React.FC = () => {
@@ -55,6 +58,7 @@ export const UsersTable: React.FC = () => {
   const { data: rolesData } = useFetchRolesQuery();
   const { data: campusesData } = useFetchCampusesQuery();
   const { data: userStatusesData } = useFetchUserStatusesQuery();
+  const { data: userCampusesData } = useFetchUserCampusesQuery();
   const [createUser] = useCreateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser] = useUpdateUserMutation();
@@ -81,10 +85,17 @@ export const UsersTable: React.FC = () => {
     campus: "",
     userStatusId: 0,
     userStatuses: "",
+    userCampusId: 0,
+    primaryCampus: false,
   });
   const [newCampus, setNewCampus] = useState({ campus: "" });
   const [newUserStatus, setNewUserStatus] = useState({ userStatuses: "" });
   const [newRole, setNewRole] = useState({ roles: "", description: "" });
+  const [newUserCampus, setNewUserCampus] = useState({
+    userId: 0,
+    campusId: 0,
+    primaryCampus: false,
+  });
   const [selectedUser, setSelectedUser] = useState<{
     id: number;
     name: string;
@@ -101,6 +112,8 @@ export const UsersTable: React.FC = () => {
     userStatuses: string;
     campusId: number;
     userStatusId: number;
+    userCampusId: number;
+    primaryCampus: boolean;
   } | null>(null);
 
   const [selectedCampus, setSelectedCampus] = useState<{
@@ -119,6 +132,13 @@ export const UsersTable: React.FC = () => {
     userStatuses: string;
   } | null>(null);
 
+  const [selectedUserCampus, setSelectedUserCampus] = useState<{
+    id: number;
+    userId: number;
+    campusId: number;
+    primaryCampus: boolean;
+  } | null>(null);
+
   useEffect(() => {
     if (usersData) {
       const mappedUsers = usersData.map((user) => ({
@@ -131,6 +151,9 @@ export const UsersTable: React.FC = () => {
           userStatusesData?.find(
             (userStatuses) => userStatuses.id === user.userStatusId
           )?.userStatuses || "",
+        userCampus:
+          userCampusesData?.find((userCampus) => userCampus.userId === user.id)
+            ?.primaryCampus || false,
       }));
 
       dispatch(setUsers(mappedUsers)); // Store mapped users in Redux
@@ -213,6 +236,8 @@ export const UsersTable: React.FC = () => {
           campus: "",
           userStatusId: 0,
           userStatuses: "",
+          userCampusId: 0,
+          primaryCampus: false,
         });
         setOpenAdd(false);
       }
@@ -237,6 +262,8 @@ export const UsersTable: React.FC = () => {
     userStatuses: string;
     campusId: number;
     campus: string;
+    userCampusId: number;
+    primaryCampus: boolean;
     domain: string;
   }) => {
     setSelectedUser(user); // Ensure selectedRole is set
@@ -261,9 +288,9 @@ export const UsersTable: React.FC = () => {
       !selectedUser ||
       !selectedUser.name.trim() ||
       !selectedUser.username.trim() ||
-      // !selectedUser.phoneNo || 
+      // !selectedUser.phoneNo ||
       !selectedUser.email.trim() ||
-      !selectedUser.organization.trim() || 
+      !selectedUser.organization.trim() ||
       !selectedUser.picture.trim() ||
       !selectedUser.domain.trim() ||
       !selectedRole?.id || // Ensure role is selected
@@ -285,7 +312,7 @@ export const UsersTable: React.FC = () => {
         roleId: selectedRole.id,
         roles: selectedRole?.roles,
       };
-      
+
       //Api call to update user
       const updatedUserResponse = await updateUser({
         ...updatedUser,
@@ -339,13 +366,12 @@ export const UsersTable: React.FC = () => {
 
   const columns: GridColDef[] = [
     { field: "name", headerName: "Name", flex: 1 },
-    { field: "username", headerName: "Username", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
-    { field: "organization", headerName: "Organization", flex: 1 },
     { field: "picture", headerName: "Picture", flex: 1 },
     { field: "role", headerName: "Role", flex: 1 },
-    { field: "campus", headerName: "Campus", flex: 1 },
     { field: "userStatus", headerName: "Status", flex: 1 },
+    { field: "campus", headerName: "Campus", flex: 1 },
+    { field: "userCampus", headerName: "Primary Campus", flex: 1 },
 
     {
       field: "actions",
@@ -367,6 +393,8 @@ export const UsersTable: React.FC = () => {
           userStatuses: string;
           campusId: number;
           campus: string;
+          userCampusId: number;
+          primaryCampus: boolean;
           domain: string;
         };
         return (
@@ -535,6 +563,8 @@ export const UsersTable: React.FC = () => {
                       campus: "",
                       userStatusId: 0,
                       userStatuses: "",
+                      userCampusId: 0,
+                      primaryCampus: false,
                     }
               )
             }
@@ -565,6 +595,8 @@ export const UsersTable: React.FC = () => {
                       campus: "",
                       userStatusId: 0,
                       userStatuses: "",
+                      userCampusId: 0,
+                      primaryCampus: false,
                     }
               )
             }
@@ -595,6 +627,8 @@ export const UsersTable: React.FC = () => {
                       campus: "",
                       userStatusId: 0,
                       userStatuses: "",
+                      userCampusId: 0,
+                      primaryCampus: false,
                     }
               )
             }
@@ -625,6 +659,8 @@ export const UsersTable: React.FC = () => {
                       campus: "",
                       userStatusId: 0,
                       userStatuses: "",
+                      userCampusId: 0,
+                      primaryCampus: false,
                     }
               )
             }
@@ -655,6 +691,8 @@ export const UsersTable: React.FC = () => {
                       campus: "",
                       userStatusId: 0,
                       userStatuses: "",
+                      userCampusId: 0,
+                      primaryCampus: false,
                     }
               )
             }

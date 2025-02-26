@@ -20,7 +20,9 @@ import {
   useDeleteIncidentReportMutation,
   useUpdateIncidentReportMutation,
 } from "./../../../store/services/incidentReportAPI";
-
+import { useFetchIncidentStatusesQuery } from "../../../store/services/incidentStatusAPI";
+import { useFetchIncidentFilesQuery } from "./../../../store/services/incidentFilesAPI";
+import { useFetchIncidentTypesQuery } from "../../../store/services/incidentTypesAPI";
 import {
   setIncidentReports,
   updateIncidentReports,
@@ -28,14 +30,23 @@ import {
   deleteIncidentReports,
   selectIncidentReports,
 } from "./../../../store/features/incidentReportSlice";
+import { selectIncidentStatuses } from "./../../../store/features/incidentStatusSlice";
+import { selectIncidentFiles } from "./../../../store/features/incidentFileSlice";
+import { selectIncidentTypes } from "./../../../store/features/incidentTypeSlice";
 
 export const IncidentReportTable: React.FC = () => {
   const dispatch = useDispatch();
   const { data: incidentReportsData, refetch } = useFetchIncidentReportQuery();
+  const { data: incidentStatusesData } = useFetchIncidentStatusesQuery();
+  const { data: incidentFilesData } = useFetchIncidentFilesQuery();
+  const { data: incidentTypesData } = useFetchIncidentTypesQuery();
   const [createIncidentReport] = useCreateIncidentReportMutation();
   const [deleteIncidentReport] = useDeleteIncidentReportMutation();
   const [updateIncidentReport] = useUpdateIncidentReportMutation();
   const incidentReports = useSelector(selectIncidentReports);
+  const incidentStatuses = useSelector(selectIncidentStatuses);
+  const incidentFiles = useSelector(selectIncidentFiles);
+  const incidentTypes = useSelector(selectIncidentTypes);
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openAdd, setOpenAdd] = useState(false);
@@ -48,9 +59,12 @@ export const IncidentReportTable: React.FC = () => {
     disposition: "",
     frequency: 0,
     incidentFileId: 0,
-    incidentReoccured: new Date().toLocaleDateString('en-CA'), // This will give you the date in YYYY-MM-DD format
+    path: "",
+    incidentReoccured: new Date().toLocaleDateString("en-CA"), // This will give you the date in YYYY-MM-DD format
     incidentStatusId: 0,
-    incidentTypeId: "",
+    statuses: "",
+    incidentTypeId: 0,
+    type: "",
     location: "",
     report: "",
     uploadedBy: "",
@@ -66,21 +80,48 @@ export const IncidentReportTable: React.FC = () => {
     disposition: string;
     frequency: number;
     incidentFileId: number;
+    path: string;
     incidentReoccured: string;
     incidentStatusId: number;
-    incidentTypeId: string;
+    statuses: string;
+    incidentTypeId: number;
+    type: string;
     location: string;
     report: string;
     uploadedBy: string;
     userId: number;
   } | null>(null);
 
-  // Fetch roles when component mounts
   useEffect(() => {
     if (incidentReportsData) {
-      dispatch(setIncidentReports(incidentReportsData)); // Store roles in Redux
+      const mappedIncidentReports = incidentReportsData.map(
+        (incidentReport) => ({
+          ...incidentReport,
+          incidentStatuses:
+            incidentStatusesData?.find(
+              (statuses) => statuses?.id === incidentReport.incidentStatusId
+            )?.statuses || "",
+          incidentFiles:
+            incidentFilesData?.find(
+              (incidentFiles) =>
+                incidentFiles?.id === incidentReport.incidentFileId
+            )?.path || "",
+          incidentTypes:
+            incidentTypesData?.find(
+              (incidentTypes) =>
+                incidentTypes?.id === incidentReport.incidentTypeId
+            )?.type || "",
+        })
+      );
+      dispatch(setIncidentReports(mappedIncidentReports)); // Store roles in Redux
     }
-  }, [incidentReportsData, dispatch]);
+  }, [
+    incidentReportsData,
+    incidentFilesData,
+    incidentStatusesData,
+    incidentTypesData,
+    dispatch,
+  ]);
 
   // Filter roles based on search query
   const filteredIncidentReports = incidentReports.incidentReports
@@ -191,11 +232,14 @@ export const IncidentReportTable: React.FC = () => {
           frequency: 0,
           incidentReoccured: "",
           incidentFileId: 0,
+          path: "",
           incidentStatusId: 0,
+          statuses: "",
           userId: 0,
           campusId: 0,
           buildingId: 0,
-          incidentTypeId: "",
+          incidentTypeId: 0,
+          type: "",
         });
         setOpenAdd(false);
       }
@@ -216,11 +260,14 @@ export const IncidentReportTable: React.FC = () => {
     frequency: number;
     incidentReoccured: string;
     incidentFileId: number;
+    path: string;
     incidentStatusId: number;
+    statuses: string;
     userId: number;
     campusId: number;
     buildingId: number;
-    incidentTypeId: string;
+    incidentTypeId: number;
+    type: string;
   }) => {
     if (!incidentReport) return;
     setSelectedIncidentReport(incidentReport); // Ensure selectedRole is set
@@ -291,12 +338,9 @@ export const IncidentReportTable: React.FC = () => {
     { field: "uploadedBy", headerName: "Uploaded By", flex: 1 },
     { field: "frequency", headerName: "Frequency", flex: 1 },
     { field: "incidentReoccured", headerName: "Incident Reoccured", flex: 1 },
-    // { field: "incidentFileId", headerName: "Incident File ID", flex: 1 },
-    // { field: "incidentStatusId", headerName: "Incident Status ID", flex: 1 },
-    // { field: "userId", headerName: "User ID", flex: 1 },
-    // { field: "campusId", headerName: "Campus ID", flex: 1 },
-    // { field: "buildingId", headerName: "Building ID", flex: 1 },
-    // { field: "incidentTypeId", headerName: "Incident Type ID", flex: 1 },
+    { field: "incidentStatuses", headerName: "Incident Statuses", flex: 1 },
+    { field: "incidentFiles", headerName: "Incident Files", flex: 1 },
+
     {
       field: "actions",
       headerName: "Actions",
@@ -313,11 +357,14 @@ export const IncidentReportTable: React.FC = () => {
           frequency: number;
           incidentReoccured: string;
           incidentFileId: number;
+          path: string;
           incidentStatusId: number;
+          statuses: string;
           userId: number;
           campusId: number;
           buildingId: number;
-          incidentTypeId: string;
+          incidentTypeId: number;
+          type: string;
         };
         return (
           <div>
@@ -568,7 +615,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setNewIncidentReport({
                 ...newIncidentReport,
-                incidentTypeId: e.target.value,
+                incidentTypeId: Number(e.target.value),
               })
             }
           />
@@ -609,11 +656,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -639,11 +689,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -669,11 +722,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -699,11 +755,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -729,11 +788,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -759,11 +821,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -789,11 +854,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: Number(e.target.value),
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -819,11 +887,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: e.target.value,
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -849,11 +920,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: Number(e.target.value),
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -879,11 +953,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: Number(e.target.value),
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -909,11 +986,15 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
+
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: Number(e.target.value),
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -939,11 +1020,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: Number(e.target.value),
                       buildingId: 0,
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -969,11 +1053,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: Number(e.target.value),
-                      incidentTypeId: "",
+                      incidentTypeId: 0,
+                      type: "",
                     }
               )
             }
@@ -987,7 +1074,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setSelectedIncidentReport((prev) =>
                 prev
-                  ? { ...prev, incidentTypeId: e.target.value }
+                  ? { ...prev, incidentTypeId: Number (e.target.value) }
                   : {
                       id: 0,
                       report: "",
@@ -999,11 +1086,14 @@ export const IncidentReportTable: React.FC = () => {
                       frequency: 0,
                       incidentReoccured: "",
                       incidentFileId: 0,
+                      path: "",
                       incidentStatusId: 0,
+                      statuses: "",
                       userId: 0,
                       campusId: 0,
                       buildingId: 0,
-                      incidentTypeId: e.target.value,
+                      incidentTypeId: Number(e.target.value),
+                      type: "",
                     }
               )
             }
