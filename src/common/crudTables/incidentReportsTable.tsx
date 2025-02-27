@@ -11,12 +11,10 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { useSelector, useDispatch } from "react-redux";
 import {
   useFetchIncidentReportQuery,
-  useCreateIncidentReportMutation,
   useDeleteIncidentReportMutation,
   useUpdateIncidentReportMutation,
 } from "./../../../store/services/incidentReportAPI";
@@ -26,7 +24,6 @@ import { useFetchIncidentTypesQuery } from "../../../store/services/incidentType
 import {
   setIncidentReports,
   updateIncidentReports,
-  addIncidentReports,
   deleteIncidentReports,
   selectIncidentReports,
 } from "./../../../store/features/incidentReportSlice";
@@ -40,7 +37,6 @@ export const IncidentReportTable: React.FC = () => {
   const { data: incidentStatusesData } = useFetchIncidentStatusesQuery();
   const { data: incidentFilesData } = useFetchIncidentFilesQuery();
   const { data: incidentTypesData } = useFetchIncidentTypesQuery();
-  const [createIncidentReport] = useCreateIncidentReportMutation();
   const [deleteIncidentReport] = useDeleteIncidentReportMutation();
   const [updateIncidentReport] = useUpdateIncidentReportMutation();
   const incidentReports = useSelector(selectIncidentReports);
@@ -125,8 +121,12 @@ export const IncidentReportTable: React.FC = () => {
 
   // Filter roles based on search query
   const filteredIncidentReports = incidentReports.incidentReports
-    ? incidentReports.incidentReports.filter((incidentReport) =>
-        incidentReport.report?.toLowerCase().includes(search.toLowerCase())
+    ? incidentReports.incidentReports.filter(
+        (incidentReport) =>
+          incidentReport.report?.toLowerCase().includes(search.toLowerCase()) ||
+          incidentReport.caseNumber
+            ?.toLowerCase()
+            .includes(search.toLowerCase())
       )
     : [];
 
@@ -149,39 +149,33 @@ export const IncidentReportTable: React.FC = () => {
   const handleExport = () => {
     const csvHeaders = [
       "ID",
-      "Action",
-      "BuildingId",
-      "CampusId",
       "CaseNumber",
-      "Disposition",
-      "Frequency",
-      "IncidentFileId",
-      "IncidentReoccured",
-      "IncidentStatusId",
-      "IncidentTypeId",
-      "Location",
       "Report",
+      "Disposition",
+      "Action",
+      "Location",
       "UploadedBy",
-      "UserId",
+      "Frequency",
+      "Incident Occured",
+      "Incident Status",
+      "Incident File",
+      "Incident Type",
     ];
 
     const csvRows = incidentReports.incidentReports.map((incidentReport) =>
       [
         incidentReport.id,
-        incidentReport.action,
-        incidentReport.buildingId,
-        incidentReport.campusId,
         incidentReport.caseNumber,
-        incidentReport.disposition,
-        incidentReport.frequency,
-        incidentReport.incidentFileId,
-        incidentReport.incidentReoccured,
-        incidentReport.incidentStatusId,
-        incidentReport.incidentTypeId,
-        incidentReport.location,
         incidentReport.report,
+        incidentReport.disposition,
+        incidentReport.action,
+        incidentReport.location,
         incidentReport.uploadedBy,
-        incidentReport.userId,
+        incidentReport.frequency,
+        incidentReport.incidentReoccured,
+        incidentReport.statuses,
+        incidentReport.path,
+        incidentReport.type,
       ]
         .map((field) => `"${String(field).replace(/"/g, '""')}"`) // Ensure proper CSV formatting
         .join(",")
@@ -198,54 +192,6 @@ export const IncidentReportTable: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link); // Cleanup
-  };
-
-  const handleAddIncidentReport = async () => {
-    try {
-      const response = await createIncidentReport({
-        action: newIncidentReport.action,
-        buildingId: newIncidentReport.buildingId,
-        campusId: newIncidentReport.campusId,
-        caseNumber: newIncidentReport.caseNumber,
-        disposition: newIncidentReport.disposition,
-        frequency: newIncidentReport.frequency,
-        incidentFileId: newIncidentReport.incidentFileId,
-        incidentReoccured: newIncidentReport.incidentReoccured,
-        incidentStatusId: newIncidentReport.incidentStatusId,
-        incidentTypeId: newIncidentReport.incidentTypeId,
-        location: newIncidentReport.location,
-        report: newIncidentReport.report,
-        uploadedBy: newIncidentReport.uploadedBy,
-        userId: newIncidentReport.userId,
-      }).unwrap();
-
-      if (response) {
-        await refetch();
-        dispatch(addIncidentReports(response)); // Update Redux store with the newly created role
-        setNewIncidentReport({
-          report: "",
-          disposition: "",
-          caseNumber: "",
-          action: "",
-          location: "",
-          uploadedBy: "",
-          frequency: 0,
-          incidentReoccured: "",
-          incidentFileId: 0,
-          path: "",
-          incidentStatusId: 0,
-          statuses: "",
-          userId: 0,
-          campusId: 0,
-          buildingId: 0,
-          incidentTypeId: 0,
-          type: "",
-        });
-        setOpenAdd(false);
-      }
-    } catch (error) {
-      console.error("Error adding incident Reports:", error);
-    }
   };
 
   // Handle edit incidentReport - open dialog
@@ -329,17 +275,12 @@ export const IncidentReportTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    // { field: "id", headerName: "ID", flex: 1 },
-    { field: "report", headerName: "Incident Report", flex: 1 },
-    { field: "disposition", headerName: "Disposition", flex: 1 },
     { field: "caseNumber", headerName: "Case Number", flex: 1 },
-    { field: "action", headerName: "Action", flex: 1 },
+    { field: "report", headerName: "Incident Report", flex: 1 },
     { field: "location", headerName: "Location", flex: 1 },
-    { field: "uploadedBy", headerName: "Uploaded By", flex: 1 },
-    { field: "frequency", headerName: "Frequency", flex: 1 },
-    { field: "incidentReoccured", headerName: "Incident Reoccured", flex: 1 },
+    { field: "incidentReoccured", headerName: "Incident Occured", flex: 1 },
     { field: "incidentStatuses", headerName: "Incident Statuses", flex: 1 },
-    { field: "incidentFiles", headerName: "Incident Files", flex: 1 },
+    { field: "uploadedBy", headerName: "Uploaded By", flex: 1 },
 
     {
       field: "actions",
@@ -405,15 +346,6 @@ export const IncidentReportTable: React.FC = () => {
         <div>
           <Button
             variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => setOpenAdd(true)}
-            sx={{ marginRight: 2 }} // Adds spacing to the right
-          >
-            Add Incident Report
-          </Button>
-          <Button
-            variant="contained"
             color="secondary"
             startIcon={<FileDownloadIcon />}
             onClick={handleExport}
@@ -431,205 +363,6 @@ export const IncidentReportTable: React.FC = () => {
         pageSizeOptions={[5, 10, 15]}
         disableRowSelectionOnClick
       />
-
-      {/* Add Role Dialog */}
-      <Dialog open={openAdd} onClose={() => setOpenAdd(false)}>
-        <DialogTitle>Add New Incident Report</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Incident Report"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.report}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                report: e.target.value,
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Disposition"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.disposition}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                disposition: e.target.value,
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Case Number"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.caseNumber}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                caseNumber: e.target.value,
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Action"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.action}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                action: e.target.value,
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Location"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.location}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                location: e.target.value,
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Uploaded By"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.uploadedBy}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                uploadedBy: e.target.value,
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Frequency"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.frequency}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                frequency: Number(e.target.value),
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Incident Reoccured"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.incidentReoccured}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                incidentReoccured: e.target.value,
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Incident File ID"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.incidentFileId}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                incidentFileId: Number(e.target.value),
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Incident Status ID"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.incidentStatusId}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                incidentStatusId: Number(e.target.value),
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="User ID"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.userId}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                userId: Number(e.target.value),
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Campus ID"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.campusId}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                campusId: Number(e.target.value),
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Building ID"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.buildingId}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                buildingId: Number(e.target.value),
-              })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Incident Type ID"
-            fullWidth
-            variant="outlined"
-            value={newIncidentReport.incidentTypeId}
-            onChange={(e) =>
-              setNewIncidentReport({
-                ...newIncidentReport,
-                incidentTypeId: Number(e.target.value),
-              })
-            }
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAdd(false)} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={handleAddIncidentReport} color="primary">
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
-
       {/* Edit Role Dialog */}
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
         <DialogTitle>Edit Incident Report</DialogTitle>
@@ -1074,7 +807,7 @@ export const IncidentReportTable: React.FC = () => {
             onChange={(e) =>
               setSelectedIncidentReport((prev) =>
                 prev
-                  ? { ...prev, incidentTypeId: Number (e.target.value) }
+                  ? { ...prev, incidentTypeId: Number(e.target.value) }
                   : {
                       id: 0,
                       report: "",

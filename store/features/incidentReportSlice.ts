@@ -10,10 +10,12 @@ export interface IIncidentReport {
   disposition: string;
   frequency: number;
   incidentFileId: number;
+  path: string;
   incidentReoccured: string;
   incidentStatusId: number;
   statuses: string;
   incidentTypeId: number;
+  type: string;
   location: string;
   report: string;
   uploadedBy: string;

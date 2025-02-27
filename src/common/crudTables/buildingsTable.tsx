@@ -21,12 +21,7 @@ import {
   useDeleteBuildingsMutation,
   useUpdateBuildingsMutation,
 } from "../../../store/services/buildingsAPI";
-import {
-  useFetchCampusesQuery,
-  // useCreateCampusesMutation,
-  // useDeleteCampusesMutation,
-  useUpdateCampusesMutation,
-} from "../../../store/services/campusAPI";
+import { useFetchCampusesQuery } from "../../../store/services/campusAPI";
 
 import {
   setBuildings,
@@ -36,13 +31,7 @@ import {
   selectBuildings,
 } from "../../../store/features/buildingSlice";
 
-import {
-  setCampuses,
-  updateCampuses,
-  // addCampuses,
-  // deleteCampuses,
-  selectCampuses,
-} from "../../../store/features/campusSlice";
+import { updateCampuses } from "../../../store/features/campusSlice";
 
 export const BuildingsTable: React.FC = () => {
   const dispatch = useDispatch();
@@ -51,18 +40,16 @@ export const BuildingsTable: React.FC = () => {
   const [createBuilding] = useCreateBuildingsMutation();
   const [deleteBuilding] = useDeleteBuildingsMutation();
   const [updateBuilding] = useUpdateBuildingsMutation();
-  const [updateCampus] = useUpdateCampusesMutation();
   const buildings = useSelector(selectBuildings);
-  const campuses = useSelector(selectCampuses);
   const [search, setSearch] = useState("");
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [newBuilding, setNewBuilding] = useState({
     name: "",
     location: "",
-    campusId: 0,
+    // campusId: 0,
+    // campus: "",
   });
-  const [newCampus, setNewCampus] = useState({ campus: "" });
   const [selectedBuilding, setSelectedBuilding] = useState<{
     id: number;
     name: string;
@@ -115,10 +102,10 @@ export const BuildingsTable: React.FC = () => {
   const handleExport = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      ["ID,Name,Building Location"]
+      ["Building,Building Location,Campus"]
         .concat(
           buildings.buildings.map(
-            (building) => `${building.id},${building.name},${building.location}`
+            (building) => `${building.name},${building.location}, ${building.campus}`
           )
         )
         .join("\n");
@@ -132,21 +119,37 @@ export const BuildingsTable: React.FC = () => {
   };
 
   const handleAddBuilding = async () => {
+    if (
+      !newBuilding.name.trim() ||
+      !newBuilding.location.trim() ||
+      !selectedCampus?.campus
+    ) {
+      alert("All fields are required.");
+      return;
+    }
+
     try {
-      const response = await createBuilding({
-        name: newBuilding.name,
-        location: newBuilding.location,
-        campusId: newBuilding.campusId,
-      }).unwrap();
+      const buildingData = {
+        name: newBuilding.name.trim(),
+        location: newBuilding.location.trim(),
+        campusId: selectedCampus.id, // Use selectedCampus ID
+        campus: selectedCampus.campus, // Use selectedCampus name
+      };
+
+      const response = await createBuilding(buildingData).unwrap();
 
       if (response) {
-        await refetch(); // Force re-fetch to get the latest data
+        await refetch(); // Fetch the latest data
         dispatch(addBuildings(response));
-        setNewBuilding({ name: "", location: "", campusId: 0 });
+
+        // Reset form
+        setNewBuilding({ name: "", location: "" }); // No need for campusId and campus
+        setSelectedCampus(null);
         setOpenAdd(false);
       }
     } catch (error) {
       console.error("Error adding Building:", error);
+      alert("Failed to add building. Please try again.");
     }
   };
 
@@ -300,7 +303,7 @@ export const BuildingsTable: React.FC = () => {
             onChange={(e) =>
               setNewBuilding({ ...newBuilding, name: e.target.value })
             }
-            sx={{ marginBottom: 2 }} // Adds spacing
+            sx={{mt: "2%", marginBottom: 2 }} // Adds spacing
           />
           <TextField
             label="Building Location"
@@ -315,18 +318,17 @@ export const BuildingsTable: React.FC = () => {
           <FormControl margin="dense" fullWidth variant="outlined">
             <InputLabel>Campus</InputLabel>
             <Select
-              value={selectedCampus?.campus || ""}
-              onChange={(e) =>
-                setSelectedCampus((prev) =>
-                  prev
-                    ? { ...prev, campus: e.target.value }
-                    : { id: 0, campus: e.target.value }
-                )
-              }
+              value={selectedCampus?.id || ""}
+              onChange={(e) => {
+                const campus = campusData?.find((c) => c.id === e.target.value);
+                if (campus) {
+                  setSelectedCampus({ id: campus.id, campus: campus.campus });
+                }
+              }}
               label="Campus"
             >
-              {campuses?.campus?.map((campus) => (
-                <MenuItem key={campus.id} value={campus.campus}>
+              {campusData?.map((campus) => (
+                <MenuItem key={campus.id} value={campus.id}>
                   {campus.campus}
                 </MenuItem>
               ))}
