@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import Grid from "@mui/material/Grid2";
 import {
   IconButton,
   Button,
@@ -8,7 +9,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Box,
+  Typography,
 } from "@mui/material";
+import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
@@ -33,6 +37,8 @@ import { selectIncidentTypes } from "./../../../store/features/incidentTypeSlice
 
 export const IncidentReportTable: React.FC = () => {
   const dispatch = useDispatch();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
   const { data: incidentReportsData, refetch } = useFetchIncidentReportQuery();
   const { data: incidentStatusesData } = useFetchIncidentStatusesQuery();
   const { data: incidentFilesData } = useFetchIncidentFilesQuery();
@@ -274,6 +280,43 @@ export const IncidentReportTable: React.FC = () => {
     }
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl); // Show preview
+
+      setSelectedIncidentReport((prev) =>
+        prev
+          ? { ...prev, path: file.name }
+          : {
+              id: 0,
+              report: "",
+              disposition: "",
+              caseNumber: "",
+              action: "",
+              location: "",
+              uploadedBy: "",
+              frequency: 0,
+              incidentReoccured: "",
+              incidentFileId: 0,
+              path: file.name,
+              incidentStatusId: 0,
+              statuses: "",
+              userId: 0,
+              campusId: 0,
+              buildingId: 0,
+              incidentTypeId: 0,
+              type: "",
+            }
+      );
+      // TODO: Upload the file to your server here (dispatch an action or send via API)
+    } else {
+      setImagePreview(null);
+    }
+  };
+
   const columns: GridColDef[] = [
     { field: "caseNumber", headerName: "Case Number", flex: 1 },
     { field: "report", headerName: "Incident Report", flex: 1 },
@@ -364,473 +407,453 @@ export const IncidentReportTable: React.FC = () => {
         disableRowSelectionOnClick
       />
       {/* Edit Role Dialog */}
-      <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
+      <Dialog
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        fullScreen
+        sx={{ width: "50vw", height: "90vh", margin: "auto" }}
+      >
         <DialogTitle>Edit Incident Report</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Incident Report"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.report || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, report: e.target.value }
-                  : {
-                      id: 0,
-                      report: e.target.value,
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
+          <Grid
+            container
+            rowSpacing={1}
+            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+          >
+            <Grid size={6}>
+              <TextField
+                margin="dense"
+                label="Case Number"
+                fullWidth
+                variant="outlined"
+                value={selectedIncidentReport?.caseNumber || ""}
+                onChange={(e) =>
+                  setSelectedIncidentReport((prev) =>
+                    prev
+                      ? { ...prev, caseNumber: e.target.value }
+                      : {
+                          id: 0,
+                          report: "",
+                          disposition: "",
+                          caseNumber: e.target.value,
+                          action: "",
+                          location: "",
+                          uploadedBy: "",
+                          frequency: 0,
+                          incidentReoccured: "",
+                          incidentFileId: 0,
+                          path: "",
+                          incidentStatusId: 0,
+                          statuses: "",
+                          userId: 0,
+                          campusId: 0,
+                          buildingId: 0,
+                          incidentTypeId: 0,
+                          type: "",
+                        }
+                  )
+                }
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                margin="dense"
+                label="Disposition"
+                fullWidth
+                variant="outlined"
+                value={selectedIncidentReport?.disposition || ""}
+                onChange={(e) =>
+                  setSelectedIncidentReport((prev) =>
+                    prev
+                      ? { ...prev, disposition: e.target.value }
+                      : {
+                          id: 0,
+                          report: "",
+                          disposition: e.target.value,
+                          caseNumber: "",
+                          action: "",
+                          location: "",
+                          uploadedBy: "",
+                          frequency: 0,
+                          incidentReoccured: "",
+                          incidentFileId: 0,
+                          path: "",
+                          incidentStatusId: 0,
+                          statuses: "",
+                          userId: 0,
+                          campusId: 0,
+                          buildingId: 0,
+                          incidentTypeId: 0,
+                          type: "",
+                        }
+                  )
+                }
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                margin="dense"
+                label="Action"
+                fullWidth
+                variant="outlined"
+                value={selectedIncidentReport?.action || ""}
+                onChange={(e) =>
+                  setSelectedIncidentReport((prev) =>
+                    prev
+                      ? { ...prev, action: e.target.value }
+                      : {
+                          id: 0,
+                          report: "",
+                          disposition: "",
+                          caseNumber: "",
+                          action: e.target.value,
+                          location: "",
+                          uploadedBy: "",
+                          frequency: 0,
+                          incidentReoccured: "",
+                          incidentFileId: 0,
+                          path: "",
+                          incidentStatusId: 0,
+                          statuses: "",
+                          userId: 0,
+                          campusId: 0,
+                          buildingId: 0,
+                          incidentTypeId: 0,
+                          type: "",
+                        }
+                  )
+                }
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                margin="dense"
+                label="Location"
+                fullWidth
+                variant="outlined"
+                value={selectedIncidentReport?.location || ""}
+                onChange={(e) =>
+                  setSelectedIncidentReport((prev) =>
+                    prev
+                      ? { ...prev, location: e.target.value }
+                      : {
+                          id: 0,
+                          report: "",
+                          disposition: "",
+                          caseNumber: "",
+                          action: "",
+                          location: e.target.value,
+                          uploadedBy: "",
+                          frequency: 0,
+                          incidentReoccured: "",
+                          incidentFileId: 0,
+                          path: "",
+                          incidentStatusId: 0,
+                          statuses: "",
+                          userId: 0,
+                          campusId: 0,
+                          buildingId: 0,
+                          incidentTypeId: 0,
+                          type: "",
+                        }
+                  )
+                }
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                margin="dense"
+                label="Uploaded By"
+                fullWidth
+                variant="outlined"
+                value={selectedIncidentReport?.uploadedBy || ""}
+                onChange={(e) =>
+                  setSelectedIncidentReport((prev) =>
+                    prev
+                      ? { ...prev, uploadedBy: e.target.value }
+                      : {
+                          id: 0,
+                          report: "",
+                          disposition: "",
+                          caseNumber: "",
+                          action: "",
+                          location: "",
+                          uploadedBy: e.target.value,
+                          frequency: 0,
+                          incidentReoccured: "",
+                          incidentFileId: 0,
+                          path: "",
+                          incidentStatusId: 0,
+                          statuses: "",
+                          userId: 0,
+                          campusId: 0,
+                          buildingId: 0,
+                          incidentTypeId: 0,
+                          type: "",
+                        }
+                  )
+                }
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                margin="dense"
+                label="Frequency"
+                fullWidth
+                variant="outlined"
+                value={selectedIncidentReport?.frequency || ""}
+                onChange={(e) =>
+                  setSelectedIncidentReport((prev) =>
+                    prev
+                      ? { ...prev, frequency: Number(e.target.value) }
+                      : {
+                          id: 0,
+                          report: "",
+                          disposition: "",
+                          caseNumber: "",
+                          action: "",
+                          location: "",
+                          uploadedBy: "",
+                          frequency: Number(e.target.value),
+                          incidentReoccured: "",
+                          incidentFileId: 0,
+                          path: "",
+                          incidentStatusId: 0,
+                          statuses: "",
+                          userId: 0,
+                          campusId: 0,
+                          buildingId: 0,
+                          incidentTypeId: 0,
+                          type: "",
+                        }
+                  )
+                }
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                margin="dense"
+                label="Incident Occured"
+                fullWidth
+                variant="outlined"
+                value={selectedIncidentReport?.incidentReoccured || ""}
+                onChange={(e) =>
+                  setSelectedIncidentReport((prev) =>
+                    prev
+                      ? { ...prev, incidentReoccured: e.target.value }
+                      : {
+                          id: 0,
+                          report: "",
+                          disposition: "",
+                          caseNumber: "",
+                          action: "",
+                          location: "",
+                          uploadedBy: "",
+                          frequency: 0,
+                          incidentReoccured: e.target.value,
+                          incidentFileId: 0,
+                          path: "",
+                          incidentStatusId: 0,
+                          statuses: "",
+                          userId: 0,
+                          campusId: 0,
+                          buildingId: 0,
+                          incidentTypeId: 0,
+                          type: "",
+                        }
+                  )
+                }
+              />
+            </Grid>
+            <Grid size={6}>
+              <FormControl margin="dense" fullWidth variant="outlined">
+                <InputLabel>Incident Status</InputLabel>
+                <Select
+                  value={selectedIncidentReport?.incidentStatusId || ""}
+                  onChange={(e) => {
+                    const incidentStatus = incidentStatusesData?.find(
+                      (c) => c.id === e.target.value
+                    );
+                    if (incidentStatus) {
+                      setSelectedIncidentReport((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              incidentStatusId: incidentStatus.id,
+                              statuses: incidentStatus.statuses,
+                            }
+                          : {
+                              id: 0,
+                              report: "",
+                              disposition: "",
+                              caseNumber: "",
+                              action: "",
+                              location: "",
+                              uploadedBy: "",
+                              frequency: 0,
+                              incidentReoccured: "",
+                              incidentFileId: 0,
+                              path: "",
+                              incidentStatusId: incidentStatus.id,
+                              statuses: incidentStatus.statuses,
+                              userId: 0,
+                              campusId: 0,
+                              buildingId: 0,
+                              incidentTypeId: 0,
+                              type: "",
+                            }
+                      );
                     }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Disposition"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.disposition || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, disposition: e.target.value }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: e.target.value,
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Case Number"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.caseNumber || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, caseNumber: e.target.value }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: e.target.value,
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Action"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.action || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, action: e.target.value }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: e.target.value,
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Location"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.location || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, location: e.target.value }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: e.target.value,
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Uploaded By"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.uploadedBy || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, uploadedBy: e.target.value }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: e.target.value,
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Frequency"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.frequency || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, frequency: Number(e.target.value) }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: Number(e.target.value),
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Incident Reoccured"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.incidentReoccured || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, incidentReoccured: e.target.value }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: e.target.value,
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Incident File ID"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.incidentFileId || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, incidentFileId: Number(e.target.value) }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: Number(e.target.value),
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Incident Status ID"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.incidentStatusId || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, incidentStatusId: Number(e.target.value) }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: Number(e.target.value),
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="User ID"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.userId || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, userId: Number(e.target.value) }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
+                  }}
+                >
+                  {incidentStatusesData?.map((incidentStatus) => (
+                    <MenuItem key={incidentStatus.id} value={incidentStatus.id}>
+                      {incidentStatus.statuses}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
 
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: Number(e.target.value),
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
+            <FormControl margin="dense" fullWidth variant="outlined">
+              <InputLabel id="demo-simple-select-label">
+                Incident Type
+              </InputLabel>
+              <Select
+                value={selectedIncidentReport?.incidentTypeId || ""}
+                onChange={(e) => {
+                  const incidentType = incidentTypesData?.find(
+                    (c) => c.id === e.target.value
+                  );
+                  if (incidentType) {
+                    setSelectedIncidentReport((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            incidentTypeId: incidentType.id,
+                            type: incidentType.type,
+                          }
+                        : {
+                            id: 0,
+                            report: "",
+                            disposition: "",
+                            caseNumber: "",
+                            action: "",
+                            location: "",
+                            uploadedBy: "",
+                            frequency: 0,
+                            incidentReoccured: "",
+                            incidentFileId: 0,
+                            path: "",
+                            incidentStatusId: 0,
+                            statuses: "",
+                            userId: 0,
+                            campusId: 0,
+                            buildingId: 0,
+                            incidentTypeId: incidentType.id,
+                            type: incidentType.type,
+                          }
+                    );
+                  }
+                }}
+              >
+                {incidentTypesData?.map((incidentType) => (
+                  <MenuItem key={incidentType.id} value={incidentType.id}>
+                    {incidentType.type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Incident Files
+              </Typography>
+            </Box>
+
+            <Grid size={6}>
+              <div>
+                {/* Upload Field */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  style={{ display: "none" }}
+                  id="incident-file-upload"
+                />
+                <label htmlFor="incident-file-upload">
+                  <TextField
+                    margin="dense"
+                    label="Incident File"
+                    fullWidth
+                    variant="outlined"
+                    value={selectedIncidentReport?.path || ""}
+                    onClick={() =>
+                      document.getElementById("incident-file-upload")?.click()
                     }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Campus ID"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.campusId || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, campusId: Number(e.target.value) }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: Number(e.target.value),
-                      buildingId: 0,
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Building ID"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.buildingId || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, buildingId: Number(e.target.value) }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: Number(e.target.value),
-                      incidentTypeId: 0,
-                      type: "",
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Incident Type ID"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentReport?.incidentTypeId || ""}
-            onChange={(e) =>
-              setSelectedIncidentReport((prev) =>
-                prev
-                  ? { ...prev, incidentTypeId: Number(e.target.value) }
-                  : {
-                      id: 0,
-                      report: "",
-                      disposition: "",
-                      caseNumber: "",
-                      action: "",
-                      location: "",
-                      uploadedBy: "",
-                      frequency: 0,
-                      incidentReoccured: "",
-                      incidentFileId: 0,
-                      path: "",
-                      incidentStatusId: 0,
-                      statuses: "",
-                      userId: 0,
-                      campusId: 0,
-                      buildingId: 0,
-                      incidentTypeId: Number(e.target.value),
-                      type: "",
-                    }
-              )
-            }
-          />
+                    InputProps={{
+                      readOnly: true, // Prevent manual editing
+                    }}
+                  />
+                </label>
+
+                {/* Image Preview */}
+                {imagePreview && (
+                  <div style={{ marginTop: "10px" }}>
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      style={{
+                        width: "100%",
+                        maxHeight: "200px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </Grid>
+            <TextField
+              autoFocus
+              multiline
+              rows={10}
+              margin="dense"
+              label="Incident Report"
+              fullWidth
+              variant="outlined"
+              value={selectedIncidentReport?.report || ""}
+              onChange={(e) =>
+                setSelectedIncidentReport((prev) =>
+                  prev
+                    ? { ...prev, report: e.target.value }
+                    : {
+                        id: 0,
+                        report: e.target.value,
+                        disposition: "",
+                        caseNumber: "",
+                        action: "",
+                        location: "",
+                        uploadedBy: "",
+                        frequency: 0,
+                        incidentReoccured: "",
+                        incidentFileId: 0,
+                        path: "",
+                        incidentStatusId: 0,
+                        statuses: "",
+                        userId: 0,
+                        campusId: 0,
+                        buildingId: 0,
+                        incidentTypeId: 0,
+                        type: "",
+                      }
+                )
+              }
+              sx={{
+                width: "100%", // Adjust width as needed
+              }}
+            />
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEdit(false)} color="secondary">

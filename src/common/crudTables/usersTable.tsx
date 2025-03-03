@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import Grid from "@mui/material/Grid";
+
 import {
   IconButton,
   Button,
@@ -204,48 +206,6 @@ export const UsersTable: React.FC = () => {
     link.click();
   };
 
-  // Handle add new role
-  const handleAddUser = async () => {
-    try {
-      const response = await createUser({
-        name: newUser.name,
-        username: newUser.username,
-        email: newUser.email,
-        phoneNo: newUser.phoneNo,
-        organization: newUser.organization,
-        picture: newUser.picture,
-        password: newUser.password,
-        roleId: newUser.roleId,
-      }).unwrap();
-
-      if (response) {
-        await refetch();
-        dispatch(addUsers(response)); // Update Redux store with the newly created role
-        setNewUser({
-          name: "",
-          username: "",
-          email: "",
-          phoneNo: "",
-          organization: "",
-          picture: "",
-          password: "",
-          domain: "",
-          roleId: 0,
-          roles: "",
-          campusId: 0,
-          campus: "",
-          userStatusId: 0,
-          userStatuses: "",
-          userCampusId: 0,
-          primaryCampus: false,
-        });
-        setOpenAdd(false);
-      }
-    } catch (error) {
-      console.error("Error adding user:", error);
-    }
-  };
-
   // Handle edit role - open dialog
   const handleEdit = (user: {
     id: number;
@@ -371,7 +331,6 @@ export const UsersTable: React.FC = () => {
     { field: "role", headerName: "Role", flex: 1 },
     { field: "userStatus", headerName: "Status", flex: 1 },
     { field: "campus", headerName: "Campus", flex: 1 },
-    { field: "userCampus", headerName: "Primary Campus", flex: 1 },
 
     {
       field: "actions",
@@ -436,15 +395,6 @@ export const UsersTable: React.FC = () => {
         <div>
           <Button
             variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => setOpenAdd(true)}
-            sx={{ marginRight: 2 }} // Adds spacing to the right
-          >
-            Add User
-          </Button>
-          <Button
-            variant="contained"
             color="secondary"
             startIcon={<FileDownloadIcon />}
             onClick={handleExport}
@@ -463,69 +413,6 @@ export const UsersTable: React.FC = () => {
         disableRowSelectionOnClick
       />
 
-      {/* Add Role Dialog */}
-      <Dialog open={openAdd} onClose={() => setOpenAdd(false)}>
-        <DialogTitle>Add New User</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Name"
-            fullWidth
-            variant="outlined"
-            value={newUser.name}
-            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Username"
-            fullWidth
-            variant="outlined"
-            value={newUser.username}
-            onChange={(e) =>
-              setNewUser({ ...newUser, username: e.target.value })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            fullWidth
-            variant="outlined"
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-          />
-
-          <TextField
-            margin="dense"
-            label="Organization"
-            fullWidth
-            variant="outlined"
-            value={newUser.organization}
-            onChange={(e) =>
-              setNewUser({ ...newUser, organization: e.target.value })
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Picture"
-            fullWidth
-            variant="outlined"
-            value={newUser.picture}
-            onChange={(e) =>
-              setNewUser({ ...newUser, picture: e.target.value })
-            }
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAdd(false)} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={handleAddUser} color="primary">
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
-
       {/* Edit Role Dialog */}
       <Dialog
         open={openEdit}
@@ -536,262 +423,220 @@ export const UsersTable: React.FC = () => {
         {" "}
         <DialogTitle>Edit User</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Name"
-            fullWidth
-            variant="outlined"
-            value={selectedUser?.name || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, name: e.target.value }
-                  : {
-                      id: 0,
-                      name: e.target.value,
-                      username: "",
-                      email: "",
-                      phoneNo: "",
-                      organization: "",
-                      picture: "",
-                      domain: "",
-                      password: "",
-                      roleId: 0,
-                      roles: "",
-                      campusId: 0,
-                      campus: "",
-                      userStatusId: 0,
-                      userStatuses: "",
-                      userCampusId: 0,
-                      primaryCampus: false,
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Username"
-            fullWidth
-            variant="outlined"
-            value={selectedUser?.username || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, username: e.target.value }
-                  : {
-                      id: 0,
-                      name: "",
-                      username: e.target.value,
-                      email: "",
-                      phoneNo: "",
-                      organization: "",
-                      picture: "",
-                      domain: "",
-                      password: "",
-                      roleId: 0,
-                      roles: "",
-                      campusId: 0,
-                      campus: "",
-                      userStatusId: 0,
-                      userStatuses: "",
-                      userCampusId: 0,
-                      primaryCampus: false,
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            fullWidth
-            variant="outlined"
-            value={selectedUser?.email || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, email: e.target.value }
-                  : {
-                      id: 0,
-                      name: "",
-                      username: "",
-                      email: e.target.value,
-                      phoneNo: "",
-                      organization: "",
-                      picture: "",
-                      domain: "",
-                      password: "",
-                      roleId: 0,
-                      roles: "",
-                      campusId: 0,
-                      campus: "",
-                      userStatusId: 0,
-                      userStatuses: "",
-                      userCampusId: 0,
-                      primaryCampus: false,
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Organization"
-            fullWidth
-            variant="outlined"
-            value={selectedUser?.organization || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, organization: e.target.value }
-                  : {
-                      id: 0,
-                      name: "",
-                      username: "",
-                      email: "",
-                      phoneNo: "",
-                      organization: e.target.value,
-                      picture: "",
-                      domain: "",
-                      password: "",
-                      roleId: 0,
-                      roles: "",
-                      campusId: 0,
-                      campus: "",
-                      userStatusId: 0,
-                      userStatuses: "",
-                      userCampusId: 0,
-                      primaryCampus: false,
-                    }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Picture"
-            fullWidth
-            variant="outlined"
-            value={selectedUser?.picture || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, picture: e.target.value }
-                  : {
-                      id: 0,
-                      name: "",
-                      username: "",
-                      email: "",
-                      phoneNo: "",
-                      organization: "",
-                      picture: e.target.value,
-                      domain: "",
-                      password: "",
-                      roleId: 0,
-                      roles: "",
-                      campusId: 0,
-                      campus: "",
-                      userStatusId: 0,
-                      userStatuses: "",
-                      userCampusId: 0,
-                      primaryCampus: false,
-                    }
-              )
-            }
-          />
-
-          <FormControl fullWidth variant="outlined">
-            <InputLabel>Role</InputLabel>
-            <Select
-              value={selectedRole?.id || ""}
-              onChange={(e) => {
-                const role = rolesData?.find((r) => r.id === e.target.value);
-                if (role) {
-                  setSelectedRole({
-                    id: role.id,
-                    roles: role.roles,
-                    description: role.description,
-                  });
-
-                  // Ensure `selectedUser` is updated
+          <Grid
+            container
+            rowSpacing={1}
+            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+          >
+            <Grid item xs={6}>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Name"
+                fullWidth
+                variant="outlined"
+                value={selectedUser?.name || ""}
+                onChange={(e) =>
                   setSelectedUser((prev) =>
                     prev
-                      ? { ...prev, roleId: role.id, roles: role.roles }
-                      : prev
-                  );
-                }
-              }}
-              label="Role"
-            >
-              {rolesData?.map((role) => (
-                <MenuItem key={role.id} value={role.id}>
-                  {role.roles}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth variant="outlined">
-            <InputLabel>User Status</InputLabel>
-            <Select
-              value={selectedUser?.userStatusId || ""}
-              onChange={(e) => {
-                const userStatus = userStatusesData?.find(
-                  (u) => u.id === e.target.value
-                );
-                if (userStatus) {
-                  setSelectedUserStatus({
-                    id: userStatus.id,
-                    userStatuses: userStatus.userStatuses,
-                  });
-                  setSelectedUser((prev) =>
-                    prev
-                      ? {
-                          ...prev,
-                          userStatusId: userStatus.id,
-                          userStatuses: userStatus.userStatuses,
+                      ? { ...prev, name: e.target.value }
+                      : {
+                          id: 0,
+                          name: e.target.value,
+                          username: "",
+                          email: "",
+                          phoneNo: "",
+                          organization: "",
+                          picture: "",
+                          domain: "",
+                          password: "",
+                          roleId: 0,
+                          roles: "",
+                          campusId: 0,
+                          campus: "",
+                          userStatusId: 0,
+                          userStatuses: "",
+                          userCampusId: 0,
+                          primaryCampus: false,
                         }
-                      : null
-                  );
+                  )
                 }
-              }}
-              label="User Status"
-            >
-              {userStatusesData?.map((userStatus) => (
-                <MenuItem key={userStatus.id} value={userStatus.id}>
-                  {userStatus.userStatuses}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth variant="outlined">
-            <InputLabel>Campus</InputLabel>
-            <Select
-              value={selectedUser?.campusId || ""}
-              onChange={(e) => {
-                const campus = campusesData?.find(
-                  (c) => c.id === e.target.value
-                );
-                if (campus) {
-                  setSelectedCampus({
-                    id: campus.id,
-                    campus: campus.campus,
-                  });
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                margin="dense"
+                label="Email"
+                fullWidth
+                variant="outlined"
+                value={selectedUser?.email || ""}
+                onChange={(e) =>
                   setSelectedUser((prev) =>
                     prev
-                      ? { ...prev, campusId: campus.id, campus: campus.campus }
-                      : null
-                  );
+                      ? { ...prev, email: e.target.value }
+                      : {
+                          id: 0,
+                          name: "",
+                          username: "",
+                          email: e.target.value,
+                          phoneNo: "",
+                          organization: "",
+                          picture: "",
+                          domain: "",
+                          password: "",
+                          roleId: 0,
+                          roles: "",
+                          campusId: 0,
+                          campus: "",
+                          userStatusId: 0,
+                          userStatuses: "",
+                          userCampusId: 0,
+                          primaryCampus: false,
+                        }
+                  )
                 }
-              }}
-              label="Campus"
-            >
-              {campusesData?.map((campus) => (
-                <MenuItem key={campus.id} value={campus.id}>
-                  {campus.campus}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
+                <InputLabel>Role</InputLabel>
+                <Select
+                  value={selectedRole?.id || ""}
+                  onChange={(e) => {
+                    const role = rolesData?.find(
+                      (r) => r.id === e.target.value
+                    );
+                    if (role) {
+                      setSelectedRole({
+                        id: role.id,
+                        roles: role.roles,
+                        description: role.description,
+                      });
+
+                      // Ensure `selectedUser` is updated
+                      setSelectedUser((prev) =>
+                        prev
+                          ? { ...prev, roleId: role.id, roles: role.roles }
+                          : prev
+                      );
+                    }
+                  }}
+                  label="Role"
+                >
+                  {rolesData?.map((role) => (
+                    <MenuItem key={role.id} value={role.id}>
+                      {role.roles}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={selectedUser?.userStatusId || ""}
+                  onChange={(e) => {
+                    const userStatus = userStatusesData?.find(
+                      (u) => u.id === e.target.value
+                    );
+                    if (userStatus) {
+                      setSelectedUserStatus({
+                        id: userStatus.id,
+                        userStatuses: userStatus.userStatuses,
+                      });
+                      setSelectedUser((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              userStatusId: userStatus.id,
+                              userStatuses: userStatus.userStatuses,
+                            }
+                          : null
+                      );
+                    }
+                  }}
+                  label="User Status"
+                >
+                  {userStatusesData?.map((userStatus) => (
+                    <MenuItem key={userStatus.id} value={userStatus.id}>
+                      {userStatus.userStatuses}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
+                <InputLabel>Campus</InputLabel>
+                <Select
+                  value={selectedUser?.campusId || ""}
+                  onChange={(e) => {
+                    const campus = campusesData?.find(
+                      (c) => c.id === e.target.value
+                    );
+                    if (campus) {
+                      setSelectedCampus({
+                        id: campus.id,
+                        campus: campus.campus,
+                      });
+                      setSelectedUser((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              campusId: campus.id,
+                              campus: campus.campus,
+                            }
+                          : null
+                      );
+                    }
+                  }}
+                  label="Campus"
+                >
+                  {campusesData?.map((campus) => (
+                    <MenuItem key={campus.id} value={campus.id}>
+                      {campus.campus}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                margin="dense"
+                label="Picture"
+                fullWidth
+                variant="outlined"
+                sx={{ mt: 2 }}
+                value={selectedUser?.picture || ""}
+                onChange={(e) =>
+                  setSelectedUser((prev) =>
+                    prev
+                      ? { ...prev, picture: e.target.value }
+                      : {
+                          id: 0,
+                          name: "",
+                          username: "",
+                          email: "",
+                          phoneNo: "",
+                          organization: "",
+                          picture: e.target.value,
+                          domain: "",
+                          password: "",
+                          roleId: 0,
+                          roles: "",
+                          campusId: 0,
+                          campus: "",
+                          userStatusId: 0,
+                          userStatuses: "",
+                          userCampusId: 0,
+                          primaryCampus: false,
+                        }
+                  )
+                }
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEdit(false)} color="secondary">
