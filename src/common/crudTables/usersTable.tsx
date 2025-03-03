@@ -5,6 +5,8 @@ import Grid from "@mui/material/Grid";
 
 import {
   IconButton,
+  Avatar,
+  Box,
   Button,
   TextField,
   Dialog,
@@ -14,45 +16,28 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { useSelector, useDispatch } from "react-redux";
 import {
   useFetchUserQuery,
-  useCreateUserMutation,
   useDeleteUserMutation,
   useUpdateUserMutation,
 } from "./../../../store/services/userAPI";
 import { useFetchRolesQuery } from "../../../store/services/roleAPI";
-import {
-  useFetchCampusesQuery,
-  useUpdateCampusesMutation,
-  useCreateCampusesMutation,
-} from "../../../store/services/campusAPI";
-import {
-  useUpdateUserStatusMutation,
-  useFetchUserStatusesQuery,
-} from "../../../store/services/userStatusAPI";
-import { useUpdateRoleMutation } from "../../../store/services/roleAPI";
+import { useFetchCampusesQuery } from "../../../store/services/campusAPI";
+import { useFetchUserStatusesQuery } from "../../../store/services/userStatusAPI";
 import { useFetchUserCampusesQuery } from "../../../store/services/userCampusAPI";
 import {
   setUsers,
   updateUsers,
-  addUsers,
   deleteUsers,
   selectUsers,
 } from "./../../../store/features/userSlice";
 
-import {
-  updateCampuses,
-  selectCampuses,
-} from "../../../store/features/campusSlice";
+import { updateCampuses } from "../../../store/features/campusSlice";
 
 import { updateUserStatuses } from "../../../store/features/userStatusSlice";
 import { updateRoles } from "../../../store/features/roleSlice";
-import { selectUserCampuses } from "../../../store/features/userCampusSlice";
-
-import { Form } from "react-router-dom";
 
 export const UsersTable: React.FC = () => {
   const dispatch = useDispatch();
@@ -61,52 +46,18 @@ export const UsersTable: React.FC = () => {
   const { data: campusesData } = useFetchCampusesQuery();
   const { data: userStatusesData } = useFetchUserStatusesQuery();
   const { data: userCampusesData } = useFetchUserCampusesQuery();
-  const [createUser] = useCreateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser] = useUpdateUserMutation();
-  const [updateCampus] = useUpdateCampusesMutation();
-  const [updateUserStatus] = useUpdateUserStatusMutation();
-  const [updateRole] = useUpdateRoleMutation();
   const users = useSelector(selectUsers);
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
-  const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [newUser, setNewUser] = useState({
-    name: "",
-    username: "",
-    email: "",
-    phoneNo: "",
-    organization: "",
-    picture: "",
-    password: "",
-    domain: "",
-    roleId: 0,
-    roles: "",
-    campusId: 0,
-    campus: "",
-    userStatusId: 0,
-    userStatuses: "",
-    userCampusId: 0,
-    primaryCampus: false,
-  });
-  const [newCampus, setNewCampus] = useState({ campus: "" });
-  const [newUserStatus, setNewUserStatus] = useState({ userStatuses: "" });
-  const [newRole, setNewRole] = useState({ roles: "", description: "" });
-  const [newUserCampus, setNewUserCampus] = useState({
-    userId: 0,
-    campusId: 0,
-    primaryCampus: false,
-  });
+
   const [selectedUser, setSelectedUser] = useState<{
     id: number;
     name: string;
-    username: string;
     email: string;
-    phoneNo: string;
-    organization: string;
     picture: string;
-    domain: string;
     password: string;
     roleId: number;
     roles: string;
@@ -116,7 +67,11 @@ export const UsersTable: React.FC = () => {
     userStatusId: number;
     userCampusId: number;
     primaryCampus: boolean;
-  } | null>(null);
+  } | null>(() => {
+    // Retrieve user data from localStorage
+    const storedUser = localStorage.getItem("selectedUser");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
   const [selectedCampus, setSelectedCampus] = useState<{
     id: number;
@@ -132,13 +87,6 @@ export const UsersTable: React.FC = () => {
   const [selectedUserStatus, setSelectedUserStatus] = useState<{
     id: number;
     userStatuses: string;
-  } | null>(null);
-
-  const [selectedUserCampus, setSelectedUserCampus] = useState<{
-    id: number;
-    userId: number;
-    campusId: number;
-    primaryCampus: boolean;
   } | null>(null);
 
   useEffect(() => {
@@ -189,11 +137,11 @@ export const UsersTable: React.FC = () => {
   const handleExport = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      ["ID,Name,Username,Email,,Organization,Picture,Role,User Status,Campus"]
+      ["Name,Email,Picture,Role,User Status,Campus"]
         .concat(
           users.users.map(
             (user) =>
-              `${user.id},${user.name},${user.username},${user.email},${user.organization},${user.picture},${user.roles},${user.userStatuses},${user.campus}`
+              `${user.name},${user.email},${user.picture},${user.roles},${user.userStatuses},${user.campus}`
           )
         )
         .join("\n");
@@ -247,12 +195,8 @@ export const UsersTable: React.FC = () => {
     if (
       !selectedUser ||
       !selectedUser.name.trim() ||
-      !selectedUser.username.trim() ||
-      // !selectedUser.phoneNo ||
       !selectedUser.email.trim() ||
-      !selectedUser.organization.trim() ||
       !selectedUser.picture.trim() ||
-      !selectedUser.domain.trim() ||
       !selectedRole?.id || // Ensure role is selected
       !selectedUserStatus?.id || // Ensure user status is selected
       !selectedCampus?.id // Ensure campus is selected
@@ -276,12 +220,6 @@ export const UsersTable: React.FC = () => {
       //Api call to update user
       const updatedUserResponse = await updateUser({
         ...updatedUser,
-        // userStatusId: selectedUserStatus.id,
-        // userStatuses: selectedUserStatus?.userStatuses,
-        // roleId: selectedRole.id,
-        // roles: selectedRole?.roles,
-        // campusId: selectedCampus.id,
-        // campus: selectedCampus.campus,
       }).unwrap();
       dispatch(updateUsers(updatedUserResponse));
 
@@ -321,6 +259,22 @@ export const UsersTable: React.FC = () => {
       setSelectedUserStatus(null);
     } catch (error) {
       console.error("Error updating user:", error);
+    }
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+
+      setSelectedUser((prev) => {
+        const updatedUser = prev ? { ...prev, picture: imageUrl } : null;
+
+        // Save to localStorage
+        localStorage.setItem("selectedUser", JSON.stringify(updatedUser));
+
+        return updatedUser;
+      });
     }
   };
 
@@ -414,15 +368,85 @@ export const UsersTable: React.FC = () => {
       />
 
       {/* Edit Role Dialog */}
-      <Dialog
-        open={openEdit}
-        onClose={() => setOpenEdit(false)}
-        fullWidth
-        maxWidth="lg"
-      >
+      <Dialog open={openEdit} onClose={() => setOpenEdit(false)} maxWidth="lg">
         {" "}
-        <DialogTitle>Edit User</DialogTitle>
+        <DialogTitle sx={{ textAlign: "center" }}>Edit User</DialogTitle>
         <DialogContent>
+          <Box
+            position="relative"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            sx={{
+              width: "100%",
+              height: 150, // Adjust height as needed
+            }}
+          >
+            <Avatar
+              src={selectedUser?.picture || "/default-avatar.png"}
+              sx={{
+                width: 100,
+                height: 100,
+                borderRadius: "50%",
+                border: "2px solid #ccc",
+              }}
+            />
+
+            <IconButton
+              component="label"
+              sx={{
+                position: "absolute",
+                bottom: 10, // Adjust position
+                right: "calc(50% - 50px)", // Center below Avatar
+                backgroundColor: "white",
+                borderRadius: "50%",
+                boxShadow: 2,
+                "&:hover": { backgroundColor: "lightgray" },
+              }}
+            >
+              <EditIcon />
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleImageUpload}
+              />
+            </IconButton>
+          </Box>
+
+          {/* <TextField
+            margin="dense"
+            label="Picture"
+            fullWidth
+            variant="outlined"
+            sx={{ mb: 2 }}
+            value={selectedUser?.picture || ""}
+            onChange={(e) =>
+              setSelectedUser((prev) =>
+                prev
+                  ? { ...prev, picture: e.target.value }
+                  : {
+                      id: 0,
+                      name: "",
+                      username: "",
+                      email: "",
+                      phoneNo: "",
+                      organization: "",
+                      picture: e.target.value,
+                      domain: "",
+                      password: "",
+                      roleId: 0,
+                      roles: "",
+                      campusId: 0,
+                      campus: "",
+                      userStatusId: 0,
+                      userStatuses: "",
+                      userCampusId: 0,
+                      primaryCampus: false,
+                    }
+              )
+            }
+          /> */}
           <Grid
             container
             rowSpacing={1}
@@ -600,41 +624,6 @@ export const UsersTable: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                margin="dense"
-                label="Picture"
-                fullWidth
-                variant="outlined"
-                sx={{ mt: 2 }}
-                value={selectedUser?.picture || ""}
-                onChange={(e) =>
-                  setSelectedUser((prev) =>
-                    prev
-                      ? { ...prev, picture: e.target.value }
-                      : {
-                          id: 0,
-                          name: "",
-                          username: "",
-                          email: "",
-                          phoneNo: "",
-                          organization: "",
-                          picture: e.target.value,
-                          domain: "",
-                          password: "",
-                          roleId: 0,
-                          roles: "",
-                          campusId: 0,
-                          campus: "",
-                          userStatusId: 0,
-                          userStatuses: "",
-                          userCampusId: 0,
-                          primaryCampus: false,
-                        }
-                  )
-                }
-              />
             </Grid>
           </Grid>
         </DialogContent>

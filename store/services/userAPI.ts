@@ -32,11 +32,7 @@ export const userAPI = baseAPI.injectEndpoints({
       {
         id: number;
         name: string;
-        username: string;
         email: string;
-        phoneNo: string;
-        organization: string;
-        domain: string;
         picture: string;
         password: string;
         roleId: number;
@@ -51,10 +47,6 @@ export const userAPI = baseAPI.injectEndpoints({
         id,
         name,
         email,
-        username,
-        phoneNo,
-        organization,
-        domain,
         picture,
         password,
         roleId,
@@ -63,17 +55,12 @@ export const userAPI = baseAPI.injectEndpoints({
         userStatusId,
         userStatuses,
         roles,
-        
       }) => ({
         url: `/v1/publicSafety/users/${id}`,
         method: "PUT",
         body: {
           name,
-          username,
           email,
-          phoneNo,
-          organization,
-          domain,
           picture,
           password,
           roleId,
@@ -82,7 +69,6 @@ export const userAPI = baseAPI.injectEndpoints({
           userStatusId,
           userStatuses,
           roles,
-
         },
       }),
     }),

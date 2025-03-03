@@ -4,10 +4,7 @@ import { RootState } from "../store";
 export interface IUser {
   id: number;
   name: string;
-  username: string;
   email: string;
-  phoneNo: string;
-  organization: string;
   picture: string;
   password: string;
   roleId: number;
@@ -18,7 +15,6 @@ export interface IUser {
   campus: string;
   userCampusId: number;
   primaryCampus: boolean;
-  domain: string;
 }
 
 export interface UserInitialState {
