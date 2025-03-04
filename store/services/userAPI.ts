@@ -85,6 +85,13 @@ export const userAPI = baseAPI.injectEndpoints({
       }),
       transformResponse: (response: { data: IUser }) => response.data,
     }),
+    uploadProfilePicture: builder.mutation<{ picture: string }, FormData>({
+      query: (formData) => ({
+        url: "/v1/publicSafety/uploadProfilePicture",
+        method: "POST",
+        body: formData,
+      }),
+    }),
   }),
 });
 
@@ -95,4 +102,5 @@ export const {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useUsersTotalQuery,
+  useUploadProfilePictureMutation,
 } = userAPI;

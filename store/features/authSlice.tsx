@@ -42,7 +42,7 @@ export const authSlice = createSlice({
       return { ...state, ...action.payload };
     },
     logout(state) {
-      return { ...state, token: null };
+      return { ...state, token: null, username: "", name: "" };
     },
   },
 });

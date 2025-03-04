@@ -37,7 +37,7 @@ import { selectIncidentTypes } from "./../../../store/features/incidentTypeSlice
 
 export const IncidentReportTable: React.FC = () => {
   const dispatch = useDispatch();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [file, setFile] = useState<string | undefined>(undefined);
 
   const { data: incidentReportsData, refetch } = useFetchIncidentReportQuery();
   const { data: incidentStatusesData } = useFetchIncidentStatusesQuery();
@@ -280,40 +280,12 @@ export const IncidentReportTable: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  interface FileChangeEvent extends React.ChangeEvent<HTMLInputElement> {}
 
-    if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl); // Show preview
-
-      setSelectedIncidentReport((prev) =>
-        prev
-          ? { ...prev, path: file.name }
-          : {
-              id: 0,
-              report: "",
-              disposition: "",
-              caseNumber: "",
-              action: "",
-              location: "",
-              uploadedBy: "",
-              frequency: 0,
-              incidentReoccured: "",
-              incidentFileId: 0,
-              path: file.name,
-              incidentStatusId: 0,
-              statuses: "",
-              userId: 0,
-              campusId: 0,
-              buildingId: 0,
-              incidentTypeId: 0,
-              type: "",
-            }
-      );
-      // TODO: Upload the file to your server here (dispatch an action or send via API)
-    } else {
-      setImagePreview(null);
+  const handleChange = (e: FileChangeEvent): void => {
+    console.log(e.target.files);
+    if (e.target.files) {
+      setFile(URL.createObjectURL(e.target.files[0]));
     }
   };
 
@@ -765,55 +737,12 @@ export const IncidentReportTable: React.FC = () => {
               </Select>
             </FormControl>
 
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                Incident Files
-              </Typography>
-            </Box>
+              <Box sx={{ mb: 2 }}>
+                <Typography sx={{ mb: 1 }}>Incident Pictures</Typography>
+                <input type="file" onChange={handleChange} />
+                <img src={file} />
+              </Box>
 
-            <Grid size={6}>
-              <div>
-                {/* Upload Field */}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  style={{ display: "none" }}
-                  id="incident-file-upload"
-                />
-                <label htmlFor="incident-file-upload">
-                  <TextField
-                    margin="dense"
-                    label="Incident File"
-                    fullWidth
-                    variant="outlined"
-                    value={selectedIncidentReport?.path || ""}
-                    onClick={() =>
-                      document.getElementById("incident-file-upload")?.click()
-                    }
-                    InputProps={{
-                      readOnly: true, // Prevent manual editing
-                    }}
-                  />
-                </label>
-
-                {/* Image Preview */}
-                {imagePreview && (
-                  <div style={{ marginTop: "10px" }}>
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      style={{
-                        width: "100%",
-                        maxHeight: "200px",
-                        objectFit: "cover",
-                        borderRadius: "8px",
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            </Grid>
             <TextField
               autoFocus
               multiline

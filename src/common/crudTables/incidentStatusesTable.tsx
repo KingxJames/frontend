@@ -149,35 +149,54 @@ export const IncidentStatusesTable: React.FC = () => {
     }
   };
 
-  const columns: GridColDef[] = [
-    // { field: "id", headerName: "ID", flex: 1 },
-    { field: "statuses", headerName: "Status", flex: 1 },
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: 1,
-      renderCell: (params) => {
-        const row = params.row as {
-          id: number;
-          statuses: string;
-        };
-        return (
-          <div>
-            <IconButton onClick={() => handleEdit(row)} color="primary">
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              onClick={() => handleDelete(row.id)}
-              color="secondary"
-              aria-label="delete"
-            >
-              <DeleteIcon />
-            </IconButton>
-          </div>
-        );
-      },
+ const columns: GridColDef[] = [
+  { field: "statuses", headerName: "Status", flex: 1, 
+    renderCell: (params) => {
+      const status = params.value as string;
+      let color = "";
+
+      // Define colors based on status value
+      if (status === "Active") {
+        color = "green";
+      } else if (status === "Inactive") {
+        color = "red";
+      } else if (status === "Pending") {
+        color = "orange";
+      } else {
+        color = "gray";
+      }
+
+      return (
+        <div style={{ color, fontWeight: "bold" }}>
+          {status}
+        </div>
+      );
+    }
+  },
+  {
+    field: "actions",
+    headerName: "Actions",
+    flex: 1,
+    renderCell: (params) => {
+      const row = params.row as { id: number; statuses: string };
+      return (
+        <div>
+          <IconButton onClick={() => handleEdit(row)} color="primary">
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => handleDelete(row.id)}
+            color="secondary"
+            aria-label="delete"
+          >
+            <DeleteIcon />
+          </IconButton>
+        </div>
+      );
     },
-  ];
+  },
+];
+
 
   return (
     <div style={{ padding: "3%", height: "100%", width: "100%" }}>

@@ -22,6 +22,7 @@ import {
   useFetchUserQuery,
   useDeleteUserMutation,
   useUpdateUserMutation,
+  useUploadProfilePictureMutation,
 } from "./../../../store/services/userAPI";
 import { useFetchRolesQuery } from "../../../store/services/roleAPI";
 import { useFetchCampusesQuery } from "../../../store/services/campusAPI";
@@ -31,6 +32,7 @@ import {
   setUsers,
   updateUsers,
   deleteUsers,
+  updateProfilePicture,
   selectUsers,
 } from "./../../../store/features/userSlice";
 
@@ -48,10 +50,12 @@ export const UsersTable: React.FC = () => {
   const { data: userCampusesData } = useFetchUserCampusesQuery();
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser] = useUpdateUserMutation();
+  const [uploadProfilePicture] = useUploadProfilePictureMutation();
   const users = useSelector(selectUsers);
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openEdit, setOpenEdit] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [selectedUser, setSelectedUser] = useState<{
     id: number;
@@ -262,19 +266,31 @@ export const UsersTable: React.FC = () => {
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!event.target.files || !selectedUser) return;
 
-      setSelectedUser((prev) => {
-        const updatedUser = prev ? { ...prev, picture: imageUrl } : null;
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append("picture", file);
+    formData.append("userId", selectedUser.id.toString()); // Assuming API needs userId
 
-        // Save to localStorage
-        localStorage.setItem("selectedUser", JSON.stringify(updatedUser));
+    try {
+      // const response = await uploadProfilePicture(formData).unwrap();
+      // dispatch(
+      //   updateProfilePicture({ id: selectedUser.id, picture: response.picture })
+      // );
 
-        return updatedUser;
-      });
+      // Update the selected user's picture immediately
+      // setSelectedUser((prev) =>
+      //   prev ? { ...prev, picture: response.picture } : null
+      // );
+
+      alert("Profile picture updated successfully!");
+    } catch (error) {
+      console.error("Error uploading picture:", error);
+      alert("Failed to upload profile picture.");
     }
   };
 
@@ -369,18 +385,16 @@ export const UsersTable: React.FC = () => {
 
       {/* Edit Role Dialog */}
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)} maxWidth="lg">
-        {" "}
-        <DialogTitle sx={{ textAlign: "center" }}>Edit User</DialogTitle>
+        <DialogTitle sx={{ textAlign: "center", marginBottom: "-3%" }}>
+          Edit User
+        </DialogTitle>
         <DialogContent>
           <Box
             position="relative"
             display="flex"
             justifyContent="center"
             alignItems="center"
-            sx={{
-              width: "100%",
-              height: 150, // Adjust height as needed
-            }}
+            sx={{ width: "100%", height: 150 }}
           >
             <Avatar
               src={selectedUser?.picture || "/default-avatar.png"}
@@ -396,8 +410,8 @@ export const UsersTable: React.FC = () => {
               component="label"
               sx={{
                 position: "absolute",
-                bottom: 10, // Adjust position
-                right: "calc(50% - 50px)", // Center below Avatar
+                bottom: 10,
+                right: "calc(50% - 50px)",
                 backgroundColor: "white",
                 borderRadius: "50%",
                 boxShadow: 2,
@@ -410,6 +424,7 @@ export const UsersTable: React.FC = () => {
                 accept="image/*"
                 hidden
                 onChange={handleImageUpload}
+                disabled={loading} // Disable the input while uploading
               />
             </IconButton>
           </Box>
