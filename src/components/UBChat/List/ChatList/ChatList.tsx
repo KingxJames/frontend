@@ -23,22 +23,10 @@ export const ChatList: React.FC<ChatListProps> = ({ showSearchBar = true }) => {
   const [addMode, setAddMode] = useState(false);
   const [searchText, setSearchText] = useState("");
 
-  const dispatch = useDispatch();
-  const users = useSelector(selectUsers);
 
-  const token = useSelector((state: any) => state.auth.token);
 
-  const { data, error, isLoading } = useFetchUsersQuery(token);
 
-  useEffect(() => {
-    if (data) {
-      dispatch(setUsers(data));
-    }
-  }, [data, dispatch]);
-
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  
 
   return (
     <div className="chatList">
@@ -62,22 +50,7 @@ export const ChatList: React.FC<ChatListProps> = ({ showSearchBar = true }) => {
         </div>
       )}
 
-      {isLoading && <p>Loading users...</p>}
-      {error && <p>Error fetching users</p>}
-
-      {filteredUsers.map((user: any) => (
-        <div
-          className="item"
-          key={user.id}
-          onClick={() => dispatch(setActiveUser(user.name))}
-        >
-          <img src={user.picture || avatar} alt={user.name} />
-          <div className="texts">
-            <span>{user.name}</span>
-            <p>{user.email}</p>
-          </div>
-        </div>
-      ))}
+     
 
       {addMode && <AddUser />}
     </div>

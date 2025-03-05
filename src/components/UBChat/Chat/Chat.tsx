@@ -15,17 +15,12 @@ import {
   selectText,
   selectChatState,
 } from "./../../../../store/features/UBChat/chatSlice";
-import { useCreateMessageMutation } from "./../../../../store/services/chatAPI"; // Import the hook to create a message
 
 export const Chat = () => {
   const dispatch = useDispatch();
-  // // const { messages, activeUser, isEmojiPickerOpen } = useSelector(
-  //   (state: RootState) => state.chat
-  // );
-  const text = useSelector(selectText);
+  
   const chat = useSelector(selectChatState);
   const endRef = useRef<HTMLDivElement | null>(null);
-  const [createMessage] = useCreateMessageMutation(); // Hook for creating messages
 
   const handleSendMessage = async () => {
     if (!chat.text.trim() || !chat.activeUser) return;
@@ -45,15 +40,6 @@ export const Chat = () => {
 
     // dispatch(addMessage(tempMessage)); // Optimistic UI update
     dispatch(setText("")); // Clear input field
-
-  //   // Send the message to the backend
-  //   try {
-  //     const savedMessage = await createMessage(newMessage).unwrap(); // Save message to DB
-  //     dispatch(addMessage({ ...savedMessage })); // Update with server response (if needed)
-  //   } catch (error) {
-  //     console.error("Failed to send message:", error);
-  //   }
-  // };
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -75,19 +61,6 @@ export const Chat = () => {
       </div>
 
       <div className="center">
-        {/* {chat.messages
-          .filter((msg) => msg.user === chat.activeUser)
-          .map((msg) => (
-            <div
-              key={msg.id}
-              className={`message ${msg.sender === "own" ? "own" : ""}`}
-            >
-              <div className="texts">
-                <p>{msg.text}</p>
-                <span>{msg.timestamp}</span>
-              </div>
-            </div>
-          ))} */}
         <div ref={endRef}></div>
       </div>
 
