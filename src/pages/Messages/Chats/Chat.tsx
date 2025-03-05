@@ -1,10 +1,9 @@
 import React from "react";
-import {UBChats} from "../../../components/UBComponents/UBMessages/UBChats/UBChats"
-
+import { UBMessenger } from "../../../components/UBMessenger/UBMessenger";
 export const Chats:React.FC = () => {
     return(
         <>
-            <UBChats/>
+            <UBMessenger/>
         </>
     )
 }

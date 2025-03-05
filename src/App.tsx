@@ -8,20 +8,9 @@ import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Settings } from "./pages/Settings/Settings";
 import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
 import UBMessenger from "./components/UBMessenger/UBMessenger";
-import { UserStatusesTable } from "./common/crudTables/userStatusesTable";
-import { UserCampusTable } from "./common/crudTables/userCampusesTable";
-import { MessageCategoriesTable } from "./common/crudTables/messageCategoriesTable";
-import { AccessRightsTable } from "./common/crudTables/accessRightsTable";
 import { UsersTable } from "./common/crudTables/usersTable";
-import { IncidentTypesTable } from "./common/crudTables/incidentTypesTable";
-import { IncidentStatusesTable } from "./common/crudTables/incidentStatusesTable";
 import { IncidentReportTable } from "./common/crudTables/incidentReportsTable";
-import { IncidentFilesTable } from "./common/crudTables/incidentFilesTable";
-import { DepartmentsTable } from "./common/crudTables/departmentsTable";
-import { DepartmentMembersTable } from "./common/crudTables/departmentMembersTable";
-import { CampusesTable } from "./common/crudTables/campusesTable";
 import { BuildingsTable } from "./common/crudTables/buildingsTable";
-import { RolesTable } from "./common/crudTables/roleTable";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
