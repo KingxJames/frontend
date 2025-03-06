@@ -72,7 +72,7 @@ export const UBMessengerListChats: React.FC = () => {
                 <Typography
                   variant="caption"
                   color="text.secondary"
-                  sx={{ position: "relative", bottom: "50px", left: "90%" }}
+                  sx={{ position: "relative", bottom: "50px", left: "80%" }}
                 >
                   {user.time}
                 </Typography>

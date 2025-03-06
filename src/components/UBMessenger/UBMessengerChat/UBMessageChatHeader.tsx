@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
-import { Typography, Avatar } from "@mui/material";
+import { Avatar } from "@mui/material";
 
 export const UBMessageChatHeader: React.FC = () => {
   return (

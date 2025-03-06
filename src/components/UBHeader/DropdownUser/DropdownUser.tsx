@@ -14,9 +14,6 @@ export const DropdownUser: React.FC = () => {
   const dispatch = useDispatch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const name = useSelector((state: RootState) => state.auth.name);
-  //   const picture = useSelector(
-  //     (state: RootState) => state.auth.users[0].picture
-  //   );
 
   const handleLogout = () => {
     dispatch(logout());
