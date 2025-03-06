@@ -1,11 +1,11 @@
 import React from "react";
-
+import { Box } from "@mui/material";
 
 export const UBMessengerDetail: React.FC = () => {
     return(
-        <div>
+        <Box>
             <h1>Details</h1>
-        </div>
+        </Box>
     )
 }
 

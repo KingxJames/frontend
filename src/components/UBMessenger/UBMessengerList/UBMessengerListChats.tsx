@@ -4,7 +4,7 @@ import Avatar from "../../../image/avatar.png";
 import Typography from "@mui/material/Typography";
 
 
-export const UBMessengerList: React.FC = () => {
+export const UBMessengerListChats: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   const users = [
@@ -23,8 +23,8 @@ export const UBMessengerList: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         width: "100%",
-        height: "100vh",
         backgroundColor: "#fFFFFF",
+        borderRight: "1px solid #ddd",
       }}
     >
       {/* <UBMessengerListHeader /> */}
@@ -85,4 +85,4 @@ export const UBMessengerList: React.FC = () => {
   );
 };
 
-export default UBMessengerList;
+export default UBMessengerListChats;
