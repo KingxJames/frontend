@@ -26,42 +26,38 @@ export const UBMessengerListChats: React.FC = () => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
       {/* Tabs for switching views */}
-      <Box
-        sx={{
-          padding: "2% 2% 2% 2%",
-        }}
-      >
-        <Grid container spacing={2} justifyContent="space-evenly">
-           {/* Ensures equal spacing between buttons */}
-          <Grid item xs={4} sm={4} md={4}>
-          
-            {/* Ensures buttons take up equal space */}
-            <Button
-              onClick={() => setSelectedTab("chats")}
-              variant={selectedTab === "chats" ? "contained" : "outlined"}
-              fullWidth // Makes the button take up full width within the grid item
-            >
-              All
-            </Button>
-          </Grid>
-          <Grid item xs={4} sm={4} md={4}>
-            <Button
-              onClick={() => setSelectedTab("anonymous")}
-              variant={selectedTab === "anonymous" ? "contained" : "outlined"}
-            >
-              Anonymous
-            </Button>
-          </Grid>
-          <Grid item xs={4} sm={4} md={4}>
-            <Button
-              onClick={() => setSelectedTab("emergencies")}
-              variant={selectedTab === "emergencies" ? "contained" : "outlined"}
-            >
-              Emergencies
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
+      <Box sx={{ display: "flex", justifyContent: "center", gap: 2, padding: "16px" }}>
+  <Grid item>
+    <Button
+      onClick={() => setSelectedTab("chats")}
+      variant={selectedTab === "chats" ? "contained" : "outlined"}
+      sx={{ fontSize: "12px", width: "auto", minWidth: "100px" }}
+    >
+      All
+    </Button>
+  </Grid>
+
+  <Grid item>
+    <Button
+      onClick={() => setSelectedTab("anonymous")}
+      variant={selectedTab === "anonymous" ? "contained" : "outlined"}
+      sx={{ fontSize: "12px", width: "auto", minWidth: "100px" }}
+    >
+      Anonymous
+    </Button>
+  </Grid>
+
+  <Grid item>
+    <Button
+      onClick={() => setSelectedTab("emergencies")}
+      variant={selectedTab === "emergencies" ? "contained" : "outlined"}
+      sx={{ fontSize: "12px", width: "auto", minWidth: "100px" }}
+    >
+      Emergencies
+    </Button>
+  </Grid>
+</Box>
+
 
       {/* Conditionally render based on selected tab */}
       {selectedTab === "chats" ? (
