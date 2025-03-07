@@ -16,7 +16,7 @@ export const UBCardDataStats: React.FC<IUBCardDataStatsProps> = ({
   return (
     <div
       className={`rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark`}
-      style={{border:"2px solid rgba(255, 196, 3, 0.5)" }}
+      style={{border:"2px solid rgba(255, 196, 3, 0.5)", borderRadius: "20px" }}
     >
       <div className="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
         {children}

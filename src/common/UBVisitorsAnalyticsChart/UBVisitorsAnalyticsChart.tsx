@@ -62,7 +62,9 @@ export const UBVisitorsAnalyticsChart: React.FC = () => {
   };
   handleReset;
   return (
-    <div className="sm:px-7.5 col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-5 h-[36.4rem]">
+    <div className="sm:px-7.5 col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-5 h-[36.4rem]"
+    style={{border:"2px solid rgba(255, 196, 3, 0.5)", borderRadius: "20px" }}
+    >
       <div className="mb-3 justify-between gap-4 sm:flex">
         <div>
           <h5 className="text-xl font-semibold text-black dark:text-white">

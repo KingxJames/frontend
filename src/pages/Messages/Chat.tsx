@@ -1,5 +1,5 @@
 import React from "react";
-import { UBMessenger } from "../../../components/UBMessenger/UBMessenger";
+import { UBMessenger } from "../../components/UBMessenger/UBMessenger";
 export const Chats:React.FC = () => {
     return(
         <>

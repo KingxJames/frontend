@@ -19,7 +19,7 @@ export const UBMessengerDetail: React.FC<UBMessengerDetailProps> = ({
     <Box
       sx={{
         border: "1px solid #ddd",
-        width: "100%",
+        width: "50%",
         height: "100vh",
         backgroundColor: "rgba(187, 187, 187, 0.18)",
       }}
@@ -32,7 +32,7 @@ export const UBMessengerDetail: React.FC<UBMessengerDetailProps> = ({
           backgroundColor: "#fff",
         }}
       >
-        <CloseIcon onClick={onClose} />
+        <CloseIcon onClick={onClose} sx={{ cursor: "pointer" }} />
         <Typography sx={{ flexGrow: 1, textAlign: "center" }}>
           Contact Info
         </Typography>
@@ -72,14 +72,17 @@ export const UBMessengerDetail: React.FC<UBMessengerDetailProps> = ({
       </Box>
 
       <Box
+        onClick={() => console.log("Delete chat clicked")}
         sx={{
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 1,
+          backgroundColor: "#fff",
           position: "fixed",
           bottom: 0,
-          textAlign: "center",
           width: "100%",
-          height: "5%",
-          marginTop: "3%",
-          backgroundColor: "#fff",
           padding: "2%",
         }}
       >

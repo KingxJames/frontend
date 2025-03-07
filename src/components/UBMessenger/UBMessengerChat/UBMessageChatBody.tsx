@@ -39,7 +39,7 @@ export const UBMessageChatBody: React.FC<UBMessageChatBodyProps> = ({ messages }
               maxWidth: "60%",
               padding: "10px",
               borderRadius: "8px",
-              backgroundColor: message.sender === "me" ? "#4CAF50" : "#e0e0e0",
+              backgroundColor: message.sender === "me" ? "rgb(162, 94, 175)" : "#e0e0e0",
               color: message.sender === "me" ? "white" : "black",
               wordWrap: "break-word",
             }}
