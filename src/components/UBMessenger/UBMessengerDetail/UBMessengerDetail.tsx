@@ -76,17 +76,15 @@ export const UBMessengerDetail: React.FC<UBMessengerDetailProps> = ({
         sx={{
           cursor: "pointer",
           display: "flex",
-          alignItems: "center",
           justifyContent: "center",
-          gap: 1,
           backgroundColor: "#fff",
           position: "fixed",
           bottom: 0,
           width: "100%",
-          padding: "2%",
+          border: "1px solid #ddd",
         }}
       >
-        <Typography sx={{ fontSize: "20px", color: "red" }}>
+        <Typography sx={{ fontSize: "20px", color: "red", border: "1px solid red" }}>
           <DeleteIcon />
           Delete Chat
         </Typography>
