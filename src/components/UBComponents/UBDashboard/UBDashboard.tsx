@@ -1,5 +1,5 @@
 import React from "react";
-import UBCardDataStats from "../../../common/UBCardDataStats/UBCardDataStats";
+import UBCardDataStats from "../../../common/UBCardDataStats/UBCardDataStats.tsx";
 import UBVisitorsAnalyticsChart from "../../../common/UBVisitorsAnalyticsChart/UBVisitorsAnalyticsChart";
 // import UBChats from "../../../common/UBChats/UBChats";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";

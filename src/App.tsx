@@ -12,6 +12,7 @@ import { UsersTable } from "./common/crudTables/usersTable";
 import { IncidentReportTable } from "./common/crudTables/incidentReportsTable";
 import { BuildingsTable } from "./common/crudTables/buildingsTable";
 import UBMessengerListAnonymous from "./components/UBMessenger/UBMessengerList/UBMessengerListAnonymous";
+import WhatsappWeb from "./pages/WhatsappWeb/WhatsappWeb";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -38,12 +39,11 @@ const App: React.FC = () => {
               <Routes>
                 <Route index element={<Dashboard />} />
                 <Route path="/Settings" element={<Settings />} />
-
-              
-                <Route path="/Messages" element={<UBMessenger />} />
-                <Route path="/anonymous" element={<UBMessengerListAnonymous />} />
-
-
+                <Route path="/Messages" element={<WhatsappWeb />} />
+                <Route
+                  path="/anonymous"
+                  element={<UBMessengerListAnonymous />}
+                />
                 <Route path="/buildings" element={<BuildingsTable />} />
                 <Route path="/users" element={<UsersTable />} />
                 <Route

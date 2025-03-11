@@ -19,10 +19,6 @@ export const UBMessengerListHeader: React.FC = () => {
       <Box sx={{ pb: "3%", pt: "2%" }}>
         <SearchBox />
       </Box>
-
-      <Box sx={{}}>
-        <UBTabs />
-      </Box>
     </Box>
   );
 };

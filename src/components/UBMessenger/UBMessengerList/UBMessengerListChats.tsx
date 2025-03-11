@@ -5,12 +5,14 @@ import UBMessengerListAnonymous from "./UBMessengerListAnonymous"; // Import the
 import Avatar from "../../../image/avatar.png";
 import Typography from "@mui/material/Typography";
 import { UBMessengerListEmergencyChat } from "./UBMessengerListEmergencyChat";
-import Grid from "@mui/material/Grid";
+import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
+import HideSourceIcon from "@mui/icons-material/HideSource";
+import AllInclusiveIcon from "@mui/icons-material/AllInclusive";
 
 export const UBMessengerListChats: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<
-    "chats" | "anonymous" | "emergencies"
-  >("chats"); // Track active tab
+    "all" | "anonymous" | "emergencies"
+  >("all"); // Track active tab
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   const users = [
@@ -26,41 +28,82 @@ export const UBMessengerListChats: React.FC = () => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
       {/* Tabs for switching views */}
-      <Box sx={{ display: "flex", justifyContent: "center", gap: 2, padding: "16px" }}>
-  <Grid item>
-    <Button
-      onClick={() => setSelectedTab("chats")}
-      variant={selectedTab === "chats" ? "contained" : "outlined"}
-      sx={{ fontSize: "12px", width: "auto", minWidth: "100px" }}
-    >
-      All
-    </Button>
-  </Grid>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          width: "100%",
+          padding: "16px",
+          gap: "8px", // Add spacing between buttons
+        }}
+      >
+        <Button
+          onClick={() => setSelectedTab("all")}
+          variant={selectedTab === "all" ? "contained" : "outlined"}
+          sx={{
+            flexGrow: 1,
+            fontSize: "10px",
+            minWidth: "unset",
+            borderRadius: "10px",
+            bgcolor: selectedTab === "all" ? "purple" : "transparent",
+            color: selectedTab === "all" ? "white" : "purple",
+            borderColor: "purple",
+            "&:hover": {
+              bgcolor:
+                selectedTab === "all" ? "darkpurple" : "rgba(128,0,128,0.1)",
+            },
+          }}
+        >
+          <AllInclusiveIcon />
+        </Button>
 
-  <Grid item>
-    <Button
-      onClick={() => setSelectedTab("anonymous")}
-      variant={selectedTab === "anonymous" ? "contained" : "outlined"}
-      sx={{ fontSize: "12px", width: "auto", minWidth: "100px" }}
-    >
-      Anonymous
-    </Button>
-  </Grid>
+        <Button
+          onClick={() => setSelectedTab("anonymous")}
+          variant={selectedTab === "anonymous" ? "contained" : "outlined"}
+          sx={{
+            flexGrow: 1,
+            fontSize: "10px",
+            minWidth: "unset",
+            borderRadius: "10px",
+            bgcolor: selectedTab === "anonymous" ? "purple" : "transparent",
+            color: selectedTab === "anonymous" ? "white" : "purple",
+            borderColor: "purple",
+            "&:hover": {
+              bgcolor:
+                selectedTab === "anonymous"
+                  ? "darkpurple"
+                  : "rgba(128,0,128,0.1)",
+            },
+          }}
+        >
+          <HideSourceIcon />
+        </Button>
 
-  <Grid item>
-    <Button
-      onClick={() => setSelectedTab("emergencies")}
-      variant={selectedTab === "emergencies" ? "contained" : "outlined"}
-      sx={{ fontSize: "12px", width: "auto", minWidth: "100px" }}
-    >
-      Emergencies
-    </Button>
-  </Grid>
-</Box>
-
+        <Button
+          onClick={() => setSelectedTab("emergencies")}
+          variant={selectedTab === "emergencies" ? "contained" : "outlined"}
+          sx={{
+            flexGrow: 1,
+            fontSize: "10px",
+            minWidth: "unset",
+            borderRadius: "10px",
+            bgcolor: selectedTab === "emergencies" ? "purple" : "transparent",
+            color: selectedTab === "emergencies" ? "white" : "purple",
+            borderColor: "purple",
+            "&:hover": {
+              bgcolor:
+                selectedTab === "emergencies"
+                  ? "darkpurple"
+                  : "rgba(128,0,128,0.1)",
+            },
+          }}
+        >
+          <PriorityHighIcon />
+        </Button>
+      </Box>
 
       {/* Conditionally render based on selected tab */}
-      {selectedTab === "chats" ? (
+      {selectedTab === "all" ? (
         <Box sx={{ backgroundColor: "#ffffff", borderRight: "1px solid #ddd" }}>
           <Box>
             {users.map((user) => (

@@ -14,9 +14,9 @@ export const UBMessengerListAnonymous: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   const users = [
-    { id: 1, name: "Steve castillo", message: "messasasdf", time: "2:30 PM" },
-    { id: 2, name: "Zariah", message: "hello world", time: "3:00 PM" },
-    { id: 3, name: "Stephanie", message: "how are you?", time: "4:15 PM" },
+    { id: 1, name: "Steve castillo", message: "messasasdf", time: "2:35 PM" },
+    { id: 2, name: "Zariah", message: "hello world", time: "3:010 PM" },
+    { id: 3, name: "Stephanie", message: "how are you?", time: "5:15 PM" },
   ];
 
   const handleUserClick = (id: number) => {
