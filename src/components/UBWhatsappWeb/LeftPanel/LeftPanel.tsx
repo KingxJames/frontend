@@ -9,83 +9,26 @@ import { rightPanelMenuItems } from "../../../common/utils/constant";
 import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 import { UBChatCard } from "../../../common/UBChatCard/UBChatCard";
 
+interface LeftPanelProps {
+  onSelectChat: (chat: ChatCardType) => void;
+}
 
 const localChats: ChatCardType[] = [
   {
     name: "Balram",
-    lastText: "Hey there testing whatsapp",
+    lastText: "Hey there testing WhatsApp",
     lastSeen: "4:21 PM",
     selected: true,
   },
   {
     name: "Dev Stack",
-    lastText: "DevStack testing whatsapp",
+    lastText: "DevStack testing WhatsApp",
     lastSeen: "8:51 PM",
-    selected: false,
-  },
-  {
-    name: "Test 1",
-    lastText: "Testing okk how test test 123",
-    lastSeen: "4:21 PM",
-    selected: false,
-  },
-  {
-    name: "Test 2",
-    lastText: "Testing Yes",
-    lastSeen: "4:21 PM",
-    selected: false,
-  },
-  {
-    name: "Test 3",
-    lastText: "Ok Tested",
-    lastSeen: "4:21 PM",
-    selected: false,
-  },
-  {
-    name: "Test 4",
-    lastText: "Yes",
-    lastSeen: "8:51 PM",
-    selected: false,
-  },
-  {
-    name: "HDFC",
-    lastText: "Take a lone",
-    lastSeen: "4:21 PM",
-    selected: false,
-  },
-  {
-    name: "Test 2",
-    lastText: "Testing okk how test test 123",
-    lastSeen: "4:21 PM",
-    selected: false,
-  },
-  {
-    name: "Balram Rathore",
-    lastText: "Hey there testing whatsapp",
-    lastSeen: "4:21 PM",
-    selected: false,
-  },
-  {
-    name: "Dev Stack",
-    lastText: "DevStack testing whatsapp",
-    lastSeen: "8:51 PM",
-    selected: false,
-  },
-  {
-    name: "Test 1",
-    lastText: "Testing okk how test test 123",
-    lastSeen: "4:21 PM",
-    selected: false,
-  },
-  {
-    name: "Test 2",
-    lastText: "Testing okk how test test 123",
-    lastSeen: "4:21 PM",
     selected: false,
   },
 ];
 
-export const LeftPanel: React.FC = () => {
+export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
   return (
     <Box height="100%" width="100%" overflow="hidden">
       <UBCustomAppBar>
@@ -120,7 +63,9 @@ export const LeftPanel: React.FC = () => {
           }}
         >
           <IconButton>
-            <SearchIcon sx={{ color: "#8696a1", height: "20px", width: "20px" }} />
+            <SearchIcon
+              sx={{ color: "#8696a1", height: "20px", width: "20px" }}
+            />
           </IconButton>
           <Input
             fullWidth
@@ -135,21 +80,18 @@ export const LeftPanel: React.FC = () => {
           />
         </Box>
         <IconButton>
-          <FilterListIcon sx={{ color: "#8696a1", height: "20px", width: "20px" }} />
+          <FilterListIcon
+            sx={{ color: "#8696a1", height: "20px", width: "20px" }}
+          />
         </IconButton>
       </Box>
 
-      <Box
-        overflow="auto"
-        height="90%"
-        sx={{
-          background: "#101b20",
-        }}
-      >
-        {localChats.map((item: ChatCardType) => {
-          return <UBChatCard item={item} />;
-        })}
-        <Box pt="50px" />
+      <Box overflow="auto" height="90%" sx={{ background: "#101b20" }}>
+        {localChats.map((item) => (
+          <div key={item.name} onClick={() => onSelectChat(item)}>
+            <UBChatCard item={item} />
+          </div>
+        ))}
       </Box>
     </Box>
   );

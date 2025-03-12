@@ -1,7 +1,11 @@
 import React from "react";
 import { Paper, Box, Typography } from "@mui/material";
 
-export const UBOwnMessageCard: React.FC = () => {
+interface UBOwnMessageCardProps {
+  text: string;
+}
+
+export const UBOwnMessageCard: React.FC<UBOwnMessageCardProps> = ({ text }) => {
   return (
     <Paper
       sx={{
@@ -31,8 +35,7 @@ export const UBOwnMessageCard: React.FC = () => {
           fontSize: "1rem",
         }}
       >
-        OwnMessage Card Nulla enim ut pari atur magna. OwnMessa geCard Nulla
-        enim ut OwnM es sageCard Nulla enim ut pariatur sit consectetur magna.
+        {text}
       </Typography>
       <Typography
         color={"grey"}

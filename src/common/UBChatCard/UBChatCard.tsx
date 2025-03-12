@@ -4,6 +4,7 @@ import { ChatCardType } from "../../common/utils/LeftPanel.types"; // Ensure thi
 
 interface ChatCardProps {
   item: ChatCardType;
+  // onSelect?: () => void;
 }
 
 export const UBChatCard: React.FC<ChatCardProps> = ({ item }) => {

@@ -1,7 +1,13 @@
 import React from "react";
 import { Paper, Box, Typography } from "@mui/material";
 
-export const UBReplyCard: React.FC = () => {
+
+interface UBReplyCardProps {
+  text: string;
+  sender: string;
+}
+
+export const UBReplyCard: React.FC<UBReplyCardProps> = ({ text, sender }) => {
   return (
     <Paper
       sx={{
@@ -27,13 +33,12 @@ export const UBReplyCard: React.FC = () => {
       }}
     >
       <Typography
-        color={"white"}
+        color={"black"}
         sx={{
           fontSize: "1rem",
         }}
       >
-        Card Nulla enim ut pari atur magna. OwnMessa geCard Nulla enim ut OwnM
-        es sageCard Nulla enim ut pariatur sit consectetur magna.
+        {text}
       </Typography>
       <Typography
         color={"gray"}

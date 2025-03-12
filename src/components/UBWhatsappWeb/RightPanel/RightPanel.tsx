@@ -10,8 +10,13 @@ import UBCustomMenuButton from "../../../common/UBCustomMenuButton/UBCustomMenuB
 import { rightPanelMenuItems } from "../../../common/utils/constant";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import ChatContainer from "../ChatContainer/ChatContainer";
+import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 
-export const RightPanel: React.FC = () => {
+interface RightPanelProps {
+  selectedChat: ChatCardType | null;
+}
+
+export const RightPanel: React.FC<RightPanelProps> = ({ selectedChat }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [textValue, setTextValue] = useState("");
 
@@ -38,14 +43,59 @@ export const RightPanel: React.FC = () => {
               alignItems={"flex-start"}
               pl="10px"
             >
-              <Typography variant="body1" sx={{ color: "white" }}>
-                James
-              </Typography>
-              <Typography variant="caption" sx={{ color: "white" }}>
-                online
-              </Typography>
+              {selectedChat ? (
+                <>
+                  <Typography variant="body1" sx={{ color: "white" }}>
+                    {selectedChat.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "white" }}>
+                    online
+                  </Typography>
+                  {/* <Box
+                    flex={1}
+                    display="flex"
+                    flexDirection="column"
+                    position="relative"
+                    sx={{ backgroundColor: "green" }} // Chat background
+                  >
+                    <Box
+                      height="100%"
+                      width="100%"
+                      component="div"
+                      sx={{
+                        backgroundColor: "black",
+                      }}
+                    >
+                      <ChatContainer selectedChat={selectedChat} />
+                    </Box>
+                  </Box>{" "} */}
+                </>
+              ) : (
+                <Typography variant="h6">
+                  Select a chat to start messaging
+                </Typography>
+              )}
             </Box>
+            {/* <Box
+                    flex={1}
+                    display="flex"
+                    flexDirection="column"
+                    position="relative"
+                    sx={{ backgroundColor: "green" }} // Chat background
+                  >
+                    <Box
+                      height="100%"
+                      width="100%"
+                      component="div"
+                      sx={{
+                        backgroundColor: "black",
+                      }}
+                    >
+                      <ChatContainer selectedChat={selectedChat} />
+                    </Box>
+                  </Box>{" "} */}
           </Box>
+
           <Box display="flex">
             <IconButton onClick={() => {}}>
               <SearchIcon sx={{ color: "white" }}></SearchIcon>
@@ -54,7 +104,32 @@ export const RightPanel: React.FC = () => {
           </Box>
         </Box>
       </UBCustomAppBar>
-
+      <Box
+        flex={1}
+        display="flex"
+        flexDirection="column"
+        position="relative"
+        sx={{ backgroundColor: "green" }} // Chat background
+      >
+        <Box
+          height="100%"
+          width="100%"
+          component="div"
+          sx={{
+            backgroundColor: "black",
+          }}
+        >
+          {selectedChat ? (
+            <>
+              <ChatContainer selectedChat={selectedChat} />
+            </>
+          ) : (
+            <Typography variant="h6">
+              Select a chat to start messaging
+            </Typography>
+          )}
+        </Box>
+      </Box>{" "}
       <Box
         flex={1}
         display="flex"
@@ -70,10 +145,9 @@ export const RightPanel: React.FC = () => {
             backgroundColor: "white",
           }}
         >
-          <ChatContainer />
+          {/* <ChatContainer selectedChat={selectedChat} /> */}
         </Box>
       </Box>
-
       <Box
         height="62px"
         alignItems="center"
