@@ -1,97 +1,92 @@
-import React from "react";
-import { Box, IconButton, Avatar, Input } from "@mui/material";
+import React, { useState } from "react";
+import { Box, IconButton, Avatar, Input, Tabs, Tab } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import ChatIcon from "@mui/icons-material/Chat";
 import UBCustomAppBar from "../../../common/UBCustomAppBar/UBCustomAppBar";
 import UBCustomMenuButton from "../../../common/UBCustomMenuButton/UBCustomMenuButton";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import { rightPanelMenuItems } from "../../../common/utils/constant";
-import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 import { UBChatCard } from "../../../common/UBChatCard/UBChatCard";
+import { ChatCardType } from "../../../common/utils/LeftPanel.types";
+import { rightPanelMenuItems } from "../../../common/utils/constant";
 
 interface LeftPanelProps {
   onSelectChat: (chat: ChatCardType) => void;
 }
 
 const localChats: ChatCardType[] = [
-  {
-    name: "Balram",
-    lastText: "Hey there testing WhatsApp",
-    lastSeen: "4:21 PM",
-    selected: true,
-  },
-  {
-    name: "Dev Stack",
-    lastText: "DevStack testing WhatsApp",
-    lastSeen: "8:51 PM",
-    selected: false,
-  },
+  { name: "Balram", lastText: "Hey there testing WhatsApp", lastSeen: "4:21 PM", selected: false, category: "all" },
+  { name: "Dev Stack", lastText: "This is an emergency message", lastSeen: "8:51 PM", selected: false, category: "emergency" },
+  { name: "John Doe", lastText: "This is an anonymous message", lastSeen: "7:30 PM", selected: false, category: "anonymous" },
 ];
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
+  const [value, setValue] = useState(0);
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+
+  // Handle tab change
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+
+  // Handle chat selection
+  const handleChatSelect = (chat: ChatCardType) => {
+    setSelectedChat(chat.name);
+    onSelectChat(chat);
+  };
+
+  // Filter chats based on the selected tab
+  const filteredChats = localChats.filter((chat) => {
+    if (value === 0) return true;
+    if (value === 1) return chat.category === "emergency";
+    if (value === 2) return chat.category === "anonymous";
+    return false;
+  });
+
   return (
     <Box height="100%" width="100%" overflow="hidden">
       <UBCustomAppBar>
-        <Box
-          width="100%"
-          height="100%"
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Box display="flex">
-            <Avatar />
-          </Box>
-          <Box display="flex">
-            <IconButton sx={{ paddingRight: "8px" }}>
-              <ChatIcon sx={{ color: "white" }} />
-            </IconButton>
-            <UBCustomMenuButton menuItems={rightPanelMenuItems} />
-          </Box>
+        <Box width="100%" height="100%" display="flex" justifyContent="space-between" alignItems="center">
+          <Avatar />
+          <UBCustomMenuButton menuItems={rightPanelMenuItems} />
         </Box>
       </UBCustomAppBar>
 
-      <Box sx={{ background: "#101b20", padding: "12px" }} display="flex">
-        <Box
-          display="flex"
-          sx={{
-            background: "#1f2c33",
-            borderRadius: "8px",
-            padding: "0px 8px",
-            flex: 1,
-            alignItems: "center",
-          }}
-        >
+      {/* Search Bar */}
+      <Box sx={{ background: "rgba(224, 218, 218, 0.1)", padding: "12px" }} display="flex">
+        <Box display="flex" sx={{ background: "rgba(151, 151, 151, 0.2)", borderRadius: "8px", padding: "0px 8px", flex: 1, alignItems: "center" }}>
           <IconButton>
-            <SearchIcon
-              sx={{ color: "#8696a1", height: "20px", width: "20px" }}
-            />
+            <SearchIcon sx={{ color: "rgba(51, 51, 51, 0.1)", height: "20px", width: "20px" }} />
           </IconButton>
-          <Input
-            fullWidth
-            disableUnderline
-            placeholder="Search or start a new chat"
-            sx={{
-              height: "35px",
-              color: "white",
-              padding: "0px 13px",
-              fontSize: "14px",
-            }}
-          />
+          <Input fullWidth disableUnderline placeholder="Search or start a new chat" sx={{ height: "35px", color: "rgba(0, 0, 0, 0.52)", padding: "0px 13px", fontSize: "14px" }} />
         </Box>
-        <IconButton>
-          <FilterListIcon
-            sx={{ color: "#8696a1", height: "20px", width: "20px" }}
-          />
-        </IconButton>
       </Box>
 
-      <Box overflow="auto" height="90%" sx={{ background: "#101b20" }}>
-        {localChats.map((item) => (
-          <div key={item.name} onClick={() => onSelectChat(item)}>
-            <UBChatCard item={item} />
-          </div>
-        ))}
+      {/* Tabs Section */}
+      <Tabs value={value} onChange={handleChange} aria-label="chat categories" sx={{ background: "rgba(224, 218, 218, 0.1)" }}>
+        <Tab label="All" value={0} />
+        <Tab label="Emergency" value={1} />
+        <Tab label="Anonymous" value={2} />
+      </Tabs>
+
+      {/* Chat List */}
+      <Box overflow="auto" height="90%" sx={{ background: "rgba(224, 218, 218, 0.1)" }}>
+        {filteredChats.length > 0 ? (
+          filteredChats.map((item) => (
+            <Box
+              key={item.name}
+              onClick={() => handleChatSelect(item)}
+              sx={{
+                backgroundColor: selectedChat === item.name ? "rgba(224, 218, 218, 0.75)" : "transparent",
+                transition: "background-color 0.3s",
+                cursor: "pointer",
+              }}
+            >
+              <UBChatCard item={item} />
+            </Box>
+          ))
+        ) : (
+          <Box textAlign="center" padding="20px">
+            No messages found.
+          </Box>
+        )}
       </Box>
     </Box>
   );

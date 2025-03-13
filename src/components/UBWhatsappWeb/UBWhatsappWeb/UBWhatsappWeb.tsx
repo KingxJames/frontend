@@ -9,12 +9,12 @@ export const UBWhatsappWeb: React.FC = () => {
 
   return (
     <Box display="flex" flexDirection="row" height={"100vh"}>
-      <Box width="30%" sx={{ backgroundColor: "red" }}>
+      <Box width="30%" sx={{ backgroundColor: "rgba(224, 218, 218, 0.1)" }}>
         <LeftPanel onSelectChat={setSelectedChat} />
       </Box>
-      <Box sx={{ backgroundColor: "green", border: ".05px solid white" }} />
+      <Box sx={{ backgroundColor: "rgba(224, 218, 218, 0.1)", border: ".05px solid rgba(134, 134, 134, 0.49)" }} />
 
-      <Box width="70%" sx={{ backgroundColor: "yellow" }}>
+      <Box width="70%" sx={{ backgroundColor: "rgba(224, 218, 218, 0.1)" }}>
         <RightPanel selectedChat={selectedChat} />
       </Box>
     </Box>

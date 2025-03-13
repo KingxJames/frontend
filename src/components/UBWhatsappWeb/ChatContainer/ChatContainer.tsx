@@ -6,25 +6,13 @@ import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 
 interface ChatContainerProps {
   selectedChat: ChatCardType;
+  messages: { sender: string; text: string }[];
 }
 
 export const ChatContainer: React.FC<ChatContainerProps> = ({
   selectedChat,
+  messages,
 }) => {
-  const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
-    []
-  );
-
-  useEffect(() => {
-    if (selectedChat) {
-      // Add the last message from the selected chat
-      setMessages([
-        { sender: "you", text: `Hey ${selectedChat.name}, how are you?` },
-        { sender: selectedChat.name, text: selectedChat.lastText },
-      ]);
-    }
-  }, [selectedChat]);
-
   return (
     <Box
       sx={{

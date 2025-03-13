@@ -3,4 +3,5 @@ export interface ChatCardType {
   lastText: string;
   lastSeen: string;
   selected: boolean;
+  category: string;
 }

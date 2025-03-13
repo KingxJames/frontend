@@ -9,7 +9,7 @@ export const UBOwnMessageCard: React.FC<UBOwnMessageCardProps> = ({ text }) => {
   return (
     <Paper
       sx={{
-        backgroundColor: "green",
+        backgroundColor: "rgb(108, 55, 119)",
         display: "flex",
         alignSelf: "flex-end",
         maxWidth: "60%",
@@ -25,7 +25,7 @@ export const UBOwnMessageCard: React.FC<UBOwnMessageCardProps> = ({ text }) => {
           top: 0,
           right: "-1.25rem",
           borderTopRightRadius: ".5rem",
-          borderTopColor: "green",
+          borderTopColor: "rgb(108, 55, 119)",
         },
       }}
     >
@@ -38,7 +38,7 @@ export const UBOwnMessageCard: React.FC<UBOwnMessageCardProps> = ({ text }) => {
         {text}
       </Typography>
       <Typography
-        color={"grey"}
+        color={"rgb(209, 209, 209)"}
         sx={{
           fontSize: ".85rem",
           display: "flex",

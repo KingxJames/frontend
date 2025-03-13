@@ -1,7 +1,6 @@
 import React from "react";
 import { Paper, Box, Typography } from "@mui/material";
 
-
 interface UBReplyCardProps {
   text: string;
   sender: string;
@@ -11,7 +10,7 @@ export const UBReplyCard: React.FC<UBReplyCardProps> = ({ text, sender }) => {
   return (
     <Paper
       sx={{
-        background: "blue",
+        background: "rgb(223, 223, 223)",
         display: "flex",
         alignSelf: "flex-start",
         maxWidth: "60%",
@@ -28,7 +27,7 @@ export const UBReplyCard: React.FC<UBReplyCardProps> = ({ text, sender }) => {
           top: 0,
           left: "-1.25rem",
           borderTopLeftRadius: ".5rem",
-          borderTopColor: "black",
+          borderTopColor: "rgb(223, 223, 223)",
         },
       }}
     >

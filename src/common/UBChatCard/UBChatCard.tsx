@@ -13,7 +13,7 @@ export const UBChatCard: React.FC<ChatCardProps> = ({ item }) => {
     <Box
       display="flex"
       sx={{
-        background: selected ? "#2b3943" : "#101b20",
+        background: selected ? "rgba(224, 218, 218, 0.1)" : "rgba(224, 218, 218, 0.1)",
         padding: "8px 12px",
       }}
     >
@@ -26,21 +26,22 @@ export const UBChatCard: React.FC<ChatCardProps> = ({ item }) => {
         alignItems="flex-start"
       >
         <Box display="flex" justifyContent="space-between" width="100%">
-          <Typography variant="body1" color="#d1d7db">
+          <Typography variant="body1" color="rgba(59, 59, 59, 0.84)">
             {name}
           </Typography>
-          <Typography variant="caption" color="#d1d7db">
+          <Typography variant="caption" color="rgba(59, 59, 59, 0.84)">
             {lastSeen}
           </Typography>
         </Box>
-        <Typography variant="subtitle2" color="#d1d7db">
+        <Typography variant="subtitle2" color="rgba(59, 59, 59, 0.84)">
           {lastText}
         </Typography>
         <Box
           width="100%"
           mt="13px"
           sx={{
-            border: ".05px solid #2f3b44",
+            
+            border: ".01px solid rgba(143, 143, 143, 0.32)",
           }}
         />
       </Box>
