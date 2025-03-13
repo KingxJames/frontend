@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box } from "@mui/material";
 import UBMessengerChat from "./UBMessengerChat/UBMessengerChat";
 import UBMessengerList from "./UBMessengerList/UBMessengerList";
-import UBMessengerDetail from "./UBMessengerDetail/UBMessengerDetail";
+import UBMessengerDetail from "../UBWhatsappWeb/UBMessengerDetail/UBWhatsappDetail";
 
 export const UBMessenger: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false); // Default to false so it's closed initially

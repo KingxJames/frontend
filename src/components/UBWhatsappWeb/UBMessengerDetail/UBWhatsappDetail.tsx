@@ -4,13 +4,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-interface UBMessengerDetailProps {
+interface UBWhatsappDetailProps {
   onClose: () => void;
   name: string;
   role: string;
 }
 
-export const UBMessengerDetail: React.FC<UBMessengerDetailProps> = ({
+export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
   onClose,
   name,
   role,
@@ -19,7 +19,7 @@ export const UBMessengerDetail: React.FC<UBMessengerDetailProps> = ({
     <Box
       sx={{
         border: "1px solid #ddd",
-        width: "50%",
+        width: "25vw",
         height: "100vh",
         backgroundColor: "rgba(187, 187, 187, 0.18)",
       }}
@@ -84,7 +84,9 @@ export const UBMessengerDetail: React.FC<UBMessengerDetailProps> = ({
           border: "1px solid #ddd",
         }}
       >
-        <Typography sx={{ fontSize: "20px", color: "red", border: "1px solid red" }}>
+        <Typography
+          sx={{ fontSize: "20px", color: "red", border: "1px solid red" }}
+        >
           <DeleteIcon />
           Delete Chat
         </Typography>
@@ -93,4 +95,4 @@ export const UBMessengerDetail: React.FC<UBMessengerDetailProps> = ({
   );
 };
 
-export default UBMessengerDetail;
+export default UBWhatsappDetail;

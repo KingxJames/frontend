@@ -1,10 +1,10 @@
-// UBMessengerDetail.stories.tsx
+// UBWhatsappDetail.stories.tsx
 import type { Meta, StoryObj } from "@storybook/react";
-import { UBMessengerDetail } from "./UBMessengerDetail";
+import { UBWhatsappDetail } from "./UBWhatsappDetail";
 
-const meta: Meta<typeof UBMessengerDetail> = {
-  title: "components/UBMessengerDetail",
-  component: UBMessengerDetail,
+const meta: Meta<typeof UBWhatsappDetail> = {
+  title: "components/UBWhatsappDetail",
+  component: UBWhatsappDetail,
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",

@@ -8,9 +8,12 @@ import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import UBCustomAppBar from "../../../common/UBCustomAppBar/UBCustomAppBar";
 import UBCustomMenuButton from "../../../common/UBCustomMenuButton/UBCustomMenuButton";
 import { rightPanelMenuItems } from "../../../common/utils/constant";
+import AttachmentPopOver from "../../../common/utils/AttachmentPopOver";
+
 import ChatContainer from "../ChatContainer/ChatContainer";
 import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 import UB_Logo from "../../../images/UB_Logo.png";
+import UBWhatsappDetail from "../UBMessengerDetail/UBWhatsappDetail";
 
 interface RightPanelProps {
   selectedChat: ChatCardType | null;
@@ -18,6 +21,7 @@ interface RightPanelProps {
 
 export const RightPanel: React.FC<RightPanelProps> = ({ selectedChat }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [textValue, setTextValue] = useState("");
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
     []
@@ -33,19 +37,38 @@ export const RightPanel: React.FC<RightPanelProps> = ({ selectedChat }) => {
   };
 
   return (
-    <Box height={"100%"} width={"100%"} display={"flex"} flexDirection={"column"}>
+    <Box
+      height={"100%"}
+      width={"100%"}
+      display={"flex"}
+      flexDirection={"column"}
+    >
       {/* Top Bar */}
       <UBCustomAppBar>
-        <Box width="100%" height={"100%"} display="flex" justifyContent={"space-between"} alignItems={"center"}>
+        <Box
+          width="100%"
+          height={"100%"}
+          display="flex"
+          justifyContent={"space-between"}
+          alignItems={"center"}
+        >
           <Box display="flex">
             <Avatar />
-            <Box display="flex" flexDirection={"column"} alignItems={"flex-start"} pl="10px">
+            <Box
+              display="flex"
+              flexDirection={"column"}
+              alignItems={"flex-start"}
+              pl="10px"
+            >
               {selectedChat ? (
                 <>
                   <Typography variant="body1" sx={{ color: "rgb(59, 59, 59)" }}>
                     {selectedChat.name}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: "rgb(59, 59, 59)" }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "rgb(59, 59, 59)" }}
+                  >
                     online
                   </Typography>
                 </>
@@ -65,7 +88,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({ selectedChat }) => {
       </UBCustomAppBar>
 
       {/* Chat Container */}
-      <Box flex={1} display="flex" flexDirection="column" position="relative" sx={{ backgroundColor: "rgba(190, 190, 190, 0.53)" }}>
+      <Box
+        flex={1}
+        display="flex"
+        flexDirection="column"
+        position="relative"
+        sx={{ backgroundColor: "rgba(190, 190, 190, 0.53)" }}
+      >
         <Box height="100%" width="100%">
           {selectedChat ? (
             <ChatContainer selectedChat={selectedChat} messages={messages} />
@@ -101,7 +130,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ selectedChat }) => {
         <IconButton onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
           <MoodIcon />
         </IconButton>
-        <AttachFileIcon />
+        <AttachmentPopOver />
         <Box flex={1} pl="5px" pr="5px">
           <Input
             fullWidth
@@ -132,7 +161,21 @@ export const RightPanel: React.FC<RightPanelProps> = ({ selectedChat }) => {
           height="45%"
           width="100%"
           previewConfig={{ showPreview: false }}
-          onEmojiClick={(emojiData: EmojiClickData) => setTextValue((prev) => prev + emojiData.emoji)}
+          onEmojiClick={(emojiData: EmojiClickData) =>
+            setTextValue((prev) => prev + emojiData.emoji)
+          }
+        />
+      )}
+
+       {/* Show Detail Panel */}
+       {showDetailPanel && (
+        <UBWhatsappDetail
+          onClose={() => {
+            setShowDetailPanel(false);
+            setShowEmojiPicker(false); // Close emoji picker when closing the panel
+          }}
+          name="John Doe"
+          role="Admin"
         />
       )}
     </Box>
