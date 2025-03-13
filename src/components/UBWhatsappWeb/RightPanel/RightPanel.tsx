@@ -2,18 +2,13 @@ import React, { useState } from "react";
 import { Box, IconButton, Input, Typography, Avatar } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import MoodIcon from "@mui/icons-material/Mood";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
 import SendIcon from "@mui/icons-material/Send";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import UBCustomAppBar from "../../../common/UBCustomAppBar/UBCustomAppBar";
 import UBCustomMenuButton from "../../../common/UBCustomMenuButton/UBCustomMenuButton";
 import { rightPanelMenuItems } from "../../../common/utils/constant";
-import AttachmentPopOver from "../../../common/utils/AttachmentPopOver";
-
 import ChatContainer from "../ChatContainer/ChatContainer";
 import { ChatCardType } from "../../../common/utils/LeftPanel.types";
-import UB_Logo from "../../../images/UB_Logo.png";
-import UBWhatsappDetail from "../UBMessengerDetail/UBWhatsappDetail";
 
 interface RightPanelProps {
   selectedChat: ChatCardType | null;
@@ -29,15 +24,21 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
     []
   );
+  const [searchQuery, setSearchQuery] = useState(""); // 🔍 State for message search
+  const [showSearchBar, setShowSearchBar] = useState(false);
 
   // Function to send a message
   const handleSendMessage = () => {
-    if (!textValue.trim()) return; // Prevent sending empty messages
-
+    if (!textValue.trim()) return;
     const newMessage = { sender: "you", text: textValue };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
-    setTextValue(""); // Clear input after sending
+    setTextValue("");
   };
+
+  // 🔍 Filter messages based on searchQuery
+  const filteredMessages = messages.filter((msg) =>
+    msg.text.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Box
@@ -50,10 +51,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       <UBCustomAppBar>
         <Box
           width="100%"
-          height={"100%"}
+          height="100%"
           display="flex"
-          justifyContent={"space-between"}
-          alignItems={"center"}
+          justifyContent="space-between"
+          alignItems="center"
         >
           <Box
             display="flex"
@@ -86,13 +87,32 @@ export const RightPanel: React.FC<RightPanelProps> = ({
           </Box>
 
           <Box display="flex">
-            <IconButton>
+            <IconButton onClick={() => setShowSearchBar(!showSearchBar)}>
               <SearchIcon sx={{ color: "rgba(59, 59, 59, 0.39)" }} />
             </IconButton>
             <UBCustomMenuButton menuItems={rightPanelMenuItems} />
           </Box>
         </Box>
       </UBCustomAppBar>
+
+      {/* 🔍 Message Search Bar */}
+      {showSearchBar && (
+        <Box padding="8px" display="flex" sx={{ background: "#f3f3f3" }}>
+          <Input
+            fullWidth
+            disableUnderline
+            placeholder="Search messages..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{
+              background: "white",
+              height: "35px",
+              borderRadius: "6px",
+              padding: "0px 10px",
+            }}
+          />
+        </Box>
+      )}
 
       {/* Chat Container */}
       <Box
@@ -104,20 +124,21 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       >
         <Box height="100%" width="100%">
           {selectedChat ? (
-            <ChatContainer selectedChat={selectedChat} messages={messages} />
+            <ChatContainer
+              selectedChat={selectedChat}
+              messages={filteredMessages}
+            />
           ) : (
             <Typography
               variant="h6"
               sx={{
                 display: "flex",
-                flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
                 marginTop: "20%",
               }}
             >
               Select a chat to start messaging
-              <img src={UB_Logo} alt="UB Logo" />
             </Typography>
           )}
         </Box>
@@ -129,15 +150,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         alignItems="center"
         display="flex"
         zIndex="1000"
-        sx={{
-          background: "rgba(161, 161, 161, 0.1)",
-          padding: "0px 15px",
-        }}
+        sx={{ background: "rgba(161, 161, 161, 0.1)", padding: "0px 15px" }}
       >
         <IconButton onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
           <MoodIcon />
         </IconButton>
-        <AttachmentPopOver />
         <Box flex={1} pl="5px" pr="5px">
           <Input
             fullWidth
@@ -146,7 +163,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             value={textValue}
             onChange={(event) => setTextValue(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === "Enter") handleSendMessage(); // Send on Enter
+              if (event.key === "Enter") handleSendMessage();
             }}
             sx={{
               background: "rgb(223, 223, 223)",

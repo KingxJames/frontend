@@ -19,6 +19,7 @@ const localChats: ChatCardType[] = [
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
   const [value, setValue] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
   // Handle tab change
@@ -32,13 +33,20 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
     onSelectChat(chat);
   };
 
-  // Filter chats based on the selected tab
-  const filteredChats = localChats.filter((chat) => {
-    if (value === 0) return true;
-    if (value === 1) return chat.category === "emergency";
-    if (value === 2) return chat.category === "anonymous";
-    return false;
-  });
+  // Handle search input change
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filter chats based on the selected tab and search query
+  const filteredChats = localChats
+    .filter((chat) => {
+      if (value === 0) return true;
+      if (value === 1) return chat.category === "emergency";
+      if (value === 2) return chat.category === "anonymous";
+      return false;
+    })
+    .filter((chat) => chat.name.toLowerCase().includes(searchQuery.toLowerCase())); // Search filtering
 
   return (
     <Box height="100%" width="100%" overflow="hidden">
@@ -51,11 +59,21 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
 
       {/* Search Bar */}
       <Box sx={{ background: "rgba(224, 218, 218, 0.1)", padding: "12px" }} display="flex">
-        <Box display="flex" sx={{ background: "rgba(151, 151, 151, 0.2)", borderRadius: "8px", padding: "0px 8px", flex: 1, alignItems: "center" }}>
+        <Box
+          display="flex"
+          sx={{ background: "rgba(151, 151, 151, 0.2)", borderRadius: "8px", padding: "0px 8px", flex: 1, alignItems: "center" }}
+        >
           <IconButton>
             <SearchIcon sx={{ color: "rgba(51, 51, 51, 0.1)", height: "20px", width: "20px" }} />
           </IconButton>
-          <Input fullWidth disableUnderline placeholder="Search or start a new chat" sx={{ height: "35px", color: "rgba(0, 0, 0, 0.52)", padding: "0px 13px", fontSize: "14px" }} />
+          <Input
+            fullWidth
+            disableUnderline
+            placeholder="Search or start a new chat"
+            sx={{ height: "35px", color: "rgba(0, 0, 0, 0.52)", padding: "0px 13px", fontSize: "14px" }}
+            value={searchQuery}
+            onChange={handleSearchChange} // Handle input change
+          />
         </Box>
       </Box>
 
