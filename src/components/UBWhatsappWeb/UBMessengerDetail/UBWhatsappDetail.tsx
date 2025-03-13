@@ -20,7 +20,7 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
       sx={{
         border: "1px solid #ddd",
         width: "25vw",
-        height: "100vh",
+        height: "100%",
         backgroundColor: "rgba(187, 187, 187, 0.18)",
       }}
     >
@@ -51,7 +51,7 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
           src={"/static/images/avatar/1.jpg"}
           sx={{ width: 200, height: 200 }}
         />
-        <Typography sx={{ mt: 2 }}>{name}sdfgdf</Typography>
+        <Typography sx={{ mt: 2 }}>{name}</Typography>
         <Typography variant="body2" color="text.secondary">
           {role}
         </Typography>
@@ -80,7 +80,7 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
           backgroundColor: "#fff",
           position: "fixed",
           bottom: 0,
-          width: "100%",
+          width: "25vw",
           border: "1px solid #ddd",
         }}
       >

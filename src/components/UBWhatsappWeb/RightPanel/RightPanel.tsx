@@ -17,11 +17,14 @@ import UBWhatsappDetail from "../UBMessengerDetail/UBWhatsappDetail";
 
 interface RightPanelProps {
   selectedChat: ChatCardType | null;
+  setShowDetailPanel: (value: boolean) => void;
 }
 
-export const RightPanel: React.FC<RightPanelProps> = ({ selectedChat }) => {
+export const RightPanel: React.FC<RightPanelProps> = ({
+  selectedChat,
+  setShowDetailPanel,
+}) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [textValue, setTextValue] = useState("");
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
     []
@@ -52,12 +55,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({ selectedChat }) => {
           justifyContent={"space-between"}
           alignItems={"center"}
         >
-          <Box display="flex">
+          <Box
+            display="flex"
+            onClick={() => setShowDetailPanel(true)}
+            sx={{ cursor: "pointer" }}
+          >
             <Avatar />
             <Box
               display="flex"
-              flexDirection={"column"}
-              alignItems={"flex-start"}
+              flexDirection="column"
+              alignItems="flex-start"
               pl="10px"
             >
               {selectedChat ? (
@@ -164,18 +171,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ selectedChat }) => {
           onEmojiClick={(emojiData: EmojiClickData) =>
             setTextValue((prev) => prev + emojiData.emoji)
           }
-        />
-      )}
-
-       {/* Show Detail Panel */}
-       {showDetailPanel && (
-        <UBWhatsappDetail
-          onClose={() => {
-            setShowDetailPanel(false);
-            setShowEmojiPicker(false); // Close emoji picker when closing the panel
-          }}
-          name="John Doe"
-          role="Admin"
         />
       )}
     </Box>

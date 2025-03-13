@@ -14,7 +14,7 @@ import {
 import { useSelector } from "react-redux";
 import { selectDashboard } from "../../../../store/features/dashboardSlice";
 import { Box } from "@mui/material";
-import UBMessengerListChats from "../../UBMessenger/UBMessengerList/UBMessengerListChats";
+import UBChatList from "../../../common/UBChatList/UBChatList.tsx";
 
 export const UBDashboard: React.FC = () => {
   // Fetch the totals using hooks
@@ -71,8 +71,9 @@ export const UBDashboard: React.FC = () => {
             borderRadius: "20px",
           }}
         >
-          <h1 style={{ fontSize: "40px", padding: "2% 0 2% 4%" }}>Chat</h1>
-          <UBMessengerListChats />
+          <h1 style={{ fontSize: "30px", padding: "2% 0 2% 4%" }}>Chat</h1>
+          {/* chat list here */}
+          <UBChatList />
         </div>
       </div>
     </Box>

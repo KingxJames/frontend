@@ -7,12 +7,15 @@ import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 
 export const UBWhatsappWeb: React.FC = () => {
   const [selectedChat, setSelectedChat] = useState<ChatCardType | null>(null);
+  const [showDetailPanel, setShowDetailPanel] = useState(false);
 
   return (
-    <Box display="flex" flexDirection="row" height={"100vh"}>
+    <Box display="flex" flexDirection="row" height="100vh">
+      {/* Left Panel */}
       <Box width="30%" sx={{ backgroundColor: "rgba(224, 218, 218, 0.1)" }}>
         <LeftPanel onSelectChat={setSelectedChat} />
       </Box>
+
       <Box
         sx={{
           backgroundColor: "rgba(224, 218, 218, 0.1)",
@@ -20,11 +23,24 @@ export const UBWhatsappWeb: React.FC = () => {
         }}
       />
 
-      <Box width="70%" sx={{ backgroundColor: "rgba(224, 218, 218, 0.1)" }}>
-        <RightPanel selectedChat={selectedChat} />
+      {/* Right Panel with dynamic width */}
+      <Box
+        width={showDetailPanel ? "50%" : "70%"}
+        sx={{ backgroundColor: "rgba(224, 218, 218, 0.1)" }}
+      >
+        <RightPanel selectedChat={selectedChat} setShowDetailPanel={setShowDetailPanel} />
       </Box>
 
-      {/* <Box><UBMessengerDetail onClose={() => setSelectedChat(null)} name={selectedChat?.name || ""} role={selectedChat?.category || ""}/></Box> */}
+      {/* Messenger Detail Panel - Only shows when showDetailPanel is true */}
+      {showDetailPanel && selectedChat && (
+        <Box width="auto" sx={{ backgroundColor: "white", borderLeft: "1px solid #ccc" }}>
+          <UBMessengerDetail 
+            name={selectedChat.name} 
+            role={selectedChat.category} 
+            onClose={() => setShowDetailPanel(false)}
+          />
+        </Box>
+      )}
     </Box>
   );
 };
