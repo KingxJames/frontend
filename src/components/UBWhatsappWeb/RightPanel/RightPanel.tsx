@@ -9,6 +9,7 @@ import UBCustomMenuButton from "../../../common/UBCustomMenuButton/UBCustomMenuB
 import { rightPanelMenuItems } from "../../../common/utils/constant";
 import ChatContainer from "../ChatContainer/ChatContainer";
 import { ChatCardType } from "../../../common/utils/LeftPanel.types";
+import UB_Logo from "../../../images/UB_Logo.png";
 
 interface RightPanelProps {
   selectedChat: ChatCardType | null;
@@ -129,16 +130,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               messages={filteredMessages}
             />
           ) : (
+            
             <Typography
               variant="h6"
               sx={{
                 display: "flex",
+                flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
                 marginTop: "20%",
               }}
             >
               Select a chat to start messaging
+              <img src={UB_Logo} alt="" />
             </Typography>
           )}
         </Box>
