@@ -12,9 +12,27 @@ interface LeftPanelProps {
 }
 
 const localChats: ChatCardType[] = [
-  { name: "Balram", lastText: "Hey there testing WhatsApp", lastSeen: "4:21 PM", selected: false, category: "all" },
-  { name: "Dev Stack", lastText: "This is an emergency message", lastSeen: "8:51 PM", selected: false, category: "emergency" },
-  { name: "John Doe", lastText: "This is an anonymous message", lastSeen: "7:30 PM", selected: false, category: "anonymous" },
+  {
+    name: "Balram",
+    lastText: "Hey there testing WhatsApp",
+    lastSeen: "4:21 PM",
+    selected: false,
+    category: "all",
+  },
+  {
+    name: "Dev Stack",
+    lastText: "This is an emergency message",
+    lastSeen: "8:51 PM",
+    selected: false,
+    category: "emergency",
+  },
+  {
+    name: "John Doe",
+    lastText: "This is an anonymous message",
+    lastSeen: "7:30 PM",
+    selected: false,
+    category: "anonymous",
+  },
 ];
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
@@ -46,31 +64,59 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
       if (value === 2) return chat.category === "anonymous";
       return false;
     })
-    .filter((chat) => chat.name.toLowerCase().includes(searchQuery.toLowerCase())); // Search filtering
+    .filter((chat) =>
+      chat.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ); // Search filtering
 
   return (
     <Box height="100%" width="100%" overflow="hidden">
       <UBCustomAppBar>
-        <Box width="100%" height="100%" display="flex" justifyContent="space-between" alignItems="center">
+        <Box
+          width="100%"
+          height="100%"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Avatar />
           <UBCustomMenuButton menuItems={rightPanelMenuItems} />
         </Box>
       </UBCustomAppBar>
 
       {/* Search Bar */}
-      <Box sx={{ background: "rgba(224, 218, 218, 0.1)", padding: "12px" }} display="flex">
+      <Box
+        sx={{ background: "rgba(224, 218, 218, 0.1)", padding: "12px" }}
+        display="flex"
+      >
         <Box
           display="flex"
-          sx={{ background: "rgba(151, 151, 151, 0.2)", borderRadius: "8px", padding: "0px 8px", flex: 1, alignItems: "center" }}
+          sx={{
+            background: "rgba(151, 151, 151, 0.2)",
+            borderRadius: "8px",
+            padding: "0px 8px",
+            flex: 1,
+            alignItems: "center",
+          }}
         >
           <IconButton>
-            <SearchIcon sx={{ color: "rgba(51, 51, 51, 0.1)", height: "20px", width: "20px" }} />
+            <SearchIcon
+              sx={{
+                color: "rgba(51, 51, 51, 0.1)",
+                height: "20px",
+                width: "20px",
+              }}
+            />
           </IconButton>
           <Input
             fullWidth
             disableUnderline
             placeholder="Search or start a new chat"
-            sx={{ height: "35px", color: "rgba(0, 0, 0, 0.52)", padding: "0px 13px", fontSize: "14px" }}
+            sx={{
+              height: "35px",
+              color: "rgba(0, 0, 0, 0.52)",
+              padding: "0px 13px",
+              fontSize: "14px",
+            }}
             value={searchQuery}
             onChange={handleSearchChange} // Handle input change
           />
@@ -78,21 +124,37 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
       </Box>
 
       {/* Tabs Section */}
-      <Tabs value={value} onChange={handleChange} aria-label="chat categories" sx={{ background: "rgba(224, 218, 218, 0.1)" }}>
+      <Tabs
+        value={value}
+        onChange={handleChange}
+        aria-label="chat categories"
+        sx={{ background: "rgba(224, 218, 218, 0.1)" }}
+      >
         <Tab label="All" value={0} />
         <Tab label="Emergency" value={1} />
         <Tab label="Anonymous" value={2} />
       </Tabs>
 
       {/* Chat List */}
-      <Box overflow="auto" height="90%" sx={{ background: "rgba(224, 218, 218, 0.1)" }}>
+      <Box
+        overflow="auto"
+        height="90%"
+        sx={{ background: "rgba(224, 218, 218, 0.1)" }}
+      >
         {filteredChats.length > 0 ? (
           filteredChats.map((item) => (
             <Box
               key={item.name}
               onClick={() => handleChatSelect(item)}
               sx={{
-                backgroundColor: selectedChat === item.name ? "rgba(224, 218, 218, 0.75)" : "transparent",
+                backgroundColor:
+                  item.category === "emergency"
+                    ? "rgba(255, 0, 0, 0.2)" // Red background for emergency messages
+                    : item.category === "anonymous"
+                    ? "rgba(89, 175, 197, 0.2)" // Blue background for anonymous messages
+                    : selectedChat === item.name
+                    ? "rgba(224, 218, 218, 0.75)"
+                    : "transparent",
                 transition: "background-color 0.3s",
                 cursor: "pointer",
               }}

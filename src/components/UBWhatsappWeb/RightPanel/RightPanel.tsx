@@ -5,6 +5,7 @@ import {
   Input,
   Typography,
   Avatar,
+  Button,
   Paper,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -15,6 +16,7 @@ import UBCustomAppBar from "../../../common/UBCustomAppBar/UBCustomAppBar";
 import UBCustomMenuButton from "../../../common/UBCustomMenuButton/UBCustomMenuButton";
 import { rightPanelMenuItems } from "../../../common/utils/constant";
 import UB_Logo from "../../../images/UB_Logo.png";
+import AttachmentPopOver from "../../../common/utils/AttachmentPopOver";
 
 interface RightPanelProps {
   selectedChat: { name: string; lastText: string } | null;
@@ -26,25 +28,35 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   setShowDetailPanel,
 }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
   const [textValue, setTextValue] = useState("");
   const [messages, setMessages] = useState<{
-    [key: string]: { sender: string; text: string }[];
+    [key: string]: { sender: string; text: string; file: string | null }[];
   }>({});
   const [searchQuery, setSearchQuery] = useState(""); // Search input state
   const [showSearchBar, setShowSearchBar] = useState(false);
 
   const handleSendMessage = () => {
-    if (!textValue.trim() || !selectedChat) return;
+    if ((!textValue.trim() && !filePreview) || !selectedChat) return;
 
     setMessages((prevMessages) => ({
       ...prevMessages,
       [selectedChat.name]: [
         ...(prevMessages[selectedChat.name] || []),
-        { sender: "you", text: textValue },
+        { sender: "you", text: textValue, file: filePreview },
       ],
     }));
 
     setTextValue("");
+    setFilePreview(null); // Clear file preview after sending
+  };
+
+  const handleFileSelect = (file: File) => {
+    if (file.type.startsWith("image/")) {
+      setFilePreview(URL.createObjectURL(file)); // Image preview
+    } else {
+      setFilePreview(file.name); // Document name preview
+    }
   };
 
   const filteredMessages = selectedChat
@@ -171,13 +183,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                   <Box
                     key={index}
                     display="flex"
-                    justifyContent="flex-end"
+                    justifyContent={
+                      msg.sender === "you" ? "flex-end" : "flex-start"
+                    }
                     width="auto"
-                    padding="2.5% 5.5%"
+                    padding=".5%"
+                    marginRight={msg.sender === "you" ? "6.5%" : "0"}
                   >
                     <Paper
                       sx={{
-                        backgroundColor: "rgb(142, 80, 155)",
+                        backgroundColor:
+                          msg.sender === "you"
+                            ? "rgb(142, 80, 155)"
+                            : "rgb(223, 223, 223)",
                         display: "flex",
                         alignSelf: "flex-end",
                         maxWidth: "60%",
@@ -186,20 +204,70 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                         flexDirection: "column",
                         borderRadius: ".625rem",
                         position: "relative",
+                        wordBreak: "break-word",
                         "&::after": {
-                          content: '" "',
+                          content: '""',
                           border: "20px solid transparent",
                           position: "absolute",
                           top: 0,
-                          right: "-1.25rem",
-                          borderTopRightRadius: ".5rem",
-                          borderTopColor: "rgb(142, 80, 155)",
+                          right: msg.sender === "you" ? "-1.25rem" : "unset",
+                          left: msg.sender === "you" ? "unset" : "-1.25rem",
+                          borderTopRightRadius:
+                            msg.sender === "you" ? ".5rem" : "unset",
+                          borderTopLeftRadius:
+                            msg.sender === "you" ? "unset" : ".5rem",
+                          borderTopColor:
+                            msg.sender === "you"
+                              ? "rgb(142, 80, 155)"
+                              : "rgb(223, 223, 223)",
                         },
                       }}
                     >
-                      <Typography variant="body2" color="white">
+                      <Typography
+                        variant="body2"
+                        color={msg.sender === "you" ? "white" : "text.primary"}
+                      >
                         {msg.text}
                       </Typography>
+
+                      {/* If the message contains a file */}
+                      {msg.file && (
+                        <Box display="flex" flexDirection="column" mt={1}>
+                          {/* If it's an image, show preview */}
+                          {msg.file.startsWith("blob") ||
+                          msg.file.match(/\.(jpeg|jpg|png|gif)$/i) ? (
+                            <img
+                              src={msg.file}
+                              alt="Sent file"
+                              width="100px"
+                              height="100px"
+                              style={{
+                                borderRadius: "6px",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            <Typography
+                              variant="body2"
+                              sx={{ wordBreak: "break-word" }}
+                            >
+                              {msg.file.split("/").pop()}
+                            </Typography>
+                          )}
+
+                          {/* Download button */}
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            sx={{ mt: 1 }}
+                            component="a"
+                            href={msg.file}
+                            download
+                          >
+                            Download
+                          </Button>
+                        </Box>
+                      )}
                     </Paper>
                   </Box>
                 ))}
@@ -208,7 +276,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({
           </>
         ) : (
           <Box
-            sx={{ height: "100%", backgroundColor: "rgba(182, 182, 182, 0.53)" }}
+            sx={{
+              height: "100%",
+              backgroundColor: "rgba(182, 182, 182, 0.53)",
+            }}
           >
             <Typography
               variant="h6"
@@ -228,38 +299,87 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       </Box>
 
       {/* Message Input */}
+      {/* Message Input */}
       <Box
-        height="62px"
-        alignItems="center"
+        height="auto"
         display="flex"
-        sx={{ background: "rgba(161, 161, 161, 0.1)", padding: "0px 15px" }}
+        flexDirection="column"
+        sx={{
+          background: "rgba(161, 161, 161, 0.1)",
+          padding: "10px 15px",
+          borderTop: "1px solid rgba(0, 0, 0, 0.1)",
+        }}
       >
-        <IconButton onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
-          <MoodIcon />
-        </IconButton>
-        <Box flex={1} pl="5px" pr="5px">
-          <Input
-            fullWidth
-            disableUnderline
-            placeholder="Type a message"
-            value={textValue}
-            onChange={(event) => setTextValue(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") handleSendMessage();
-            }}
-            sx={{
-              background: "rgb(223, 223, 223)",
-              height: "42px",
-              borderRadius: "6px",
-              padding: "0px 10px",
-            }}
-          />
-        </Box>
-        <IconButton onClick={handleSendMessage}>
-          <SendIcon />
-        </IconButton>
-      </Box>
+        {/* Preview Section */}
+        {filePreview && (
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            p={1}
+            borderRadius="6px"
+            bgcolor="rgba(0, 0, 0, 0.1)"
+            mb={1}
+            width="100%"
+            maxWidth="100%"
+          >
+            {filePreview.startsWith("blob") ? (
+              <img
+                src={filePreview}
+                alt="Preview"
+                width="70px"
+                height="70px"
+                style={{ borderRadius: "6px", objectFit: "cover" }}
+              />
+            ) : (
+              <Typography
+                variant="body2"
+                sx={{
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "80%",
+                }}
+              >
+                {filePreview}
+              </Typography>
+            )}
+            <IconButton onClick={() => setFilePreview(null)}>❌</IconButton>
+          </Box>
+        )}
 
+        {/* Input & Actions Section */}
+        <Box display="flex" alignItems="center">
+          <IconButton onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+            <MoodIcon />
+          </IconButton>
+
+          <AttachmentPopOver onFileSelect={handleFileSelect} />
+
+          <Box flex={1} pl="10px">
+            <Input
+              fullWidth
+              disableUnderline
+              placeholder="Type a message"
+              value={textValue}
+              onChange={(event) => setTextValue(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") handleSendMessage();
+              }}
+              sx={{
+                background: "rgb(223, 223, 223)",
+                height: "42px",
+                borderRadius: "6px",
+                padding: "0px 10px",
+              }}
+            />
+          </Box>
+
+          <IconButton onClick={handleSendMessage}>
+            <SendIcon />
+          </IconButton>
+        </Box>
+      </Box>
       {/* Emoji Picker */}
       {showEmojiPicker && (
         <EmojiPicker

@@ -1,95 +1,107 @@
 import React from "react";
-import { Box, Typography, Avatar } from "@mui/material";
+import { Box, Typography, Avatar, IconButton, Paper } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 interface UBWhatsappDetailProps {
   onClose: () => void;
   name: string;
   role: string;
+  avatarUrl?: string; // Allow dynamic avatar
 }
 
 export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
   onClose,
   name,
   role,
+  avatarUrl = "/static/images/avatar/1.jpg", // Default avatar
 }) => {
   return (
     <Box
       sx={{
         border: "1px solid #ddd",
         width: "25vw",
-        height: "100%",
+        height: "100vh",
         backgroundColor: "rgba(187, 187, 187, 0.18)",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
+      {/* Header */}
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
-          p: "2%",
+          p: "12px",
           backgroundColor: "#fff",
+          borderBottom: "1px solid #ddd",
         }}
       >
-        <CloseIcon onClick={onClose} sx={{ cursor: "pointer" }} />
-        <Typography sx={{ flexGrow: 1, textAlign: "center" }}>
+        <IconButton onClick={onClose} sx={{ cursor: "pointer" }}>
+          <CloseIcon />
+        </IconButton>
+        <Typography
+          sx={{ flexGrow: 1, textAlign: "center", fontWeight: "bold" }}
+        >
           Contact Info
         </Typography>
       </Box>
+
+      {/* Avatar & Name */}
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "center", // Centers the Avatar and text horizontally
+          alignItems: "center",
           textAlign: "center",
           backgroundColor: "#fff",
+          padding: "20px",
+          borderBottom: "1px solid #ddd",
         }}
       >
-        <Avatar
-          alt="User Avatar"
-          src={"/static/images/avatar/1.jpg"}
-          sx={{ width: 200, height: 200 }}
-        />
-        <Typography sx={{ mt: 2 }}>{name}</Typography>
+        <Avatar alt={name} src={avatarUrl} sx={{ width: 120, height: 120 }} />
+        <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
+          {name}
+        </Typography>
         <Typography variant="body2" color="text.secondary">
           {role}
         </Typography>
       </Box>
 
+      {/* Media, Links, Docs Section */}
       <Box
         sx={{
           display: "flex",
+          alignItems: "center",
           justifyContent: "space-between",
-          height: "30%",
-          marginTop: "2%",
-          padding: "2%",
+          padding: "12px 16px",
           backgroundColor: "#fff",
+          borderBottom: "1px solid #ddd",
+          cursor: "pointer", // Indicate it's clickable
+          "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.05)" },
         }}
       >
-        <Typography sx={{}}>Media, Links, Docs</Typography>
-        <ArrowForwardIosIcon sx={{ fontSize: "15px" }} />
+        <Typography>Media, Links, Docs</Typography>
+        <ArrowForwardIosIcon sx={{ fontSize: "16px", color: "gray" }} />
       </Box>
-
       <Box
-        onClick={() => console.log("Delete chat clicked")}
         sx={{
-          cursor: "pointer",
-          display: "flex",
-          justifyContent: "center",
-          backgroundColor: "#fff",
-          position: "fixed",
-          bottom: 0,
-          width: "25vw",
           border: "1px solid #ddd",
+          width: "100%",
+          height: "20%",
+          backgroundColor: "#fff",
+          padding: "12px 16px",
         }}
       >
-        <Typography
-          sx={{ fontSize: "20px", color: "red", border: "1px solid red" }}
-        >
-          <DeleteIcon />
-          Delete Chat
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            border: "1px solid #ddd",
+            width: "30%",
+            height: "50%",
+          }}
+        />
       </Box>
     </Box>
   );
