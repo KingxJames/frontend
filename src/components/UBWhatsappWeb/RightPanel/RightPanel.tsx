@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Box, IconButton, Input, Typography, Avatar } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Input,
+  Typography,
+  Avatar,
+  Paper,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import MoodIcon from "@mui/icons-material/Mood";
 import SendIcon from "@mui/icons-material/Send";
@@ -7,12 +14,10 @@ import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import UBCustomAppBar from "../../../common/UBCustomAppBar/UBCustomAppBar";
 import UBCustomMenuButton from "../../../common/UBCustomMenuButton/UBCustomMenuButton";
 import { rightPanelMenuItems } from "../../../common/utils/constant";
-import ChatContainer from "../ChatContainer/ChatContainer";
-import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 import UB_Logo from "../../../images/UB_Logo.png";
 
 interface RightPanelProps {
-  selectedChat: ChatCardType | null;
+  selectedChat: { name: string; lastText: string } | null;
   setShowDetailPanel: (value: boolean) => void;
 }
 
@@ -22,32 +27,34 @@ export const RightPanel: React.FC<RightPanelProps> = ({
 }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [textValue, setTextValue] = useState("");
-  const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
-    []
-  );
-  const [searchQuery, setSearchQuery] = useState(""); // 🔍 State for message search
+  const [messages, setMessages] = useState<{
+    [key: string]: { sender: string; text: string }[];
+  }>({});
+  const [searchQuery, setSearchQuery] = useState(""); // Search input state
   const [showSearchBar, setShowSearchBar] = useState(false);
 
-  // Function to send a message
   const handleSendMessage = () => {
-    if (!textValue.trim()) return;
-    const newMessage = { sender: "you", text: textValue };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    if (!textValue.trim() || !selectedChat) return;
+
+    setMessages((prevMessages) => ({
+      ...prevMessages,
+      [selectedChat.name]: [
+        ...(prevMessages[selectedChat.name] || []),
+        { sender: "you", text: textValue },
+      ],
+    }));
+
     setTextValue("");
   };
 
-  // 🔍 Filter messages based on searchQuery
-  const filteredMessages = messages.filter((msg) =>
-    msg.text.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredMessages = selectedChat
+    ? (messages[selectedChat.name] || []).filter((msg) =>
+        msg.text.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   return (
-    <Box
-      height={"100%"}
-      width={"100%"}
-      display={"flex"}
-      flexDirection={"column"}
-    >
+    <Box height="100%" width="100%" display="flex" flexDirection="column">
       {/* Top Bar */}
       <UBCustomAppBar>
         <Box
@@ -86,7 +93,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               )}
             </Box>
           </Box>
-
           <Box display="flex">
             <IconButton onClick={() => setShowSearchBar(!showSearchBar)}>
               <SearchIcon sx={{ color: "rgba(59, 59, 59, 0.39)" }} />
@@ -96,7 +102,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         </Box>
       </UBCustomAppBar>
 
-      {/* 🔍 Message Search Bar */}
+      {/* Search Bar */}
       {showSearchBar && (
         <Box padding="8px" display="flex" sx={{ background: "#f3f3f3" }}>
           <Input
@@ -120,17 +126,90 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         flex={1}
         display="flex"
         flexDirection="column"
-        position="relative"
-        sx={{ backgroundColor: "rgba(190, 190, 190, 0.53)" }}
+        sx={{ backgroundColor: "rgba(255, 255, 255, 0.6)" }}
       >
-        <Box height="100%" width="100%">
-          {selectedChat ? (
-            <ChatContainer
-              selectedChat={selectedChat}
-              messages={filteredMessages}
-            />
-          ) : (
-            
+        {selectedChat ? (
+          <>
+            <Box
+              display="flex"
+              justifyContent="flex-start"
+              width="100%"
+              padding="4rem 0 0 5rem"
+            >
+              <Paper
+                sx={{
+                  background: "rgb(223, 223, 223)",
+                  display: "flex",
+                  maxWidth: "75%",
+                  textAlign: "start",
+                  padding: ".5rem .8rem",
+                  flexDirection: "column",
+                  borderRadius: ".625rem",
+                  position: "relative",
+                  wordBreak: "break-word",
+                  "&::after": {
+                    content: '" "',
+                    border: "20px solid transparent",
+                    position: "absolute",
+                    top: 0,
+                    left: "-1.25rem",
+                    borderTopLeftRadius: ".5rem",
+                    borderTopColor: "rgb(223, 223, 223)",
+                  },
+                }}
+              >
+                <Typography variant="body2" color="text.primary">
+                  {selectedChat.lastText}
+                </Typography>
+              </Paper>
+            </Box>
+
+            {/* The message that I sent */}
+            {filteredMessages.length > 0 && (
+              <Box display="flex" flexDirection="column" padding="1rem">
+                {filteredMessages.map((msg, index) => (
+                  <Box
+                    key={index}
+                    display="flex"
+                    justifyContent="flex-end"
+                    width="auto"
+                    padding="2.5% 5.5%"
+                  >
+                    <Paper
+                      sx={{
+                        backgroundColor: "rgb(142, 80, 155)",
+                        display: "flex",
+                        alignSelf: "flex-end",
+                        maxWidth: "60%",
+                        textAlign: "start",
+                        padding: ".5rem .8rem",
+                        flexDirection: "column",
+                        borderRadius: ".625rem",
+                        position: "relative",
+                        "&::after": {
+                          content: '" "',
+                          border: "20px solid transparent",
+                          position: "absolute",
+                          top: 0,
+                          right: "-1.25rem",
+                          borderTopRightRadius: ".5rem",
+                          borderTopColor: "rgb(142, 80, 155)",
+                        },
+                      }}
+                    >
+                      <Typography variant="body2" color="white">
+                        {msg.text}
+                      </Typography>
+                    </Paper>
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </>
+        ) : (
+          <Box
+            sx={{ height: "100%", backgroundColor: "rgba(182, 182, 182, 0.53)" }}
+          >
             <Typography
               variant="h6"
               sx={{
@@ -142,10 +221,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               }}
             >
               Select a chat to start messaging
-              <img src={UB_Logo} alt="" />
+              <img src={UB_Logo} alt="UB Logo" />
             </Typography>
-          )}
-        </Box>
+          </Box>
+        )}
       </Box>
 
       {/* Message Input */}
@@ -153,7 +232,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         height="62px"
         alignItems="center"
         display="flex"
-        zIndex="1000"
         sx={{ background: "rgba(161, 161, 161, 0.1)", padding: "0px 15px" }}
       >
         <IconButton onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
@@ -173,7 +251,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               background: "rgb(223, 223, 223)",
               height: "42px",
               borderRadius: "6px",
-              color: "rgb(41, 41, 41)",
               padding: "0px 10px",
             }}
           />
