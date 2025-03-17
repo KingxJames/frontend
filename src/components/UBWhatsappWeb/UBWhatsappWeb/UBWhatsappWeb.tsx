@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import RightPanel from "../RightPanel/RightPanel";
 import LeftPanel from "../LeftPanel/LeftPanel";
-import UBWhatsAppDetail from "../UBWhatsAppDetail/UBWhatsappDetail";
 import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 import UBMedia from "../UBWhatsAppDetail/UBMedia/UBMedia";
 import UBWhatsappDetail from "../UBWhatsAppDetail/UBWhatsappDetail";
@@ -15,7 +14,7 @@ export const UBWhatsappWeb: React.FC = () => {
   const [selectedChat, setSelectedChat] = useState<ChatCardType | null>(null);
   const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [sharedImagesMap, setSharedImagesMap] = useState<SharedImagesMap>({});
-  const [showMediaLinksAndDocs, setShowMediaLinksAndDocs] = useState(false);
+  const [showMediaLinksAndDocs] = useState(false);
   const [showMedia, setShowMedia] = useState(false);
   const documents = [
     "https://example.com/doc1.pdf",

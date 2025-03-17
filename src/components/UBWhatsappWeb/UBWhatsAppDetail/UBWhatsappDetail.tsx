@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Typography, Avatar, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import UBMedia from "./UBMedia/UBMedia";
-import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 
 interface UBWhatsappDetailProps {
   onClose: () => void;

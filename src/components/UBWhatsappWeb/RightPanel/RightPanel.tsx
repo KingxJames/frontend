@@ -17,7 +17,6 @@ import UBCustomMenuButton from "../../../common/UBCustomMenuButton/UBCustomMenuB
 import { rightPanelMenuItems } from "../../../common/utils/constant";
 import UB_Logo from "../../../images/UB_Logo.png";
 import AttachmentPopOver from "../../../common/utils/AttachmentPopOver";
-import UBWhatsappDetail from "../../UBWhatsappWeb/UBWhatsAppDetail/UBWhatsappDetail";
 
 interface RightPanelProps {
   selectedChat: { name: string; lastText: string } | null;
