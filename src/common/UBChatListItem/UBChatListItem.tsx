@@ -8,7 +8,7 @@ import Typography from '@mui/joy/Typography';
 import CircleIcon from '@mui/icons-material/Circle';
 import UBAvatarWithStatus from '../UBAvatarWithStatus/UBAvatarWithStatus';
 import { ChatProps, MessageProps, UserProps } from '../types';
-import { toggleMessagesPane } from '../utils';
+// import { toggleMessagesPane } from '../utils';
 
 
 type IUBChatListItemProps = ListItemButtonProps & {

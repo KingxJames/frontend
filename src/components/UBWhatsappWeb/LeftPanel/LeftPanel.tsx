@@ -18,6 +18,8 @@ const localChats: ChatCardType[] = [
     lastSeen: "4:21 PM",
     selected: false,
     category: "all",
+    role: "admin",
+    avatarUrl: "https://via.placeholder.com/120", // Sample avatar URL
   },
   {
     name: "Dev Stack",
@@ -25,6 +27,8 @@ const localChats: ChatCardType[] = [
     lastSeen: "8:51 PM",
     selected: false,
     category: "emergency",
+    role: "Super Admin",
+    avatarUrl: "https://via.placeholder.com/120",
   },
   {
     name: "John Doe",
@@ -32,6 +36,8 @@ const localChats: ChatCardType[] = [
     lastSeen: "7:30 PM",
     selected: false,
     category: "anonymous",
+    role: "Staff",
+    avatarUrl: "https://via.placeholder.com/120",
   },
 ];
 

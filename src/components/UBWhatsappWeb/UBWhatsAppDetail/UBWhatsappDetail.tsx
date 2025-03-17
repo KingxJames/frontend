@@ -1,20 +1,26 @@
-import React from "react";
-import { Box, Typography, Avatar, IconButton, Paper } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, Avatar, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import UBMedia from "./UBMedia/UBMedia";
+import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 
 interface UBWhatsappDetailProps {
   onClose: () => void;
+  onMediaClick: () => void; // Add this prop
   name: string;
   role: string;
-  avatarUrl?: string; // Allow dynamic avatar
+  avatarUrl?: string;
+  images?: Array<{ src: string; alt: string }>;
 }
 
 export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
   onClose,
+  onMediaClick,
   name,
   role,
-  avatarUrl = "/static/images/avatar/1.jpg", // Default avatar
+  avatarUrl = "/static/images/avatar/1.jpg",
+  images = [],
 }) => {
   return (
     <Box
@@ -77,31 +83,65 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
           padding: "12px 16px",
           backgroundColor: "#fff",
           borderBottom: "1px solid #ddd",
-          cursor: "pointer", // Indicate it's clickable
+          cursor: "pointer",
           "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.05)" },
         }}
+        onClick={onMediaClick} // Handle click event
       >
         <Typography>Media, Links, Docs</Typography>
         <ArrowForwardIosIcon sx={{ fontSize: "16px", color: "gray" }} />
       </Box>
       <Box
         sx={{
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          alignContent: "flex-start",
+          gap: "10px",
           border: "1px solid #ddd",
           width: "100%",
-          height: "20%",
+          height: "auto",
+          maxHeight: "50%",
+          overflow: "auto",
           backgroundColor: "#fff",
           padding: "12px 16px",
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            border: "1px solid #ddd",
-            width: "30%",
-            height: "50%",
-          }}
-        />
+        {images && images.length > 0 ? (
+          images.map((image, index) => (
+            <Box
+              key={index}
+              sx={{
+                border: "1px solid #ddd",
+                width: "30%",
+                height: "100px",
+                borderRadius: "10px",
+                overflow: "hidden",
+              }}
+            >
+              <img
+                src={image.src}
+                alt={image.alt}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            </Box>
+          ))
+        ) : (
+          <Typography
+            sx={{
+              width: "100%",
+              textAlign: "center",
+              color: "gray",
+              padding: "20px 0",
+            }}
+          >
+            No media shared yet
+          </Typography>
+        )}
       </Box>
     </Box>
   );
