@@ -41,8 +41,9 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
         location: string;
         uploadedBy: string;
         frequency: number;
+        path: string;
         incidentReoccured: string;
-        incidentFileId: number;
+        incidentFiles: string;
         incidentStatusId: number;
         userId: number;
         campusId: number;
@@ -59,8 +60,9 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
         location,
         uploadedBy,
         frequency,
+        path,
         incidentReoccured,
-        incidentFileId,
+        incidentFiles,
         incidentStatusId,
         userId,
         campusId,
@@ -77,14 +79,22 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
           location,
           uploadedBy,
           frequency,
+          path,
           incidentReoccured,
-          incidentFileId,
+          incidentFiles,
           incidentStatusId,
           userId,
           campusId,
           buildingId,
           incidentTypeId,
         },
+      }),
+    }),
+    uploadIncidentFile: builder.mutation<{ path: string }, FormData>({
+      query: (formData) => ({
+        url: "/uploadIncidentFile", // Adjust according to your API
+        method: "POST",
+        body: formData,
       }),
     }),
     deleteIncidentReport: builder.mutation<void, string>({
@@ -110,4 +120,5 @@ export const {
   useUpdateIncidentReportMutation,
   useDeleteIncidentReportMutation,
   useIncidnetReportTotalQuery,
+  useUploadIncidentFileMutation,
 } = incidentReportAPI;

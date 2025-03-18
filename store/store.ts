@@ -16,7 +16,6 @@ import incidentStatusesReducer from "./features/incidentStatusSlice";
 import incidentTypesReducer from "./features/incidentTypeSlice";
 import messageCategoryReducer from "./features/messageCategoriesSlice";
 import departmentMemberReducer from "./features/departmentMemberSlice";
-import incidentFileReducer from "./features/incidentFileSlice";
 import incidentReportReducer from "./features/incidentReportSlice";
 import accessRightReducer from "./features/accessRightSlice";
 import menuRoleReducer from "./features/menuRoleSlice";
@@ -25,7 +24,7 @@ import usersReducer from "./features/userSlice";
 import recipientReducer from "./features/recipientSlice";
 import subMenuReducer from "./features/subMenusSlice";
 import userCampusesReducer from "./features/userCampusSlice";
-import userStatusesReducer from "./features/userStatusSlice"
+import userStatusesReducer from "./features/userStatusSlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
@@ -56,7 +55,6 @@ export const store = configureStore({
     messageCategories: messageCategoryReducer,
     users: usersReducer,
     departmentMembers: departmentMemberReducer,
-    incidentFiles: incidentFileReducer,
     incidentReports: incidentReportReducer,
     accessRights: accessRightReducer,
     menuRoles: menuRoleReducer,

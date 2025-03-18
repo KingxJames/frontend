@@ -1,6 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
+export interface IIncidentFile {
+  id?: number;
+  path: string; // URL of the file
+  name: string; // File name
+}
+
 export interface IIncidentReport {
   id: number;
   action: string;
@@ -9,8 +15,7 @@ export interface IIncidentReport {
   caseNumber: string;
   disposition: string;
   frequency: number;
-  incidentFileId: number;
-  path: string;
+  incidentFiles: IIncidentFile[]; // Now an array
   incidentReoccured: string;
   incidentStatusId: number;
   statuses: string;
