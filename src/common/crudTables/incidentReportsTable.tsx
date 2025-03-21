@@ -21,11 +21,8 @@ import {
   useFetchIncidentReportQuery,
   useDeleteIncidentReportMutation,
   useUpdateIncidentReportMutation,
-  useCreateIncidentReportMutation,
-  useUploadIncidentFileMutation,
 } from "./../../../store/services/incidentReportAPI";
 import { useFetchIncidentStatusesQuery } from "../../../store/services/incidentStatusAPI";
-
 import { useFetchIncidentTypesQuery } from "../../../store/services/incidentTypesAPI";
 import {
   setIncidentReports,
@@ -36,19 +33,19 @@ import {
 
 export const IncidentReportTable: React.FC = () => {
   const dispatch = useDispatch();
+  const [files, setFiles] = useState<File[]>([]); // Store multiple file objects
 
   const { data: incidentReportsData, refetch } = useFetchIncidentReportQuery();
   const { data: incidentStatusesData } = useFetchIncidentStatusesQuery();
   const { data: incidentTypesData } = useFetchIncidentTypesQuery();
   const [deleteIncidentReport] = useDeleteIncidentReportMutation();
   const [updateIncidentReport] = useUpdateIncidentReportMutation();
-  const [createIncidentReport] = useCreateIncidentReportMutation();
-  const [uploadIncidentFile] = useUploadIncidentFileMutation();
-
   const incidentReports = useSelector(selectIncidentReports);
+  
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openEdit, setOpenEdit] = useState(false);
+
 
   const [selectedIncidentReport, setSelectedIncidentReport] = useState<{
     id: number;
@@ -58,7 +55,7 @@ export const IncidentReportTable: React.FC = () => {
     caseNumber: string;
     disposition: string;
     frequency: number;
-    incidentFiles: string;
+    incidentFiles: File[]; // Store uploaded files
     path: string;
     incidentReoccured: string;
     incidentStatusId: number;
@@ -87,11 +84,10 @@ export const IncidentReportTable: React.FC = () => {
             )?.type || "",
         })
       );
-      dispatch(setIncidentReports(mappedIncidentReports)); // Store roles in Redux
+      dispatch(setIncidentReports(mappedIncidentReports));
     }
   }, [incidentReportsData, incidentStatusesData, incidentTypesData, dispatch]);
 
-  // Filter roles based on search query
   const filteredIncidentReports = incidentReports.incidentReports
     ? incidentReports.incidentReports.filter(
         (incidentReport) =>
@@ -110,8 +106,8 @@ export const IncidentReportTable: React.FC = () => {
       if (incidentReportToDelete) {
         await deleteIncidentReport(
           incidentReportToDelete.id.toString()
-        ).unwrap(); // Call the delete mutation
-        dispatch(deleteIncidentReports(incidentReportToDelete.id)); // Update Redux store
+        ).unwrap();
+        dispatch(deleteIncidentReports(incidentReportToDelete.id));
       }
     } catch (error) {
       console.error("Error deleting Incident Reports:", error);
@@ -148,7 +144,7 @@ export const IncidentReportTable: React.FC = () => {
         incidentReport.statuses,
         incidentReport.type,
       ]
-        .map((field) => `"${String(field).replace(/"/g, '""')}"`) // Ensure proper CSV formatting
+        .map((field) => `"${String(field).replace(/"/g, '""')}"`)
         .join(",")
     );
 
@@ -162,10 +158,9 @@ export const IncidentReportTable: React.FC = () => {
     link.setAttribute("download", "incidentReports.csv");
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link); // Cleanup
+    document.body.removeChild(link);
   };
 
-  // Handle edit incidentReport - open dialog
   const handleEdit = (incidentReport: {
     id: number;
     report: string;
@@ -187,7 +182,10 @@ export const IncidentReportTable: React.FC = () => {
     type: string;
   }) => {
     if (!incidentReport) return;
-    setSelectedIncidentReport(incidentReport); // Ensure selectedRole is set
+    setSelectedIncidentReport({
+      ...incidentReport,
+      incidentFiles: [], // Initialize as an empty array or handle appropriately
+    });
     setOpenEdit(true);
   };
 
@@ -202,20 +200,54 @@ export const IncidentReportTable: React.FC = () => {
       !selectedIncidentReport.uploadedBy.trim() ||
       !selectedIncidentReport.frequency ||
       !selectedIncidentReport.incidentReoccured.trim() ||
-      !selectedIncidentReport.incidentFiles.trim() ||
       !selectedIncidentReport.incidentStatusId ||
       !selectedIncidentReport.userId ||
       !selectedIncidentReport.campusId ||
       !selectedIncidentReport.buildingId ||
       !selectedIncidentReport.incidentTypeId
     ) {
-      alert("fields are required.");
+      alert("All fields are required.");
       return;
     }
 
     try {
-      // Call the updateRole mutation
-      const updatedIncidentReport = await updateIncidentReport({
+      const formData = new FormData();
+
+      // Append non-file fields to FormData
+      formData.append("id", selectedIncidentReport.id.toString());
+      formData.append("report", selectedIncidentReport.report);
+      formData.append("disposition", selectedIncidentReport.disposition);
+      formData.append("caseNumber", selectedIncidentReport.caseNumber);
+      formData.append("action", selectedIncidentReport.action);
+      formData.append("location", selectedIncidentReport.location);
+      formData.append("uploadedBy", selectedIncidentReport.uploadedBy);
+      formData.append("frequency", selectedIncidentReport.frequency.toString());
+      formData.append(
+        "incidentReoccured",
+        selectedIncidentReport.incidentReoccured
+      );
+      formData.append(
+        "incidentStatusId",
+        selectedIncidentReport.incidentStatusId.toString()
+      );
+      formData.append("userId", selectedIncidentReport.userId.toString());
+      formData.append("campusId", selectedIncidentReport.campusId.toString());
+      formData.append(
+        "buildingId",
+        selectedIncidentReport.buildingId.toString()
+      );
+      formData.append(
+        "incidentTypeId",
+        selectedIncidentReport.incidentTypeId.toString()
+      );
+
+      // Append each file to FormData
+      files.forEach((file) => {
+        formData.append("incidentFiles", file); // Use the same key for all files
+      });
+
+      // Send the FormData to the API
+      const updatedIncidentReportPayload = {
         id: selectedIncidentReport.id,
         report: selectedIncidentReport.report,
         disposition: selectedIncidentReport.disposition,
@@ -224,65 +256,69 @@ export const IncidentReportTable: React.FC = () => {
         location: selectedIncidentReport.location,
         uploadedBy: selectedIncidentReport.uploadedBy,
         frequency: selectedIncidentReport.frequency,
-        path: selectedIncidentReport.path,
         incidentReoccured: selectedIncidentReport.incidentReoccured,
-        incidentFiles: selectedIncidentReport.incidentFiles,
         incidentStatusId: selectedIncidentReport.incidentStatusId,
         userId: selectedIncidentReport.userId,
         campusId: selectedIncidentReport.campusId,
         buildingId: selectedIncidentReport.buildingId,
         incidentTypeId: selectedIncidentReport.incidentTypeId,
-      }).unwrap();
+        incidentFiles: files.map((file) => file.name).join(", "), // Convert files array to a string
+      };
 
-      // Update Redux store with the updated role
+      console.log(files);
+      console.log(updatedIncidentReportPayload);
+
+      const updatedIncidentReport = await updateIncidentReport(
+        updatedIncidentReportPayload
+        
+      ).unwrap();
+
+      
+      // Update the state and refetch data
       dispatch(updateIncidentReports(updatedIncidentReport));
       refetch();
 
-      // Close the dialog and reset selectedRole
+      // Reset the form and close the dialog
       setOpenEdit(false);
       setSelectedIncidentReport(null);
+      setFiles([]); // Clear the files state
     } catch (error) {
-      console.error("Error updating role:", error);
+      console.error("Error updating incident report:", error);
     }
   };
 
 
-  const handleFileChangeAndUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    incidentId: number
-  ) => {
-    const file = event.target.files?.[0];
-  
-    if (!file || !incidentId) return;
-  
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("incidentId", incidentId.toString());
-  
-    try {
-      const response = await uploadIncidentFile(formData).unwrap();
-  
-      if (selectedIncidentReport) {
-        const updatedIncidentReport = {
-          ...selectedIncidentReport,
-          incidentFiles: [
-            ...selectedIncidentReport.incidentFiles,
-            { path: response.path },
-          ],
-        };
-  
-        // Update the state and Redux store
-        dispatch(updateIncidentReports(updatedIncidentReport));S
-        await updateIncidentReport(updatedIncidentReport).unwrap();
-        refetch();
-      }
-    } catch (error) {
-      console.error("Error uploading file:", error);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.files) {
+      console.log(e.target.files);
+      const fileList = Array.from(e.target.files); // Convert FileList to an array
+      setSelectedIncidentReport((prev) =>
+        prev
+          ? { ...prev, incidentFiles: fileList } // Update incidentFiles in state
+          : {
+              id: 0,
+              report: "",
+              disposition: "",
+              caseNumber: "",
+              action: "",
+              location: "",
+              uploadedBy: "",
+              frequency: 0,
+              incidentFiles: fileList, // Initialize incidentFiles
+              path: "",
+              incidentReoccured: "",
+              incidentStatusId: 0,
+              statuses: "",
+              userId: 0,
+              campusId: 0,
+              buildingId: 0,
+              incidentTypeId: 0,
+              type: "",
+            }
+      );
     }
+
   };
-
-
-
 
   const columns: GridColDef[] = [
     { field: "caseNumber", headerName: "Case Number", flex: 1 },
@@ -337,7 +373,6 @@ export const IncidentReportTable: React.FC = () => {
 
   return (
     <div style={{ padding: "3%", height: "100%", width: "100%" }}>
-      {/* Filter and Actions */}
       <div
         style={{
           display: "flex",
@@ -365,7 +400,6 @@ export const IncidentReportTable: React.FC = () => {
         </div>
       </div>
 
-      {/* Data Grid */}
       <DataGrid
         rows={filteredIncidentReports}
         columns={columns}
@@ -373,7 +407,6 @@ export const IncidentReportTable: React.FC = () => {
         pageSizeOptions={[5, 10, 15]}
         disableRowSelectionOnClick
       />
-      {/* Edit Role Dialog */}
       <Dialog
         open={openEdit}
         onClose={() => setOpenEdit(false)}
@@ -408,7 +441,7 @@ export const IncidentReportTable: React.FC = () => {
                           uploadedBy: "",
                           frequency: 0,
                           incidentReoccured: "",
-                          incidentFiles: "",
+                          incidentFiles: [],
                           path: "",
                           incidentStatusId: 0,
                           statuses: "",
@@ -443,7 +476,7 @@ export const IncidentReportTable: React.FC = () => {
                           uploadedBy: "",
                           frequency: 0,
                           incidentReoccured: "",
-                          incidentFiles: "",
+                          incidentFiles: [],
                           path: "",
                           incidentStatusId: 0,
                           statuses: "",
@@ -478,7 +511,7 @@ export const IncidentReportTable: React.FC = () => {
                           uploadedBy: "",
                           frequency: 0,
                           incidentReoccured: "",
-                          incidentFiles: "",
+                          incidentFiles: [],
                           path: "",
                           incidentStatusId: 0,
                           statuses: "",
@@ -513,7 +546,7 @@ export const IncidentReportTable: React.FC = () => {
                           uploadedBy: "",
                           frequency: 0,
                           incidentReoccured: "",
-                          incidentFiles: "",
+                          incidentFiles: [],
                           path: "",
                           incidentStatusId: 0,
                           statuses: "",
@@ -548,7 +581,7 @@ export const IncidentReportTable: React.FC = () => {
                           uploadedBy: e.target.value,
                           frequency: 0,
                           incidentReoccured: "",
-                          incidentFiles: "",
+                          incidentFiles: [],
                           path: "",
                           incidentStatusId: 0,
                           statuses: "",
@@ -583,7 +616,7 @@ export const IncidentReportTable: React.FC = () => {
                           uploadedBy: "",
                           frequency: Number(e.target.value),
                           incidentReoccured: "",
-                          incidentFiles: "",
+                          incidentFiles: [],
                           path: "",
                           incidentStatusId: 0,
                           statuses: "",
@@ -618,7 +651,7 @@ export const IncidentReportTable: React.FC = () => {
                           uploadedBy: "",
                           frequency: 0,
                           incidentReoccured: e.target.value,
-                          incidentFiles: "",
+                          incidentFiles: [],
                           path: "",
                           incidentStatusId: 0,
                           statuses: "",
@@ -659,7 +692,7 @@ export const IncidentReportTable: React.FC = () => {
                               uploadedBy: "",
                               frequency: 0,
                               incidentReoccured: "",
-                              incidentFiles: "",
+                              incidentFiles: [],
                               path: "",
                               incidentStatusId: incidentStatus.id,
                               statuses: incidentStatus.statuses,
@@ -710,7 +743,7 @@ export const IncidentReportTable: React.FC = () => {
                             uploadedBy: "",
                             frequency: 0,
                             incidentReoccured: "",
-                            incidentFiles: "",
+                            incidentFiles: [],
                             path: "",
                             incidentStatusId: 0,
                             statuses: "",
@@ -732,37 +765,18 @@ export const IncidentReportTable: React.FC = () => {
               </Select>
             </FormControl>
 
-            <Box sx={{ mt: 2 }}>
-  <Typography sx={{ mb: 1, fontSize: "13px" }}>Incident Pictures</Typography>
-
-  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-    {selectedIncidentReport?.incidentFiles?.map((file, index) => (
-      <Box key={index} sx={{ width: 100, height: 100 }}>
-        <img
-          src={file.path}
-          alt={`Incident ${index + 1}`}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            borderRadius: 4,
-          }}
-        />
-      </Box>
-    ))}
-  </Box>
-
-  <Box sx={{ mt: 2 }}>
-    <input
-      type="file"
-      onChange={(event) =>
-        handleFileChangeAndUpload(event, selectedIncidentReport?.id || 0)
-      }
-      accept="image/*"
-    />
-  </Box>
-</Box>
-
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ mb: 1 }}>Incident Pictures</Typography>
+              <input type="file" multiple onChange={handleChange} />
+              {selectedIncidentReport?.incidentFiles?.map((file, index) => (
+                <img
+                  key={index}
+                  src={URL.createObjectURL(file)} // Create a URL for each file
+                  alt={`Uploaded file ${index + 1}`}
+                  style={{ width: "100px", height: "100px", margin: "5px" }}
+                />
+              ))}
+            </Box>
 
             <TextField
               autoFocus
@@ -787,7 +801,7 @@ export const IncidentReportTable: React.FC = () => {
                         uploadedBy: "",
                         frequency: 0,
                         incidentReoccured: "",
-                        incidentFiles: "",
+                        incidentFiles: [],
                         path: "",
                         incidentStatusId: 0,
                         statuses: "",
@@ -800,7 +814,7 @@ export const IncidentReportTable: React.FC = () => {
                 )
               }
               sx={{
-                width: "100%", // Adjust width as needed
+                width: "100%",
               }}
             />
           </Grid>

@@ -1,6 +1,24 @@
 import { baseAPI } from "./baseAPI";
 import { IIncidentReport } from "../features/incidentReportSlice";
 
+interface UpdateIncidentReportPayload {
+  id: number;
+  report: string;
+  disposition: string;
+  caseNumber: string;
+  action: string;
+  location: string;
+  uploadedBy: string;
+  frequency: number;
+  incidentReoccured: string;
+  incidentFiles: string;
+  incidentStatusId: number;
+  userId: number;
+  campusId: number;
+  buildingId: number;
+  incidentTypeId: number;
+}
+
 export const incidentReportAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchIncidentReport: builder.query<IIncidentReport[], void>({
@@ -32,62 +50,12 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
     }),
     updateIncidentReport: builder.mutation<
       IIncidentReport,
-      {
-        id: number;
-        report: string;
-        disposition: string;
-        caseNumber: string;
-        action: string;
-        location: string;
-        uploadedBy: string;
-        frequency: number;
-        path: string;
-        incidentReoccured: string;
-        incidentFiles: string;
-        incidentStatusId: number;
-        userId: number;
-        campusId: number;
-        buildingId: number;
-        incidentTypeId: number;
-      }
+      UpdateIncidentReportPayload
     >({
-      query: ({
-        id,
-        report,
-        disposition,
-        caseNumber,
-        action,
-        location,
-        uploadedBy,
-        frequency,
-        path,
-        incidentReoccured,
-        incidentFiles,
-        incidentStatusId,
-        userId,
-        campusId,
-        buildingId,
-        incidentTypeId,
-      }) => ({
-        url: `/v1/publicSafety/incidentReports/${id}`,
+      query: (payload) => ({
+        url: `/v1/publicSafety/incidentReports/${payload.id}`,
         method: "PUT",
-        body: {
-          report,
-          disposition,
-          caseNumber,
-          action,
-          location,
-          uploadedBy,
-          frequency,
-          path,
-          incidentReoccured,
-          incidentFiles,
-          incidentStatusId,
-          userId,
-          campusId,
-          buildingId,
-          incidentTypeId,
-        },
+        body: payload,
       }),
     }),
     uploadIncidentFile: builder.mutation<{ path: string }, FormData>({
