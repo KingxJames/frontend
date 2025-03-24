@@ -4,7 +4,6 @@ import { RootState } from "../store";
 export interface IRole {
   id: number;
   roles: string;
-  description: string;
 }
 
 export interface RoleInitialState {

@@ -14,7 +14,6 @@ export const UBWhatsappWeb: React.FC = () => {
   const [selectedChat, setSelectedChat] = useState<ChatCardType | null>(null);
   const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [sharedImagesMap, setSharedImagesMap] = useState<SharedImagesMap>({});
-  const [showMediaLinksAndDocs, setShowMediaLinksAndDocs] = useState(false);
   const [showMedia, setShowMedia] = useState(false);
 
   // Listen for image updates from RightPanel
@@ -40,30 +39,82 @@ export const UBWhatsappWeb: React.FC = () => {
     };
   }, []);
 
+  // Close detail panel and any sub-panels
+  const handleCloseDetailPanel = () => {
+    setShowDetailPanel(false);
+    setShowMedia(false);
+  };
+
+  // Handle escape key to close panels
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && (showDetailPanel || showMedia)) {
+        handleCloseDetailPanel();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showDetailPanel, showMedia]);
+
+  // Calculate panel widths responsively
+  const getRightPanelWidth = () => {
+    if (showDetailPanel || showMedia) return "50%";
+    return "70%";
+  };
+
   return (
-    <Box display="flex" flexDirection="row" height="100vh">
-      {/* Left Panel */}
-      <Box width="30%" sx={{ backgroundColor: "rgba(224, 218, 218, 0.1)" }}>
-        <LeftPanel onSelectChat={setSelectedChat} />
+    <Box 
+      display="flex" 
+      flexDirection="row" 
+      height="100vh"
+      sx={{
+        overflow: "hidden",
+      }}
+    >
+      {/* Left Panel - Always visible */}
+      <Box 
+        width={{ xs: "100%", md: "30%" }}
+        sx={{ 
+          backgroundColor: "rgba(224, 218, 218, 0.1)",
+          display: {
+            xs: showDetailPanel || showMedia ? "none" : "block",
+            md: "block"
+          }
+        }}
+      >
+        <LeftPanel 
+          onSelectChat={(chat) => {
+            setSelectedChat(chat);
+            setShowDetailPanel(false);
+            setShowMedia(false);
+          }} 
+        />
       </Box>
 
+      {/* Divider */}
       <Box
         sx={{
           backgroundColor: "rgba(224, 218, 218, 0.1)",
           border: ".05px solid rgba(134, 134, 134, 0.49)",
+          display: {
+            xs: "none",
+            md: "block"
+          }
         }}
       />
 
-      {/* Right Panel with dynamic width */}
+      {/* Right Panel - Dynamic width */}
       <Box
-        width={
-          showMediaLinksAndDocs
-            ? "50%" // Shrink when media panel is open
-            : showDetailPanel
-            ? "50%" // Shrink when detail panel is open
-            : "70%"
-        }
-        sx={{ backgroundColor: "rgba(224, 218, 218, 0.1)" }}
+        width={{
+          xs: showDetailPanel || showMedia ? "0%" : "100%",
+          md: getRightPanelWidth()
+        }}
+        sx={{ 
+          backgroundColor: "rgba(224, 218, 218, 0.1)",
+          transition: "width 0.3s ease",
+          overflow: "hidden"
+        }}
       >
         <RightPanel
           selectedChat={selectedChat}
@@ -71,22 +122,60 @@ export const UBWhatsappWeb: React.FC = () => {
         />
       </Box>
 
-      {showMedia && selectedChat && !showMediaLinksAndDocs ? (
-        <UBMedia
-          onBack={() => setShowMedia(false)}
-          documents={[]} // Pass actual documents when available
-          links={[]} // Pass actual links when available
-        />
-      ) : (
-        selectedChat && (
+      {/* Detail Panel */}
+      {showDetailPanel && selectedChat && (
+        <Box
+          width={{ xs: "100%", md: "25%" }}
+          sx={{
+            transition: "transform 0.3s ease",
+            transform: {
+              xs: showDetailPanel ? "translateX(0)" : "translateX(100%)",
+              md: "none"
+            },
+            position: {
+              xs: "absolute",
+              md: "relative"
+            },
+            right: 0,
+            height: "100%",
+            zIndex: 100
+          }}
+        >
           <UBWhatsAppDetail
             name={selectedChat.name}
             role={selectedChat.role}
-            onClose={() => setShowDetailPanel(false)}
-            images={[]} 
+            onClose={handleCloseDetailPanel}
+            images={selectedChat.name ? sharedImagesMap[selectedChat.name] || [] : []}
             onMediaClick={() => setShowMedia(true)}
           />
-        )
+        </Box>
+      )}
+
+      {/* Media Panel */}
+      {showMedia && selectedChat && (
+        <Box
+          width={{ xs: "100%", md: "25%" }}
+          sx={{
+            transition: "transform 0.3s ease",
+            transform: {
+              xs: showMedia ? "translateX(0)" : "translateX(100%)",
+              md: "none"
+            },
+            position: {
+              xs: "absolute",
+              md: "relative"
+            },
+            right: 0,
+            height: "100%",
+            zIndex: 100
+          }}
+        >
+          <UBMedia
+            onBack={() => setShowMedia(false)}
+            documents={[]} // Pass actual documents when available
+            links={[]} // Pass actual links when available
+          />
+        </Box>
       )}
     </Box>
   );

@@ -39,11 +39,10 @@ export const RolesTable: React.FC = () => {
   const [search, setSearch] = useState("");
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [newRole, setNewRole] = useState({ roles: "", description: "" });
+  const [newRole, setNewRole] = useState({ roles: "" });
   const [selectedRole, setSelectedRole] = useState<{
     id: number;
     roles: string;
-    description: string;
   } | null>(null);
 
   // Fetch roles when component mounts
@@ -80,12 +79,8 @@ export const RolesTable: React.FC = () => {
   const handleExport = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      ["ID,Role,Description"]
-        .concat(
-          roles.roles.map(
-            (role) => `${role.id},${role.roles},${role.description}`
-          )
-        )
+      ["ID,Role"]
+        .concat(roles.roles.map((role) => `${role.id},${role.roles}`))
         .join("\n");
 
     const encodedUri = encodeURI(csvContent);
@@ -101,13 +96,12 @@ export const RolesTable: React.FC = () => {
     try {
       const response = await createRole({
         roles: newRole.roles,
-        description: newRole.description,
       }).unwrap();
 
       if (response) {
         await refetch();
         dispatch(addRoles(response)); // Update Redux store with the newly created role
-        setNewRole({ roles: "", description: "" });
+        setNewRole({ roles: "" });
         setOpenAdd(false);
       }
     } catch (error) {
@@ -116,23 +110,15 @@ export const RolesTable: React.FC = () => {
   };
 
   // Handle edit role - open dialog
-  const handleEdit = (role: {
-    id: number;
-    roles: string;
-    description: string;
-  }) => {
+  const handleEdit = (role: { id: number; roles: string }) => {
     if (!role) return;
     setSelectedRole(role); // Ensure selectedRole is set
     setOpenEdit(true);
   };
 
   const handleUpdateRole = async () => {
-    if (
-      !selectedRole ||
-      !selectedRole.roles.trim() ||
-      !selectedRole.description.trim()
-    ) {
-      alert("Both Role and Description fields are required.");
+    if (!selectedRole || !selectedRole.roles.trim()) {
+      alert("Both Role fields are required.");
       return;
     }
 
@@ -141,7 +127,6 @@ export const RolesTable: React.FC = () => {
       const updatedRole = await updateRole({
         id: selectedRole.id,
         roles: selectedRole.roles,
-        description: selectedRole.description,
       }).unwrap();
 
       // Update Redux store with the updated role
@@ -149,7 +134,7 @@ export const RolesTable: React.FC = () => {
 
       // Force re-fetch to get the latest data
       await refetch(); // Close the dialog and reset selectedRole
-      
+
       setOpenEdit(false);
       setSelectedRole(null);
     } catch (error) {
@@ -160,7 +145,6 @@ export const RolesTable: React.FC = () => {
   const columns: GridColDef[] = [
     // { field: "id", headerName: "ID", flex: 1 },
     { field: "roles", headerName: "Role", flex: 1 },
-    { field: "description", headerName: "Description", flex: 2 },
     {
       field: "actions",
       headerName: "Actions",
@@ -169,7 +153,6 @@ export const RolesTable: React.FC = () => {
         const row = params.row as {
           id: number;
           roles: string;
-          description: string;
         };
         return (
           <div>
@@ -250,16 +233,6 @@ export const RolesTable: React.FC = () => {
             value={newRole.roles}
             onChange={(e) => setNewRole({ ...newRole, roles: e.target.value })}
           />
-          <TextField
-            margin="dense"
-            label="Description"
-            fullWidth
-            variant="outlined"
-            value={newRole.description}
-            onChange={(e) =>
-              setNewRole({ ...newRole, description: e.target.value })
-            }
-          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenAdd(false)} color="secondary">
@@ -286,21 +259,7 @@ export const RolesTable: React.FC = () => {
               setSelectedRole((prev) =>
                 prev
                   ? { ...prev, roles: e.target.value }
-                  : { id: 0, roles: e.target.value, description: "" }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Description"
-            fullWidth
-            variant="outlined"
-            value={selectedRole?.description || ""}
-            onChange={(e) =>
-              setSelectedRole((prev) =>
-                prev
-                  ? { ...prev, description: e.target.value }
-                  : { id: 0, roles: "", description: e.target.value }
+                  : { id: 0, roles: e.target.value }
               )
             }
           />

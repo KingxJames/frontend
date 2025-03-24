@@ -36,7 +36,7 @@ export const UBLogin: React.FC = () => {
 
       // Dispatch data to the Redux store
       dispatch(setAuthData(response));
-      navigate("/settings"); // Navigate to the next page
+      navigate("/"); // Navigate to the next page
     } catch (err) {
       console.error("Login failed:", err);
       setWarning("Invalid username or password."); // Display a warning if login fails

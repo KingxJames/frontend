@@ -40,32 +40,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     Array<{ src: string; alt: string }>
   >([]);
 
-  // Update shared images when messages change
-  // useEffect(() => {
-  //   if (selectedChat) {
-  //     const chatMessages = messages[selectedChat.name] || [];
-  //     const imageMessages = chatMessages
-  //       .filter(
-  //         (msg) =>
-  //           msg.file &&
-  //           (msg.file.startsWith("blob") ||
-  //             msg.file.match(/\.(jpeg|jpg|png|gif)$/i))
-  //       )
-  //       .map((msg) => ({
-  //         src: msg.file as string,
-  //         alt: `Image shared by ${msg.sender}`,
-  //       }));
-
-  //     setSharedImages(imageMessages);
-
-  //     // Make this data available to parent component through a custom event
-  //     window.dispatchEvent(
-  //       new CustomEvent("sharedImagesUpdated", {
-  //         detail: { chatName: selectedChat.name, images: imageMessages },
-  //       })
-  //     );
-  //   }
-  // }, [messages, selectedChat]);
+ 
 
   useEffect(() => {
     if (selectedChat) {
@@ -117,10 +92,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
 
   // Function to handle showing details panel
   const handleShowDetailPanel = () => {
-    setShowDetailPanelState(true);
     setShowDetailPanel(true);
   };
-
+  
   return (
     <Box height="100%" width="100%" display="flex" flexDirection="row">
       <Box flex={1} display="flex" flexDirection="column">

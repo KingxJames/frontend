@@ -13,6 +13,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -85,7 +87,6 @@ export const UsersTable: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<{
     id: number;
     roles: string;
-    description: string;
   } | null>(null);
 
   const [selectedUserStatus, setSelectedUserStatus] = useState<{
@@ -182,7 +183,6 @@ export const UsersTable: React.FC = () => {
     setSelectedRole({
       id: user.roleId,
       roles: user.roles,
-      description: "",
     });
     setSelectedCampus({
       id: user.campusId,
@@ -200,7 +200,7 @@ export const UsersTable: React.FC = () => {
       !selectedUser ||
       !selectedUser.name.trim() ||
       !selectedUser.email.trim() ||
-      !selectedUser.picture.trim() ||
+      !selectedUser?.picture?.trim() ||
       !selectedRole?.id || // Ensure role is selected
       !selectedUserStatus?.id || // Ensure user status is selected
       !selectedCampus?.id // Ensure campus is selected
@@ -250,7 +250,6 @@ export const UsersTable: React.FC = () => {
         const updatedRole = {
           id: selectedRole.id,
           roles: selectedRole.roles,
-          description: selectedRole.description,
         };
         dispatch(updateRoles(updatedRole));
       }
@@ -274,23 +273,31 @@ export const UsersTable: React.FC = () => {
     const file = event.target.files[0];
     const formData = new FormData();
     formData.append("picture", file);
-    formData.append("userId", selectedUser.id.toString()); // Assuming API needs userId
+    formData.append("userId", selectedUser.id.toString());
 
+    setLoading(true);
     try {
-      // const response = await uploadProfilePicture(formData).unwrap();
-      // dispatch(
-      //   updateProfilePicture({ id: selectedUser.id, picture: response.picture })
-      // );
+      const response = await uploadProfilePicture(formData).unwrap();
 
-      // Update the selected user's picture immediately
-      // setSelectedUser((prev) =>
-      //   prev ? { ...prev, picture: response.picture } : null
-      // );
+      // Update local state
+      setSelectedUser((prev) =>
+        prev ? { ...prev, picture: response.picture } : null
+      );
+
+      // Update Redux store
+      dispatch(
+        updateProfilePicture({
+          id: selectedUser.id,
+          picture: response.picture,
+        })
+      );
 
       alert("Profile picture updated successfully!");
     } catch (error) {
       console.error("Error uploading picture:", error);
       alert("Failed to upload profile picture.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -396,72 +403,63 @@ export const UsersTable: React.FC = () => {
             alignItems="center"
             sx={{ width: "100%", height: 150 }}
           >
-            <Avatar
-              src={selectedUser?.picture || "/default-avatar.png"}
-              sx={{
-                width: 100,
-                height: 100,
-                borderRadius: "50%",
-                border: "2px solid #ccc",
-              }}
-            />
-
-            <IconButton
-              component="label"
-              sx={{
-                position: "absolute",
-                bottom: 10,
-                right: "calc(50% - 50px)",
-                backgroundColor: "white",
-                borderRadius: "50%",
-                boxShadow: 2,
-                "&:hover": { backgroundColor: "lightgray" },
-              }}
-            >
-              <EditIcon />
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleImageUpload}
-                disabled={loading} // Disable the input while uploading
+            {/* Avatar with loading overlay */}
+            <Box position="relative">
+              <Avatar
+                src={selectedUser?.picture || "/default-avatar.png"}
+                sx={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: "50%",
+                  border: "2px solid #ccc",
+                  opacity: loading ? 0.7 : 1,
+                  transition: "opacity 0.3s ease",
+                }}
               />
-            </IconButton>
-          </Box>
+              {loading && (
+                <CircularProgress
+                  size={48}
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    marginTop: -24,
+                    marginLeft: -24,
+                    color: "primary.main",
+                  }}
+                />
+              )}
+            </Box>
 
-          {/* <TextField
-            margin="dense"
-            label="Picture"
-            fullWidth
-            variant="outlined"
-            sx={{ mb: 2 }}
-            value={selectedUser?.picture || ""}
-            onChange={(e) =>
-              setSelectedUser((prev) =>
-                prev
-                  ? { ...prev, picture: e.target.value }
-                  : {
-                      id: 0,
-                      name: "",
-                      username: "",
-                      email: "",
-                      phoneNo: "",
-                      organization: "",
-                      picture: e.target.value,
-                      domain: "",
-                      password: "",
-                      roleId: 0,
-                      roles: "",
-                      campusId: 0,
-                      campus: "",
-                      userStatusId: 0,
-                      userStatuses: "",
-                      userCampusId: 0,
-                      primaryCampus: false,
-                    }
-              )
-            }
-          /> */}
+            {/* Upload button with tooltip */}
+            <Tooltip title="Change profile picture" arrow>
+              <IconButton
+                component="label"
+                sx={{
+                  position: "absolute",
+                  bottom: 10,
+                  right: "calc(50% - 50px)",
+                  backgroundColor: "white",
+                  borderRadius: "50%",
+                  boxShadow: 2,
+                  "&:hover": { backgroundColor: "lightgray" },
+                  "&:disabled": {
+                    opacity: 0.7,
+                  },
+                }}
+                disabled={loading}
+              >
+                {loading ? <CircularProgress size={24} /> : <EditIcon />}
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handleImageUpload}
+                  disabled={loading}
+                />
+              </IconButton>
+            </Tooltip>
+          </Box>
           <Grid
             container
             rowSpacing={1}
@@ -475,6 +473,7 @@ export const UsersTable: React.FC = () => {
                 fullWidth
                 variant="outlined"
                 value={selectedUser?.name || ""}
+                disabled
                 onChange={(e) =>
                   setSelectedUser((prev) =>
                     prev
@@ -509,6 +508,7 @@ export const UsersTable: React.FC = () => {
                 fullWidth
                 variant="outlined"
                 value={selectedUser?.email || ""}
+                disabled
                 onChange={(e) =>
                   setSelectedUser((prev) =>
                     prev
@@ -549,7 +549,6 @@ export const UsersTable: React.FC = () => {
                       setSelectedRole({
                         id: role.id,
                         roles: role.roles,
-                        description: role.description,
                       });
 
                       // Ensure `selectedUser` is updated

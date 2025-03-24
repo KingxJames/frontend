@@ -60,7 +60,7 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
     }),
     uploadIncidentFile: builder.mutation<{ path: string }, FormData>({
       query: (formData) => ({
-        url: "/uploadIncidentFile", // Adjust according to your API
+        url: "/v1/publicSafety/uploadIncidentFile", // Adjust according to your API
         method: "POST",
         body: formData,
       }),

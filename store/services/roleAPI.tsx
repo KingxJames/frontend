@@ -27,11 +27,11 @@ export const roleAPI = baseAPI.injectEndpoints({
         body: roles,
       }),
     }),
-    updateRole: builder.mutation<IRole, { id: number; roles: string; description: string }>({
-      query: ({ id, roles, description }) => ({
+    updateRole: builder.mutation<IRole, { id: number; roles: string }>({
+      query: ({ id, roles }) => ({
         url: `/v1/publicSafety/roles/${id}`,
         method: "PUT",
-        body: { roles, description }
+        body: { roles },
       }),
     }),
     deleteRole: builder.mutation<void, string>({

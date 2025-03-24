@@ -41,11 +41,10 @@ export const IncidentReportTable: React.FC = () => {
   const [deleteIncidentReport] = useDeleteIncidentReportMutation();
   const [updateIncidentReport] = useUpdateIncidentReportMutation();
   const incidentReports = useSelector(selectIncidentReports);
-  
+
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openEdit, setOpenEdit] = useState(false);
-
 
   const [selectedIncidentReport, setSelectedIncidentReport] = useState<{
     id: number;
@@ -189,7 +188,7 @@ export const IncidentReportTable: React.FC = () => {
     setOpenEdit(true);
   };
 
-  const handleUpdateIncidentReport = async () => {
+  const handleUpdateIncidentReport = async (index: number,files: FileList | null) => {
     if (
       !selectedIncidentReport ||
       !selectedIncidentReport.report.trim() ||
@@ -243,7 +242,7 @@ export const IncidentReportTable: React.FC = () => {
 
       // Append each file to FormData
       files.forEach((file) => {
-        formData.append("incidentFiles", file); // Use the same key for all files
+        formData.append("incidentFiles[]", file); // Use the same key for all files
       });
 
       // Send the FormData to the API
@@ -270,10 +269,8 @@ export const IncidentReportTable: React.FC = () => {
 
       const updatedIncidentReport = await updateIncidentReport(
         updatedIncidentReportPayload
-        
       ).unwrap();
 
-      
       // Update the state and refetch data
       dispatch(updateIncidentReports(updatedIncidentReport));
       refetch();
@@ -286,7 +283,6 @@ export const IncidentReportTable: React.FC = () => {
       console.error("Error updating incident report:", error);
     }
   };
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files) {
@@ -317,7 +313,6 @@ export const IncidentReportTable: React.FC = () => {
             }
       );
     }
-
   };
 
   const columns: GridColDef[] = [

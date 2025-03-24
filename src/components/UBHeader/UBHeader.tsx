@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
-import { Box } from "@mui/material";
-
+import { Box, IconButton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { DropdownUser } from "./DropdownUser/DropdownUser";
-import DarkModeSwitcher from "./DarkModeSwitcher/DarkModeSwitcher";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export const UBHeader = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
+  const navigate = useNavigate();
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
@@ -45,7 +46,9 @@ export const UBHeader = (props: {
                   className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm bg-black delay-300 duration-200 ease-in-out dark:bg-white ${
                     !props.sidebarOpen && "!h-0 !delay-[0]"
                   }`}
-                ></span>
+                >
+                  {" "}
+                </span>
                 <span
                   className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm bg-black duration-200 ease-in-out dark:bg-white ${
                     !props.sidebarOpen && "!h-0 !delay-200"
@@ -56,6 +59,17 @@ export const UBHeader = (props: {
           </button>
           {/* <!-- Hamburger Toggle BTN --> */}
         </div>
+        <IconButton 
+          onClick={() => navigate(-1)}
+          sx={{ 
+            color: 'text.primary',
+            '&:hover': {
+              backgroundColor: 'action.hover'
+            }
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
 
         <Box
           sx={{
