@@ -1,4 +1,4 @@
-export const rightPanelMenuItems = ["Contacts Info", "Details"];
+export const rightPanelMenuItems = ["Details"];
 
 export interface ChatCardType {
   name: string;

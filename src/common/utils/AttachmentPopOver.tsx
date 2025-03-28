@@ -23,9 +23,11 @@ export const AttachmentPopOver: React.FC<AttachmentPopOverProps> = ({
     }
   };
 
+  // In AttachmentPopOver.tsx
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      onFileSelect(event.target.files[0]); // Pass file to RightPanel
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      onFileSelect(file);
     }
   };
 

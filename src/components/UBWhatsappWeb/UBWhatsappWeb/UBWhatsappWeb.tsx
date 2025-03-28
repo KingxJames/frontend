@@ -16,29 +16,6 @@ export const UBWhatsappWeb: React.FC = () => {
   const [sharedImagesMap, setSharedImagesMap] = useState<SharedImagesMap>({});
   const [showMedia, setShowMedia] = useState(false);
 
-  // Listen for image updates from RightPanel
-  useEffect(() => {
-    const handleSharedImagesUpdate = (event: CustomEvent) => {
-      const { chatName, images } = event.detail;
-      setSharedImagesMap((prev) => ({
-        ...prev,
-        [chatName]: images,
-      }));
-    };
-
-    window.addEventListener(
-      "sharedImagesUpdated",
-      handleSharedImagesUpdate as EventListener
-    );
-
-    return () => {
-      window.removeEventListener(
-        "sharedImagesUpdated",
-        handleSharedImagesUpdate as EventListener
-      );
-    };
-  }, []);
-
   // Close detail panel and any sub-panels
   const handleCloseDetailPanel = () => {
     setShowDetailPanel(false);
@@ -119,6 +96,7 @@ export const UBWhatsappWeb: React.FC = () => {
         <RightPanel
           selectedChat={selectedChat}
           setShowDetailPanel={setShowDetailPanel}
+          setSharedImagesMap={setSharedImagesMap} // Add this line
         />
       </Box>
 
@@ -140,9 +118,7 @@ export const UBWhatsappWeb: React.FC = () => {
             name={selectedChat.name}
             role={selectedChat.role}
             onClose={handleCloseDetailPanel}
-            images={
-              selectedChat.name ? sharedImagesMap[selectedChat.name] || [] : []
-            }
+            images={sharedImagesMap[selectedChat?.name || ""] || []}
             onMediaClick={() => setShowMedia(true)}
           />
 

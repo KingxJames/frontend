@@ -21,11 +21,15 @@ import AttachmentPopOver from "../../../common/utils/AttachmentPopOver";
 interface RightPanelProps {
   selectedChat: { name: string; lastText: string } | null;
   setShowDetailPanel: (value: boolean) => void;
+  setSharedImagesMap: React.Dispatch<
+    React.SetStateAction<Record<string, Array<{ src: string; alt: string }>>>
+  >;
 }
 
 export const RightPanel: React.FC<RightPanelProps> = ({
   selectedChat,
   setShowDetailPanel,
+  setSharedImagesMap,
 }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [filePreview, setFilePreview] = useState<string | null>(null);
@@ -39,8 +43,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   const [sharedImages, setSharedImages] = useState<
     Array<{ src: string; alt: string }>
   >([]);
-
- 
 
   useEffect(() => {
     if (selectedChat) {
@@ -64,22 +66,48 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   const handleSendMessage = () => {
     if ((!textValue.trim() && !filePreview) || !selectedChat) return;
 
+    // Create new message object
+    const newMessage = {
+      sender: "you",
+      text: textValue,
+      file: filePreview,
+    };
+
+    // Update messages state
     setMessages((prevMessages) => ({
       ...prevMessages,
       [selectedChat.name]: [
         ...(prevMessages[selectedChat.name] || []),
-        { sender: "you", text: textValue, file: filePreview },
+        newMessage,
       ],
     }));
 
+    // If sending an image, update shared images
+    if (filePreview && filePreview.startsWith("blob")) {
+      const newImage = {
+        src: filePreview,
+        alt: `Image shared by you in ${selectedChat.name} chat`,
+      };
+
+      // Update shared images map
+      setSharedImagesMap((prev) => ({
+        ...prev,
+        [selectedChat.name]: [...(prev[selectedChat.name] || []), newImage],
+      }));
+    }
+
+    // Reset input
     setTextValue("");
     setFilePreview(null);
   };
 
+  // In RightPanel.tsx
   const handleFileSelect = (file: File) => {
     if (file.type.startsWith("image/")) {
-      setFilePreview(URL.createObjectURL(file));
+      const imageUrl = URL.createObjectURL(file);
+      setFilePreview(imageUrl);
     } else {
+      // Handle non-image files if needed
       setFilePreview(file.name);
     }
   };
@@ -94,7 +122,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   const handleShowDetailPanel = () => {
     setShowDetailPanel(true);
   };
-  
+
   return (
     <Box height="100%" width="100%" display="flex" flexDirection="row">
       <Box flex={1} display="flex" flexDirection="column">
@@ -143,7 +171,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               <IconButton onClick={() => setShowSearchBar(!showSearchBar)}>
                 <SearchIcon sx={{ color: "rgba(59, 59, 59, 0.39)" }} />
               </IconButton>
-              <UBCustomMenuButton menuItems={rightPanelMenuItems} />
+              {/* <UBCustomMenuButton menuItems={rightPanelMenuItems} /> */}
             </Box>
           </Box>
         </UBCustomAppBar>
