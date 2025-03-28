@@ -64,31 +64,31 @@ export const UBWhatsappWeb: React.FC = () => {
   };
 
   return (
-    <Box 
-      display="flex" 
-      flexDirection="row" 
+    <Box
+      display="flex"
+      flexDirection="row"
       height="100vh"
       sx={{
         overflow: "hidden",
       }}
     >
       {/* Left Panel - Always visible */}
-      <Box 
+      <Box
         width={{ xs: "100%", md: "30%" }}
-        sx={{ 
+        sx={{
           backgroundColor: "rgba(224, 218, 218, 0.1)",
           display: {
             xs: showDetailPanel || showMedia ? "none" : "block",
-            md: "block"
-          }
+            md: "block",
+          },
         }}
       >
-        <LeftPanel 
+        <LeftPanel
           onSelectChat={(chat) => {
             setSelectedChat(chat);
             setShowDetailPanel(false);
             setShowMedia(false);
-          }} 
+          }}
         />
       </Box>
 
@@ -99,8 +99,8 @@ export const UBWhatsappWeb: React.FC = () => {
           border: ".05px solid rgba(134, 134, 134, 0.49)",
           display: {
             xs: "none",
-            md: "block"
-          }
+            md: "block",
+          },
         }}
       />
 
@@ -108,12 +108,12 @@ export const UBWhatsappWeb: React.FC = () => {
       <Box
         width={{
           xs: showDetailPanel || showMedia ? "0%" : "100%",
-          md: getRightPanelWidth()
+          md: getRightPanelWidth(),
         }}
-        sx={{ 
+        sx={{
           backgroundColor: "rgba(224, 218, 218, 0.1)",
           transition: "width 0.3s ease",
-          overflow: "hidden"
+          overflow: "hidden",
         }}
       >
         <RightPanel
@@ -125,56 +125,49 @@ export const UBWhatsappWeb: React.FC = () => {
       {/* Detail Panel */}
       {showDetailPanel && selectedChat && (
         <Box
-          width={{ xs: "100%", md: "25%" }}
           sx={{
             transition: "transform 0.3s ease",
-            transform: {
-              xs: showDetailPanel ? "translateX(0)" : "translateX(100%)",
-              md: "none"
-            },
             position: {
               xs: "absolute",
-              md: "relative"
+              md: "relative",
             },
             right: 0,
             height: "100%",
-            zIndex: 100
+            zIndex: showMedia ? 99 : 100, // Lower z-index when media panel is open
           }}
         >
           <UBWhatsAppDetail
             name={selectedChat.name}
             role={selectedChat.role}
             onClose={handleCloseDetailPanel}
-            images={selectedChat.name ? sharedImagesMap[selectedChat.name] || [] : []}
+            images={
+              selectedChat.name ? sharedImagesMap[selectedChat.name] || [] : []
+            }
             onMediaClick={() => setShowMedia(true)}
           />
-        </Box>
-      )}
 
-      {/* Media Panel */}
-      {showMedia && selectedChat && (
-        <Box
-          width={{ xs: "100%", md: "25%" }}
-          sx={{
-            transition: "transform 0.3s ease",
-            transform: {
-              xs: showMedia ? "translateX(0)" : "translateX(100%)",
-              md: "none"
-            },
-            position: {
-              xs: "absolute",
-              md: "relative"
-            },
-            right: 0,
-            height: "100%",
-            zIndex: 100
-          }}
-        >
-          <UBMedia
-            onBack={() => setShowMedia(false)}
-            documents={[]} // Pass actual documents when available
-            links={[]} // Pass actual links when available
-          />
+          {/* Media Panel */}
+          {showMedia && selectedChat && (
+            <Box
+              sx={{
+                transition: "transform 0.3s ease",
+                height: "100%",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 10,
+                backgroundColor: "white",
+              }}
+            >
+              <UBMedia
+                onBack={() => setShowMedia(false)}
+                documents={[]}
+                links={[]}
+              />
+            </Box>
+          )}
         </Box>
       )}
     </Box>

@@ -85,7 +85,6 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
           alignItems="center"
         >
           <Avatar />
-          <UBCustomMenuButton menuItems={rightPanelMenuItems} />
         </Box>
       </UBCustomAppBar>
 

@@ -62,29 +62,6 @@ export const UBMedia: React.FC<UBMediaProps> = ({
         <Tab label="Links" value={2} />
       </Tabs>
 
-      {/* Media Files Tab */}
-      {/* {value === 0 && (
-        <Box p={2} display="flex" flexWrap="wrap" gap="8px">
-          {mediaFiles.length === 0 ? (
-            <p>No Media</p>
-          ) : (
-            mediaFiles.map((file, index) => (
-              <img
-                key={index}
-                src={file}
-                alt="media"
-                style={{
-                  width: "30%",
-                  height: "70px",
-                  objectFit: "cover",
-                  borderRadius: "10px",
-                }}
-              />
-            ))
-          )}
-        </Box>
-      )} */}
-
       {/* Documents Tab */}
       {value === 1 && (
         <Box p={2}>
