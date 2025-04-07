@@ -5,11 +5,13 @@ import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 
 interface AttachmentPopOverProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (files: File[]) => void;  // Updated to accept array of files
+  multiple?: boolean;
 }
 
 export const AttachmentPopOver: React.FC<AttachmentPopOverProps> = ({
   onFileSelect,
+  multiple = false,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -23,11 +25,15 @@ export const AttachmentPopOver: React.FC<AttachmentPopOverProps> = ({
     }
   };
 
-  // In AttachmentPopOver.tsx
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-      onFileSelect(file);
+      // Convert FileList to array and pass all selected files
+      const files = Array.from(event.target.files);
+      onFileSelect(files);
+    }
+    // Reset the input to allow selecting the same files again
+    if (event.target) {
+      event.target.value = '';
     }
   };
 
@@ -110,13 +116,15 @@ export const AttachmentPopOver: React.FC<AttachmentPopOverProps> = ({
         ref={fileInputRef}
         style={{ display: "none" }}
         onChange={handleFileChange}
+        multiple={multiple}  // Added multiple attribute
       />
       <input
         type="file"
-        accept="image/*"
+        accept="image/*,video/*"  // Added video support
         ref={imageInputRef}
         style={{ display: "none" }}
         onChange={handleFileChange}
+        multiple={multiple}  // Added multiple attribute
       />
     </Box>
   );

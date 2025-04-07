@@ -5,7 +5,7 @@ export interface IUser {
   id: number;
   name: string;
   email: string;
-  picture: string;
+  picture?: string;
   password: string;
   roleId: number;
   roles: string;
@@ -45,29 +45,24 @@ export const userSlice = createSlice({
         state.users[index] = { ...state.users[index], ...action.payload };
       }
     },
+
+    deleteUsers: (state, action: PayloadAction<number>) => {
+      state.users = state.users.filter((users) => users.id !== action.payload);
+    },
+
     updateProfilePicture: (
       state,
       action: PayloadAction<{ id: number; picture: string }>
     ) => {
-      const index = state.users.findIndex(
-        (user) => user.id === action.payload.id
-      );
-      if (index !== -1) {
-        state.users[index].picture = action.payload.picture;
+      const user = state.users.find((user) => user.id === action.payload.id);
+      if (user) {
+        user.picture = action.payload.picture;
       }
-    },
-    deleteUsers: (state, action: PayloadAction<number>) => {
-      state.users = state.users.filter((users) => users.id !== action.payload);
     },
   },
 });
 
-export const {
-  setUsers,
-  addUsers,
-  updateUsers,
-  updateProfilePicture,
-  deleteUsers,
-} = userSlice.actions;
+export const { setUsers, addUsers, updateUsers, deleteUsers, updateProfilePicture } =
+  userSlice.actions;
 export const selectUsers = (state: RootState) => state.users;
 export default userSlice.reducer;

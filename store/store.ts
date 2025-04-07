@@ -2,12 +2,9 @@ import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-// import { PersistGate } from 'redux-persist/integration/react';
 import authReducer from "./features/authSlice";
 import dashboardReducer from "./features/dashboardSlice";
-import messagesReducer from "./features/messageSlice";
-import chatReducer from "./features/UBChat/chatSlice";
-import listReducer from "./features/UBChat/listSlice";
+import messagesReducer from "./features/UBWhatsappSlice/messageSlice";
 import rolesReducer from "./features/roleSlice";
 import buildingsReducer from "./features/buildingSlice";
 import campusesReducer from "./features/campusSlice";
@@ -25,27 +22,19 @@ import recipientReducer from "./features/recipientSlice";
 import subMenuReducer from "./features/subMenusSlice";
 import userCampusesReducer from "./features/userCampusSlice";
 import userStatusesReducer from "./features/userStatusSlice";
+import leftPanelReducer from "./features/UBWhatsappSlice/leftPanelSlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
-import { users } from "../src/common/data";
 
-// Configuration for persisting chatReducer
-const persistConfig = {
-  key: "chat",
-  storage,
-};
 
-// Wrap chatReducer with persistReducer
-const persistedChatReducer = persistReducer(persistConfig, chatReducer);
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     dashboard: dashboardReducer,
     messages: messagesReducer,
-    chat: persistedChatReducer, // Use persisted reducer here
-    list: listReducer,
+    leftPanel: leftPanelReducer,
     roles: rolesReducer,
     buildings: buildingsReducer,
     campuses: campusesReducer,

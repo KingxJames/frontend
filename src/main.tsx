@@ -16,13 +16,10 @@ createRoot(document.getElementById("root")!).render(
   <GoogleOAuthProvider clientId="954779929729-hkv9gd5snnsfh2f824sf8pp22h3kuml9.apps.googleusercontent.com">
     <StrictMode>
       <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <Router>
-            <App />
-          </Router>
-        </PersistGate>
+        <Router>
+          <App />
+        </Router>
       </Provider>
     </StrictMode>
   </GoogleOAuthProvider>
 );
-

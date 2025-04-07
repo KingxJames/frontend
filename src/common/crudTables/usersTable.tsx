@@ -24,7 +24,7 @@ import {
   useFetchUserQuery,
   useDeleteUserMutation,
   useUpdateUserMutation,
-  useUploadProfilePictureMutation,
+  useUploadPictureMutation,
 } from "./../../../store/services/userAPI";
 import { useFetchRolesQuery } from "../../../store/services/roleAPI";
 import { useFetchCampusesQuery } from "../../../store/services/campusAPI";
@@ -52,7 +52,7 @@ export const UsersTable: React.FC = () => {
   const { data: userCampusesData } = useFetchUserCampusesQuery();
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser] = useUpdateUserMutation();
-  const [uploadProfilePicture] = useUploadProfilePictureMutation();
+  const [uploadPicture] = useUploadPictureMutation();
   const users = useSelector(selectUsers);
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
@@ -271,13 +271,25 @@ export const UsersTable: React.FC = () => {
     if (!event.target.files || !selectedUser) return;
 
     const file = event.target.files[0];
+
+    // Client-side validation
+    if (!file.type.match("image.*")) {
+      alert("Please select an image file (JPEG, PNG, JPG, GIF)");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("File size should be less than 2MB");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("picture", file);
-    formData.append("userId", selectedUser.id.toString());
+    formData.append("picture", file); // The key must match Laravel validation
+    formData.append("userId", selectedUser.id.toString()); // Must be string
 
     setLoading(true);
     try {
-      const response = await uploadProfilePicture(formData).unwrap();
+      const response = await uploadPicture(formData).unwrap();
 
       // Update local state
       setSelectedUser((prev) =>
@@ -295,16 +307,24 @@ export const UsersTable: React.FC = () => {
       alert("Profile picture updated successfully!");
     } catch (error) {
       console.error("Error uploading picture:", error);
-      alert("Failed to upload profile picture.");
+      alert("Failed to upload profile picture. Please try again.");
     } finally {
       setLoading(false);
+      event.target.value = ""; // Reset file input
     }
   };
 
   const columns: GridColDef[] = [
     { field: "name", headerName: "Name", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
-    { field: "picture", headerName: "Picture", flex: 1 },
+    {
+      field: "picture",
+      headerName: "Picture",
+      flex: 1,
+      renderCell: (params) => (
+        <Avatar src={params.value} sx={{ width: 40, height: 40 }} />
+      ),
+    },
     { field: "role", headerName: "Role", flex: 1 },
     { field: "userStatus", headerName: "Status", flex: 1 },
     { field: "campus", headerName: "Campus", flex: 1 },

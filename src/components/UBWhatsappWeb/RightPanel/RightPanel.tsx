@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   Box,
   IconButton,
@@ -12,115 +12,177 @@ import SearchIcon from "@mui/icons-material/Search";
 import MoodIcon from "@mui/icons-material/Mood";
 import SendIcon from "@mui/icons-material/Send";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import { useDispatch, useSelector } from "react-redux";
 import UBCustomAppBar from "../../../common/UBCustomAppBar/UBCustomAppBar";
-import UBCustomMenuButton from "../../../common/UBCustomMenuButton/UBCustomMenuButton";
-import { rightPanelMenuItems } from "../../../common/utils/constant";
 import UB_Logo from "../../../images/UB_Logo.png";
 import AttachmentPopOver from "../../../common/utils/AttachmentPopOver";
+import {
+  addMessage,
+  addFilePreviews,
+  removeFilePreview,
+  clearFilePreviews,
+  setSearchQuery,
+  toggleSearchBar,
+  setCurrentMessageText,
+  toggleEmojiPicker,
+  addEmoji,
+  selectFilteredMessages,
+  selectFilePreviews,
+  selectCurrentMessageText,
+  selectShowSearchBar,
+  selectShowEmojiPicker,
+  selectSearchQuery,
+} from "../../../../store/features/UBWhatsappSlice/messageSlice";
 
 interface RightPanelProps {
-  selectedChat: { name: string; lastText: string } | null;
+  selectedChat: { id: string; name: string; lastText: string } | null;
   setShowDetailPanel: (value: boolean) => void;
   setSharedImagesMap: React.Dispatch<
     React.SetStateAction<Record<string, Array<{ src: string; alt: string }>>>
   >;
 }
 
+const useRef = React.useRef;
+
 export const RightPanel: React.FC<RightPanelProps> = ({
   selectedChat,
   setShowDetailPanel,
   setSharedImagesMap,
 }) => {
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [filePreview, setFilePreview] = useState<string | null>(null);
-  const [textValue, setTextValue] = useState("");
-  const [messages, setMessages] = useState<{
-    [key: string]: { sender: string; text: string; file: string | null }[];
-  }>({});
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchBar, setShowSearchBar] = useState(false);
-  const [showDetailPanel, setShowDetailPanelState] = useState(false);
-  const [sharedImages, setSharedImages] = useState<
-    Array<{ src: string; alt: string }>
-  >([]);
+  const dispatch = useDispatch();
+  const filteredMessages = useSelector(
+    selectFilteredMessages(selectedChat?.id || "")
+  );
+  const filePreviews = useSelector(selectFilePreviews);
+  const textValue = useSelector(selectCurrentMessageText);
+  const showSearchBar = useSelector(selectShowSearchBar);
+  const showEmojiPicker = useSelector(selectShowEmojiPicker);
+  const searchQuery = useSelector(selectSearchQuery);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Then update your useEffect like this:
   useEffect(() => {
-    if (selectedChat) {
-      const chatMessages = messages[selectedChat.name] || [];
-      const imageMessages = chatMessages
+    if (!selectedChat) return;
+
+    // Only update if we actually have image messages
+    const hasImageMessages = filteredMessages.some(
+      (msg) =>
+        msg.files &&
+        msg.files.some(
+          (file) =>
+            file.url.startsWith("blob") ||
+            file.url.match(/\.(jpeg|jpg|png|gif|mp4|mov|avi)$/i)
+        )
+    );
+
+    if (hasImageMessages) {
+      const imageMessages = filteredMessages
         .filter(
           (msg) =>
-            msg.file &&
-            (msg.file.startsWith("blob") ||
-              msg.file.match(/\.(jpeg|jpg|png|gif)$/i))
+            msg.files &&
+            msg.files.some(
+              (file) =>
+                file.url.startsWith("blob") ||
+                file.url.match(/\.(jpeg|jpg|png|gif|mp4|mov|avi)$/i)
+            )
         )
-        .map((msg) => ({
-          src: msg.file as string,
-          alt: `Image shared by ${msg.sender}`,
-        }));
+        .flatMap((msg) =>
+          (msg.files || [])
+            .filter(
+              (file) =>
+                file.url.startsWith("blob") ||
+                file.url.match(/\.(jpeg|jpg|png|gif|mp4|mov|avi)$/i)
+            )
+            .map((file) => ({
+              src: file.url,
+              alt: `Media shared by ${msg.sender}`,
+            }))
+        );
 
-      setSharedImages(imageMessages);
+      setSharedImagesMap((prev) => {
+        // Only update if the images actually changed
+        const currentImages = prev[selectedChat.id] || [];
+        if (JSON.stringify(currentImages) !== JSON.stringify(imageMessages)) {
+          return {
+            ...prev,
+            [selectedChat.id]: imageMessages,
+          };
+        }
+        return prev;
+      });
     }
-  }, [messages, selectedChat]);
+  }, [filteredMessages, selectedChat, setSharedImagesMap]);
 
+  // Update your handleSendMessage function to this:
   const handleSendMessage = () => {
-    if ((!textValue.trim() && !filePreview) || !selectedChat) return;
+    if ((!textValue.trim() && filePreviews.length === 0) || !selectedChat)
+      return;
 
-    // Create new message object
-    const newMessage = {
-      sender: "you",
-      text: textValue,
-      file: filePreview,
-    };
-
-    // Update messages state
-    setMessages((prevMessages) => ({
-      ...prevMessages,
-      [selectedChat.name]: [
-        ...(prevMessages[selectedChat.name] || []),
-        newMessage,
-      ],
-    }));
-
-    // If sending an image, update shared images
-    if (filePreview && filePreview.startsWith("blob")) {
-      const newImage = {
-        src: filePreview,
-        alt: `Image shared by you in ${selectedChat.name} chat`,
-      };
-
-      // Update shared images map
-      setSharedImagesMap((prev) => ({
-        ...prev,
-        [selectedChat.name]: [...(prev[selectedChat.name] || []), newImage],
-      }));
-    }
+    dispatch(
+      addMessage({
+        chatId: selectedChat.id,
+        sender: "you",
+        text: textValue,
+        files: filePreviews.length > 0 ? [...filePreviews] : null,
+      })
+    );
 
     // Reset input
-    setTextValue("");
-    setFilePreview(null);
+    dispatch(setCurrentMessageText(""));
+    dispatch(clearFilePreviews());
   };
 
   // In RightPanel.tsx
-  const handleFileSelect = (file: File) => {
-    if (file.type.startsWith("image/")) {
-      const imageUrl = URL.createObjectURL(file);
-      setFilePreview(imageUrl);
-    } else {
-      // Handle non-image files if needed
-      setFilePreview(file.name);
-    }
+  const handleFileSelect = (files: File[]) => {
+    const newFilePreviews = files.map((file) => {
+      const url = URL.createObjectURL(file);
+      return {
+        id: `${file.name}-${Date.now()}`,
+        url,
+        name: file.name,
+        type: file.type.startsWith("image/")
+          ? "image"
+          : file.type.startsWith("video/")
+          ? "video"
+          : "file",
+      };
+    });
+
+    dispatch(addFilePreviews(newFilePreviews));
   };
 
-  const filteredMessages = selectedChat
-    ? (messages[selectedChat.name] || []).filter((msg) =>
-        msg.text.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [];
+  const handleRemoveFilePreview = (id: string) => {
+    const fileToRemove = filePreviews.find((file) => file.id === id);
+    if (fileToRemove) {
+      URL.revokeObjectURL(fileToRemove.url);
+    }
+    dispatch(removeFilePreview(id));
+  };
+
+  // Clean up object URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      filePreviews.forEach((file) => {
+        URL.revokeObjectURL(file.url);
+      });
+    };
+  }, [filePreviews]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [filteredMessages]);
 
   // Function to handle showing details panel
   const handleShowDetailPanel = () => {
     setShowDetailPanel(true);
+  };
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    dispatch(addEmoji(emojiData.emoji));
   };
 
   return (
@@ -168,10 +230,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               </Box>
             </Box>
             <Box display="flex">
-              <IconButton onClick={() => setShowSearchBar(!showSearchBar)}>
+              <IconButton onClick={() => dispatch(toggleSearchBar())}>
                 <SearchIcon sx={{ color: "rgba(59, 59, 59, 0.39)" }} />
               </IconButton>
-              {/* <UBCustomMenuButton menuItems={rightPanelMenuItems} /> */}
             </Box>
           </Box>
         </UBCustomAppBar>
@@ -184,7 +245,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               disableUnderline
               placeholder="Search messages..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => dispatch(setSearchQuery(e.target.value))}
               sx={{
                 background: "white",
                 height: "35px",
@@ -216,6 +277,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 padding: "1rem",
               }}
             >
+              {/* Initial message */}
               <Box
                 display="flex"
                 justifyContent="flex-start"
@@ -255,7 +317,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 <Box display="flex" flexDirection="column">
                   {filteredMessages.map((msg, index) => (
                     <Box
-                      key={index}
+                      key={msg.id}
                       display="flex"
                       justifyContent={
                         msg.sender === "you" ? "flex-end" : "flex-start"
@@ -297,51 +359,78 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                           },
                         }}
                       >
-                        <Typography
-                          variant="body2"
-                          color={
-                            msg.sender === "you" ? "white" : "text.primary"
-                          }
-                        >
-                          {msg.text}
-                        </Typography>
+                        {msg.text && (
+                          <Typography
+                            variant="body2"
+                            color={
+                              msg.sender === "you" ? "white" : "text.primary"
+                            }
+                          >
+                            {msg.text}
+                          </Typography>
+                        )}
 
                         {/* If the message contains a file */}
-                        {msg.file && (
-                          <Box display="flex" flexDirection="column" mt={1}>
-                            {/* If it's an image, show preview */}
-                            {msg.file.startsWith("blob") ||
-                            msg.file.match(/\.(jpeg|jpg|png|gif)$/i) ? (
-                              <img
-                                src={msg.file}
-                                alt="Sent file"
-                                width="100px"
-                                height="100px"
-                                style={{
-                                  borderRadius: "6px",
-                                  objectFit: "cover",
-                                }}
-                              />
-                            ) : (
-                              <Typography
-                                variant="body2"
-                                sx={{ wordBreak: "break-word" }}
-                              >
-                                {msg.file.split("/").pop()}
-                              </Typography>
-                            )}
+                        {/* Display multiple files */}
+                        {msg.files && msg.files.length > 0 && (
+                          <Box
+                            display="flex"
+                            flexDirection="column"
+                            mt={1}
+                            gap={1}
+                          >
+                            {msg.files.map((file, fileIndex) => (
+                              <Box key={fileIndex}>
+                                {file.type === "image" ? (
+                                  <img
+                                    src={file.url}
+                                    alt={`Image ${fileIndex + 1}`}
+                                    width="100px"
+                                    height="100px"
+                                    style={{
+                                      borderRadius: "6px",
+                                      objectFit: "cover",
+                                    }}
+                                  />
+                                ) : file.type === "video" ? (
+                                  <video
+                                    controls
+                                    width="200px"
+                                    height="auto"
+                                    style={{
+                                      borderRadius: "6px",
+                                      objectFit: "cover",
+                                    }}
+                                  >
+                                    <source
+                                      src={file.url}
+                                      type={`video/${file.url
+                                        .split(".")
+                                        .pop()}`}
+                                    />
+                                    Your browser does not support the video tag.
+                                  </video>
+                                ) : (
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ wordBreak: "break-word" }}
+                                  >
+                                    {file.name}
+                                  </Typography>
+                                )}
 
-                            {/* Download button */}
-                            <Button
-                              variant="outlined"
-                              size="small"
-                              sx={{ mt: 1 }}
-                              component="a"
-                              href={msg.file}
-                              download
-                            >
-                              Download
-                            </Button>
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  sx={{ mt: 1 }}
+                                  component="a"
+                                  href={file.url}
+                                  download={file.name}
+                                >
+                                  Download
+                                </Button>
+                              </Box>
+                            ))}
                           </Box>
                         )}
                       </Paper>
@@ -372,6 +461,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               </Typography>
             </Box>
           )}
+
+          <div ref={messagesEndRef} />
         </Box>
 
         {/* Message Input */}
@@ -386,50 +477,114 @@ export const RightPanel: React.FC<RightPanelProps> = ({
           }}
         >
           {/* Preview Section */}
-          {filePreview && (
+          {filePreviews.length > 0 && (
             <Box
               display="flex"
-              alignItems="center"
-              justifyContent="space-between"
+              flexWrap="wrap"
+              gap={1}
               p={1}
               borderRadius="6px"
               bgcolor="rgba(0, 0, 0, 0.1)"
               mb={1}
-              width="100%"
-              maxWidth="100%"
+              maxHeight="150px"
+              overflow="auto"
             >
-              {filePreview.startsWith("blob") ? (
-                <img
-                  src={filePreview}
-                  alt="Preview"
-                  width="70px"
-                  height="70px"
-                  style={{ borderRadius: "6px", objectFit: "cover" }}
-                />
-              ) : (
-                <Typography
-                  variant="body2"
+              {filePreviews.map((file) => (
+                <Box
+                  key={file.id}
+                  position="relative"
                   sx={{
-                    whiteSpace: "nowrap",
+                    width: "80px",
+                    height: "80px",
+                    borderRadius: "6px",
                     overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    maxWidth: "80%",
                   }}
                 >
-                  {filePreview}
-                </Typography>
-              )}
-              <IconButton onClick={() => setFilePreview(null)}>❌</IconButton>
+                  {file.type === "image" ? (
+                    <img
+                      src={file.url}
+                      alt="Preview"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : file.type === "video" ? (
+                    <video
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    >
+                      <source
+                        src={file.url}
+                        type={`video/${file.url.split(".").pop()}`}
+                      />
+                    </video>
+                  ) : (
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      width="100%"
+                      height="100%"
+                      bgcolor="white"
+                    >
+                      <Typography variant="caption" textAlign="center">
+                        {file.name}
+                      </Typography>
+                    </Box>
+                  )}
+                  <IconButton
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                      color: "white",
+                      "&:hover": {
+                        backgroundColor: "rgba(0,0,0,0.7)",
+                      },
+                    }}
+                    onClick={() => removeFilePreview(file.id)}
+                  >
+                    ×
+                  </IconButton>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                      color: "white",
+                      padding: "0 4px",
+                      textOverflow: "ellipsis",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {file.name}
+                  </Typography>
+                </Box>
+              ))}
             </Box>
           )}
 
           {/* Input & Actions Section */}
           <Box display="flex" alignItems="center">
-            <IconButton onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+            <IconButton onClick={() => dispatch(toggleEmojiPicker())}>
               <MoodIcon />
             </IconButton>
 
-            <AttachmentPopOver onFileSelect={handleFileSelect} />
+            <AttachmentPopOver
+              onFileSelect={handleFileSelect}
+              multiple // Enable multiple file selection
+            />
 
             <Box flex={1} pl="10px">
               <Input
@@ -437,9 +592,14 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 disableUnderline
                 placeholder="Type a message"
                 value={textValue}
-                onChange={(event) => setTextValue(event.target.value)}
+                onChange={(event) =>
+                  dispatch(setCurrentMessageText(event.target.value))
+                }
                 onKeyDown={(event) => {
-                  if (event.key === "Enter") handleSendMessage();
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    handleSendMessage();
+                  }
                 }}
                 sx={{
                   background: "rgb(223, 223, 223)",
@@ -450,7 +610,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               />
             </Box>
 
-            <IconButton onClick={handleSendMessage}>
+            <IconButton
+              onClick={handleSendMessage}
+              disabled={!textValue.trim() && filePreviews.length === 0}
+            >
               <SendIcon />
             </IconButton>
           </Box>
@@ -461,9 +624,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             height="45%"
             width="100%"
             previewConfig={{ showPreview: false }}
-            onEmojiClick={(emojiData: EmojiClickData) =>
-              setTextValue((prev) => prev + emojiData.emoji)
-            }
+            onEmojiClick={handleEmojiClick}
           />
         )}
       </Box>
