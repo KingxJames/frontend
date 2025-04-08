@@ -24,7 +24,6 @@ import {
   useFetchUserQuery,
   useDeleteUserMutation,
   useUpdateUserMutation,
-  useUploadPictureMutation,
 } from "./../../../store/services/userAPI";
 import { useFetchRolesQuery } from "../../../store/services/roleAPI";
 import { useFetchCampusesQuery } from "../../../store/services/campusAPI";
@@ -34,7 +33,6 @@ import {
   setUsers,
   updateUsers,
   deleteUsers,
-  updateProfilePicture,
   selectUsers,
 } from "./../../../store/features/userSlice";
 
@@ -52,7 +50,6 @@ export const UsersTable: React.FC = () => {
   const { data: userCampusesData } = useFetchUserCampusesQuery();
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser] = useUpdateUserMutation();
-  const [uploadPicture] = useUploadPictureMutation();
   const users = useSelector(selectUsers);
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
@@ -63,7 +60,6 @@ export const UsersTable: React.FC = () => {
     id: number;
     name: string;
     email: string;
-    picture: string;
     password: string;
     roleId: number;
     roles: string;
@@ -142,11 +138,11 @@ export const UsersTable: React.FC = () => {
   const handleExport = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      ["Name,Email,Picture,Role,User Status,Campus"]
+      ["Name,Email,Role,User Status,Campus"]
         .concat(
           users.users.map(
             (user) =>
-              `${user.name},${user.email},${user.picture},${user.roles},${user.userStatuses},${user.campus}`
+              `${user.name},${user.email},${user.roles},${user.userStatuses},${user.campus}`
           )
         )
         .join("\n");
@@ -163,11 +159,9 @@ export const UsersTable: React.FC = () => {
   const handleEdit = (user: {
     id: number;
     name: string;
-    username: string;
     email: string;
     phoneNo: string;
     organization: string;
-    picture: string;
     password: string;
     roleId: number;
     roles: string;
@@ -200,7 +194,6 @@ export const UsersTable: React.FC = () => {
       !selectedUser ||
       !selectedUser.name.trim() ||
       !selectedUser.email.trim() ||
-      !selectedUser?.picture?.trim() ||
       !selectedRole?.id || // Ensure role is selected
       !selectedUserStatus?.id || // Ensure user status is selected
       !selectedCampus?.id // Ensure campus is selected
@@ -265,66 +258,9 @@ export const UsersTable: React.FC = () => {
     }
   };
 
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (!event.target.files || !selectedUser) return;
-
-    const file = event.target.files[0];
-
-    // Client-side validation
-    if (!file.type.match("image.*")) {
-      alert("Please select an image file (JPEG, PNG, JPG, GIF)");
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      alert("File size should be less than 2MB");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("picture", file); // The key must match Laravel validation
-    formData.append("userId", selectedUser.id.toString()); // Must be string
-
-    setLoading(true);
-    try {
-      const response = await uploadPicture(formData).unwrap();
-
-      // Update local state
-      setSelectedUser((prev) =>
-        prev ? { ...prev, picture: response.picture } : null
-      );
-
-      // Update Redux store
-      dispatch(
-        updateProfilePicture({
-          id: selectedUser.id,
-          picture: response.picture,
-        })
-      );
-
-      alert("Profile picture updated successfully!");
-    } catch (error) {
-      console.error("Error uploading picture:", error);
-      alert("Failed to upload profile picture. Please try again.");
-    } finally {
-      setLoading(false);
-      event.target.value = ""; // Reset file input
-    }
-  };
-
   const columns: GridColDef[] = [
     { field: "name", headerName: "Name", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
-    {
-      field: "picture",
-      headerName: "Picture",
-      flex: 1,
-      renderCell: (params) => (
-        <Avatar src={params.value} sx={{ width: 40, height: 40 }} />
-      ),
-    },
     { field: "role", headerName: "Role", flex: 1 },
     { field: "userStatus", headerName: "Status", flex: 1 },
     { field: "campus", headerName: "Campus", flex: 1 },
@@ -337,11 +273,9 @@ export const UsersTable: React.FC = () => {
         const row = params.row as {
           id: number;
           name: string;
-          username: string;
           email: string;
           phoneNo: string;
           organization: string;
-          picture: string;
           password: string;
           roleId: number;
           roles: string;
@@ -412,74 +346,10 @@ export const UsersTable: React.FC = () => {
 
       {/* Edit Role Dialog */}
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)} maxWidth="lg">
-        <DialogTitle sx={{ textAlign: "center", marginBottom: "-3%" }}>
+        <DialogTitle sx={{ textAlign: "center", marginBottom: "0%" }}>
           Edit User
         </DialogTitle>
         <DialogContent>
-          <Box
-            position="relative"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            sx={{ width: "100%", height: 150 }}
-          >
-            {/* Avatar with loading overlay */}
-            <Box position="relative">
-              <Avatar
-                src={selectedUser?.picture || "/default-avatar.png"}
-                sx={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: "50%",
-                  border: "2px solid #ccc",
-                  opacity: loading ? 0.7 : 1,
-                  transition: "opacity 0.3s ease",
-                }}
-              />
-              {loading && (
-                <CircularProgress
-                  size={48}
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    marginTop: -24,
-                    marginLeft: -24,
-                    color: "primary.main",
-                  }}
-                />
-              )}
-            </Box>
-
-            {/* Upload button with tooltip */}
-            <Tooltip title="Change profile picture" arrow>
-              <IconButton
-                component="label"
-                sx={{
-                  position: "absolute",
-                  bottom: 10,
-                  right: "calc(50% - 50px)",
-                  backgroundColor: "white",
-                  borderRadius: "50%",
-                  boxShadow: 2,
-                  "&:hover": { backgroundColor: "lightgray" },
-                  "&:disabled": {
-                    opacity: 0.7,
-                  },
-                }}
-                disabled={loading}
-              >
-                {loading ? <CircularProgress size={24} /> : <EditIcon />}
-                <input
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={handleImageUpload}
-                  disabled={loading}
-                />
-              </IconButton>
-            </Tooltip>
-          </Box>
           <Grid
             container
             rowSpacing={1}
@@ -501,11 +371,9 @@ export const UsersTable: React.FC = () => {
                       : {
                           id: 0,
                           name: e.target.value,
-                          username: "",
                           email: "",
                           phoneNo: "",
                           organization: "",
-                          picture: "",
                           domain: "",
                           password: "",
                           roleId: 0,
@@ -536,11 +404,9 @@ export const UsersTable: React.FC = () => {
                       : {
                           id: 0,
                           name: "",
-                          username: "",
                           email: e.target.value,
                           phoneNo: "",
                           organization: "",
-                          picture: "",
                           domain: "",
                           password: "",
                           roleId: 0,

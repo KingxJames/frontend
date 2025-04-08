@@ -1,4 +1,5 @@
 export interface ChatCardType {
+  id: string; 
   name: string;
   lastText: string;
   lastSeen: string;

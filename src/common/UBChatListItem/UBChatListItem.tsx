@@ -29,7 +29,7 @@ export const UBChatListItem: React.FC<IUBChatListItemProps> = (props) => {
       <ListItem>
         <ListItemButton
           onClick={() => {
-            toggleMessagesPane();
+            // toggleMessagesPane();
             setSelectedChat({ id, sender, messages });
           }}
           selected={selected}

@@ -29,7 +29,6 @@ export const DropdownUser: React.FC = () => {
         to="#"
       >
         <span className="hidden lg:flex items-center space-x-2 text-right">
-          <Avatar alt="User Avatar" src={"/static/images/avatar/1.jpg"} />
           <span className="text-sm font-medium text-black dark:text-white">
             {name}
           </span>

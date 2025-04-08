@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, IconButton, Avatar, Input, Tabs, Tab } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import UBCustomAppBar from "../../../common/UBCustomAppBar/UBCustomAppBar";
 import { UBChatCard } from "../../../common/UBChatCard/UBChatCard";
-import { ChatCardType } from "../../../common/utils/LeftPanel.types";
+import { ChatCardType } from "../../../common/utils/LeftPanel.types.ts"; // Ensure this path is correct
 import {
   setActiveTab,
   setSearchQuery,
@@ -17,36 +17,6 @@ import { RootState } from "../../../../store/store"; // Adjust the path based on
 interface LeftPanelProps {
   onSelectChat: (chat: ChatCardType) => void;
 }
-
-// const localChats: ChatCardType[] = [
-//   {
-//     name: "Balram",
-//     lastText: "Hey there testing WhatsApp",
-//     lastSeen: "4:21 PM",
-//     selected: false,
-//     category: "all",
-//     role: "admin",
-//     avatarUrl: "https://via.placeholder.com/120", // Sample avatar URL
-//   },
-//   {
-//     name: "Dev Stack",
-//     lastText: "This is an emergency message",
-//     lastSeen: "8:51 PM",
-//     selected: false,
-//     category: "emergency",
-//     role: "Super Admin",
-//     avatarUrl: "https://via.placeholder.com/120",
-//   },
-//   {
-//     name: "John Doe",
-//     lastText: "This is an anonymous message",
-//     lastSeen: "7:30 PM",
-//     selected: false,
-//     category: "anonymous",
-//     role: "Staff",
-//     avatarUrl: "https://via.placeholder.com/120",
-//   },
-// ];
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
   const dispatch = useDispatch();
@@ -69,35 +39,11 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
     dispatch(setSearchQuery(event.target.value));
   };
 
-  // // Filter chats based on the selected tab and search query
-  // const filteredChats = localChats
-  //   .filter((chat) => {
-  //     if (value === 0) return true;
-  //     if (value === 1) return chat.category === "emergency";
-  //     if (value === 2) return chat.category === "anonymous";
-  //     return false;
-  //   })
-  //   .filter((chat) =>
-  //     chat.name.toLowerCase().includes(searchQuery.toLowerCase())
-  //   ); // Search filtering
-
   return (
     <Box height="100%" width="100%" overflow="hidden">
-      <UBCustomAppBar>
-        <Box
-          width="100%"
-          height="100%"
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Avatar />
-        </Box>
-      </UBCustomAppBar>
-
       {/* Search Bar */}
       <Box
-        sx={{ background: "rgba(224, 218, 218, 0.1)", padding: "12px" }}
+        sx={{ background: "rgba(224, 218, 218, 0.1)", padding: "12px", marginTop: "10px" }}
         display="flex"
       >
         <Box

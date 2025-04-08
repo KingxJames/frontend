@@ -94,7 +94,11 @@ export const UBWhatsappWeb: React.FC = () => {
         }}
       >
         <RightPanel
-          selectedChat={selectedChat}
+          selectedChat={
+            selectedChat
+              ? { id: selectedChat.id, name: selectedChat.name, lastText: selectedChat.lastText }
+              : null
+          }
           setShowDetailPanel={setShowDetailPanel}
           setSharedImagesMap={setSharedImagesMap} // Add this line
         />

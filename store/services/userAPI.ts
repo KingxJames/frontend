@@ -33,7 +33,6 @@ export const userAPI = baseAPI.injectEndpoints({
         id: number;
         name: string;
         email: string;
-        picture: string;
         password: string;
         roleId: number;
         campusId: number;
@@ -47,7 +46,6 @@ export const userAPI = baseAPI.injectEndpoints({
         id,
         name,
         email,
-        picture,
         password,
         roleId,
         campusId,
@@ -61,7 +59,6 @@ export const userAPI = baseAPI.injectEndpoints({
         body: {
           name,
           email,
-          picture,
           password,
           roleId,
           campusId,
@@ -85,22 +82,6 @@ export const userAPI = baseAPI.injectEndpoints({
       }),
       transformResponse: (response: { data: IUser }) => response.data,
     }),
-
-    // Add this to your userAPI endpoints
-    uploadPicture: builder.mutation<{ picture: string }, FormData>({
-      query: (formData) => ({
-        url: '/v1/publicSafety/users/uploadPicture',
-        method: 'POST',
-        body: formData,
-        // Important: Don't set Content-Type header - the browser will set it automatically
-        // with the proper boundary for FormData
-        headers: {
-          // Only authorization header if needed
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      }),
-      transformResponse: (response: { data: { picture: string } }) => response.data,
-    }),
   }),
 });
 
@@ -111,5 +92,4 @@ export const {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useUsersTotalQuery,
-  useUploadPictureMutation,
 } = userAPI;

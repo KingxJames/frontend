@@ -1,8 +1,7 @@
-export const rightPanelMenuItems = ["Details"];
 
-export interface ChatCardType {
-  name: string;
-  lastText: string;
-  lastSeen: string;
-  selected: boolean;
-}
+// export interface ChatCardType {
+//   name: string;
+//   lastText: string;
+//   lastSeen: string;
+//   selected: boolean;
+// }

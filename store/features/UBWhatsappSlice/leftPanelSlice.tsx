@@ -2,6 +2,7 @@ import { createSlice, PayloadAction, createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "../../store";
 
 export interface ChatCardType {
+  id: string;
   name: string;
   lastText: string;
   lastSeen: string;
@@ -11,7 +12,7 @@ export interface ChatCardType {
   avatarUrl: string;
 }
 
-type TabValue = 0 | 1 | 2; // All | Emergency | Anonymous
+// type TabValue = 0 | 1 | 2; // All | Emergency | Anonymous
 
 interface LeftPanelState {
   chats: ChatCardType[];
@@ -23,6 +24,7 @@ interface LeftPanelState {
 const initialState: LeftPanelState = {
   chats: [
     {
+      id: "1",
       name: "Balram",
       lastText: "Hey there testing WhatsApp",
       lastSeen: "4:21 PM",
@@ -32,6 +34,7 @@ const initialState: LeftPanelState = {
       avatarUrl: "https://via.placeholder.com/120",
     },
     {
+      id: "2",
       name: "Dev Stack",
       lastText: "This is an emergency message",
       lastSeen: "8:51 PM",
@@ -41,6 +44,7 @@ const initialState: LeftPanelState = {
       avatarUrl: "https://via.placeholder.com/120",
     },
     {
+      id: "3",
       name: "John Doe",
       lastText: "This is an anonymous message",
       lastSeen: "7:30 PM",
