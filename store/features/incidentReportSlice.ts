@@ -16,6 +16,7 @@ export interface IIncidentReport {
   disposition: string;
   frequency: number;
   incidentFiles: IIncidentFile[]; // Now an array
+  existingFiles: string[];
   incidentReoccured: string;
   incidentStatusId: number;
   statuses: string;
@@ -75,5 +76,6 @@ export const {
 
 export const selectIncidentReports = (state: RootState) =>
   state.incidentReports;
+
 
 export default incidentReportSlice.reducer;
