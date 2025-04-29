@@ -71,7 +71,7 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
         </Typography>
       </Box>
 
-      {/* Media, Links, Docs Section */}
+      {/* Media, Section */}
       <Box
         sx={{
           display: "flex",

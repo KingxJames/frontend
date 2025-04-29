@@ -46,7 +46,7 @@ const authPersistConfig = {
 const messagesPersistConfig = {
   key: "messages",
   storage, // Uses localStorage for messages
-  whitelist: ["messages", "files"], // Only persist the messages array
+  whitelist: ["messages", "sharedImages"], // Only persist the messages array
 };
 
 const rootReducer = combineReducers({
@@ -81,12 +81,8 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(
-      baseAPI.middleware,
-      authAPI.middleware,
-      chatAPI.middleware
-    ),
-  devTools: process.env.NODE_ENV !== 'production',
+    }).concat(baseAPI.middleware, authAPI.middleware, chatAPI.middleware),
+  devTools: process.env.NODE_ENV !== "production",
 });
 
 export const persistor = persistStore(store);
