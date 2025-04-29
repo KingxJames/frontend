@@ -68,43 +68,25 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   useEffect(() => {
     if (!selectedChat) return;
 
-    // Only update if we actually have image messages
     const hasImageMessages = filteredMessages.some(
-      (msg) =>
-        msg.files &&
-        msg.files.some(
-          (file) =>
-            file.url.startsWith("blob") ||
-            file.url.match(/\.(jpeg|jpg|png|gif|mp4|mov|avi)$/i)
-        )
+      (msg) => msg.files && msg.files.some((file) => file.type === "image")
     );
 
     if (hasImageMessages) {
       const imageMessages = filteredMessages
         .filter(
-          (msg) =>
-            msg.files &&
-            msg.files.some(
-              (file) =>
-                file.url.startsWith("blob") ||
-                file.url.match(/\.(jpeg|jpg|png|gif|mp4|mov|avi)$/i)
-            )
+          (msg) => msg.files && msg.files.some((file) => file.type === "image")
         )
         .flatMap((msg) =>
           (msg.files || [])
-            .filter(
-              (file) =>
-                file.url.startsWith("blob") ||
-                file.url.match(/\.(jpeg|jpg|png|gif|mp4|mov|avi)$/i)
-            )
+            .filter((file) => file.type === "image")
             .map((file) => ({
               src: file.url,
-              alt: `Media shared by ${msg.sender}`,
+              alt: `Image shared by ${msg.sender}`,
             }))
         );
 
       setSharedImagesMap((prev) => {
-        // Only update if the images actually changed
         const currentImages = prev[selectedChat.id] || [];
         if (JSON.stringify(currentImages) !== JSON.stringify(imageMessages)) {
           return {
@@ -137,40 +119,34 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   };
 
   // In RightPanel.tsx
-  const handleFileSelect = (files: File[]) => {
-    const newFilePreviews = files.map((file) => {
-      const url = URL.createObjectURL(file);
-      return {
-        id: `${file.name}-${Date.now()}`,
-        url,
-        name: file.name,
-        type: file.type.startsWith("image/")
-          ? "image"
-          : file.type.startsWith("video/")
-          ? "video"
-          : "file",
-      };
-    });
+  const handleFileSelect = async (files: File[]) => {
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+    const newFilePreviews = await Promise.all(
+      imageFiles.map(async (file) => {
+        // Convert the image to base64
+        const base64 = await convertToBase64(file);
+        return {
+          id: `${file.name}-${Date.now()}`,
+          url: base64, // Store the base64 string instead of object URL
+          name: file.name,
+          type: "image" as const,
+        };
+      })
+    );
 
     dispatch(addFilePreviews(newFilePreviews));
   };
 
-  const handleRemoveFilePreview = (id: string) => {
-    const fileToRemove = filePreviews.find((file) => file.id === id);
-    if (fileToRemove) {
-      URL.revokeObjectURL(fileToRemove.url);
-    }
-    dispatch(removeFilePreview(id));
+  // Helper function to convert file to base64
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
   };
-
-  // Clean up object URLs when component unmounts
-  useEffect(() => {
-    return () => {
-      filePreviews.forEach((file) => {
-        URL.revokeObjectURL(file.url);
-      });
-    };
-  }, [filePreviews]);
 
   useEffect(() => {
     scrollToBottom();
@@ -381,51 +357,29 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                           >
                             {msg.files.map((file, fileIndex) => (
                               <Box key={fileIndex}>
-                                {file.type === "image" ? (
-                                  <img
-                                    src={file.url}
-                                    alt={`Image ${fileIndex + 1}`}
-                                    width="100px"
-                                    height="100px"
-                                    style={{
-                                      borderRadius: "6px",
-                                      objectFit: "cover",
-                                    }}
-                                  />
-                                ) : file.type === "video" ? (
-                                  <video
-                                    controls
-                                    width="200px"
-                                    height="auto"
-                                    style={{
-                                      borderRadius: "6px",
-                                      objectFit: "cover",
-                                    }}
-                                  >
-                                    <source
-                                      src={file.url}
-                                      type={`video/${file.url
-                                        .split(".")
-                                        .pop()}`}
-                                    />
-                                    Your browser does not support the video tag.
-                                  </video>
-                                ) : (
-                                  <Typography
-                                    variant="body2"
-                                    sx={{ wordBreak: "break-word" }}
-                                  >
-                                    {file.name}
-                                  </Typography>
-                                )}
-
+                                <img
+                                  src={file.url}
+                                  alt={`Image ${fileIndex + 1}`}
+                                  width="300px"
+                                  height="300px"
+                                  style={{
+                                    borderRadius: "6px",
+                                    objectFit: "cover",
+                                  }}
+                                />
                                 <Button
                                   variant="outlined"
                                   size="small"
                                   sx={{ mt: 1 }}
-                                  component="a"
-                                  href={file.url}
-                                  download={file.name}
+                                  onClick={() => {
+                                    // Create a temporary anchor element to trigger download
+                                    const link = document.createElement("a");
+                                    link.href = file.url;
+                                    link.download = file.name;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                  }}
                                 >
                                   Download
                                 </Button>
@@ -500,43 +454,15 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                     overflow: "hidden",
                   }}
                 >
-                  {file.type === "image" ? (
-                    <img
-                      src={file.url}
-                      alt="Preview"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  ) : file.type === "video" ? (
-                    <video
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    >
-                      <source
-                        src={file.url}
-                        type={`video/${file.url.split(".").pop()}`}
-                      />
-                    </video>
-                  ) : (
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      width="100%"
-                      height="100%"
-                      bgcolor="white"
-                    >
-                      <Typography variant="caption" textAlign="center">
-                        {file.name}
-                      </Typography>
-                    </Box>
-                  )}
+                  <img
+                    src={file.url}
+                    alt="Preview"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
                   <IconButton
                     size="small"
                     sx={{
@@ -549,7 +475,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                         backgroundColor: "rgba(0,0,0,0.7)",
                       },
                     }}
-                    onClick={() => removeFilePreview(file.id)}
+                    onClick={() => dispatch(removeFilePreview(file.id))}
                   >
                     ×
                   </IconButton>
@@ -583,7 +509,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
 
             <AttachmentPopOver
               onFileSelect={handleFileSelect}
-              multiple // Enable multiple file selection
+              multiple={true} // or false for single file
+              // accept="image/*" // Only accept images
             />
 
             <Box flex={1} pl="10px">

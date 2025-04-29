@@ -2,67 +2,11 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
 import { createSelector } from "@reduxjs/toolkit";
 
-// export interface IMessage {
-//   id: string;
-//   user: string;
-//   messag_category_id: number;
-//   sender_id: number;
-//   sender: string;
-//   topic: string;
-//   images: string;
-//   message: string;
-//   location: string;
-//   date_sent: Date;
-//   is_archive: boolean;
-//   is_deleted: boolean;
-//   is_forwarded: boolean;
-//   timestamp: string;
-// }
-
-// interface MessagesInitialState {
-//   messages: IMessage[];
-// }
-
-// const initialState: MessagesInitialState = {
-//   messages: [],
-// };
-
-// export const messagesSlice = createSlice({
-//   name: "messages",
-//   initialState,
-//   reducers: {
-//     addMessages: (state, action: PayloadAction<IMessage>) => {
-//       state.messages.push(action.payload);
-//     },
-//     setMessages: (state, action: PayloadAction<IMessage[]>) => {
-//       state.messages = action.payload;
-//     },
-//     updateMessages: (state, action: PayloadAction<IMessage>) => {
-//       const index = state.messages.findIndex(
-//         (messages) => messages.id === action.payload.id
-//       );
-//       if (index !== -1) {
-//         state.messages[index] = { ...state.messages[index], ...action.payload };
-//       }
-//     },
-//     deleteMessages: (state, action: PayloadAction<string>) => {
-//       state.messages = state.messages.filter(
-//         (messages) => messages.id !== action.payload
-//       );
-//     },
-//   },
-// });
-
-// export const { addMessages, setMessages, updateMessages, deleteMessages } =
-//   messagesSlice.actions;
-// export const selectMessages = (state: RootState) => state.messages;
-// export default messagesSlice.reducer;
-
 interface FilePreview {
   id: string;
   url: string;
   name: string;
-  type: string;
+  type: "image"; // Only 'image' type now
 }
 
 interface Message {
@@ -75,12 +19,13 @@ interface Message {
 }
 
 interface MessagesState {
-  messages: Record<string, Message[]>; // Key is chatId, value is array of messages
+  messages: Record<string, Message[]>;
   searchQuery: string;
   showSearchBar: boolean;
   filePreviews: FilePreview[];
   currentMessageText: string;
   showEmojiPicker: boolean;
+  sharedImages: Record<string, Array<{ src: string; alt: string }>>; // Key is chatId
 }
 
 const initialState: MessagesState = {
@@ -90,13 +35,13 @@ const initialState: MessagesState = {
   filePreviews: [],
   currentMessageText: "",
   showEmojiPicker: false,
+  sharedImages: {},
 };
 
 export const messageSlice = createSlice({
   name: "messages",
   initialState,
   reducers: {
-    // Message actions
     addMessage: (
       state,
       action: PayloadAction<Omit<Message, "id" | "timestamp">>
@@ -117,27 +62,23 @@ export const messageSlice = createSlice({
       state.filePreviews = [];
     },
 
-    // File preview actions
     addFilePreviews: (state, action: PayloadAction<FilePreview[]>) => {
-      state.filePreviews.push(...action.payload);
+      // Only add images (though the type should enforce this already)
+      state.filePreviews.push(
+        ...action.payload.filter((file) => file.type === "image")
+      );
     },
 
     removeFilePreview: (state, action: PayloadAction<string>) => {
-      const fileToRemove = state.filePreviews.find(
-        (file) => file.id === action.payload
+      state.filePreviews = state.filePreviews.filter(
+        (file) => file.id !== action.payload
       );
-      if (fileToRemove) {
-        state.filePreviews = state.filePreviews.filter(
-          (file) => file.id !== action.payload
-        );
-      }
     },
 
     clearFilePreviews: (state) => {
       state.filePreviews = [];
     },
 
-    // UI state actions
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload;
     },
@@ -158,7 +99,6 @@ export const messageSlice = createSlice({
       state.currentMessageText += action.payload;
     },
 
-    // Initialize chat if it doesn't exist
     initializeChat: (state, action: PayloadAction<string>) => {
       const chatId = action.payload;
       if (!state.messages[chatId]) {
@@ -166,12 +106,25 @@ export const messageSlice = createSlice({
       }
     },
 
-    // Clear all messages for a chat
     clearChatMessages: (state, action: PayloadAction<string>) => {
       const chatId = action.payload;
       if (state.messages[chatId]) {
         state.messages[chatId] = [];
       }
+    },
+
+    addSharedImage: (
+      state,
+      action: PayloadAction<{
+        chatId: string;
+        image: { src: string; alt: string };
+      }>
+    ) => {
+      const { chatId, image } = action.payload;
+      if (!state.sharedImages[chatId]) {
+        state.sharedImages[chatId] = [];
+      }
+      state.sharedImages[chatId].push(image);
     },
   },
 });
@@ -189,13 +142,13 @@ export const {
   addEmoji,
   initializeChat,
   clearChatMessages,
+  addSharedImage,
 } = messageSlice.actions;
 
 // Selectors
 export const selectMessagesByChatId = (chatId: string) => (state: RootState) =>
   state.messages.messages[chatId] || [];
 
-// Update your selectFilteredMessages selector
 export const selectFilteredMessages = (chatId: string) =>
   createSelector(
     [
@@ -209,26 +162,17 @@ export const selectFilteredMessages = (chatId: string) =>
     }
   );
 
+// Updated to only handle images
 export const selectSharedImages = (chatId: string) =>
   createSelector([selectFilteredMessages(chatId)], (messages) => {
     return messages
-      .filter((msg) =>
-        msg.files?.some(
-          (file) =>
-            file.url.startsWith("blob") ||
-            file.url.match(/\.(jpeg|jpg|png|gif|mp4|mov|avi)$/i)
-        )
-      )
+      .filter((msg) => msg.files?.some((file) => file.type === "image"))
       .flatMap((msg) =>
         (msg.files || [])
-          .filter(
-            (file) =>
-              file.url.startsWith("blob") ||
-              file.url.match(/\.(jpeg|jpg|png|gif|mp4|mov|avi)$/i)
-          )
+          .filter((file) => file.type === "image")
           .map((file) => ({
             src: file.url,
-            alt: `Media shared by ${msg.sender}`,
+            alt: `Image shared by ${msg.sender}`,
           }))
       );
   });
@@ -243,5 +187,8 @@ export const selectShowEmojiPicker = (state: RootState) =>
   state.messages.showEmojiPicker;
 export const selectSearchQuery = (state: RootState) =>
   state.messages.searchQuery;
+export const selectSharedImagesByChatId =
+  (chatId: string) => (state: RootState) =>
+    state.messages.sharedImages[chatId] || [];
 
 export default messageSlice.reducer;

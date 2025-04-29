@@ -1,15 +1,14 @@
 import React from "react";
 import { Box, Typography, Avatar, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 interface UBWhatsappDetailProps {
   onClose: () => void;
-  onMediaClick: () => void; // Add this prop
+  onMediaClick: () => void;
   name: string;
   role: string;
   avatarUrl?: string;
-  images?: Array<{ src: string; alt: string }>;
+  images: Array<{ src: string; alt: string }>; // Made non-optional
 }
 
 export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
@@ -18,7 +17,7 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
   name,
   role,
   avatarUrl = "/static/images/avatar/1.jpg",
-  images = [],
+  images,
 }) => {
   return (
     <Box
@@ -81,13 +80,10 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
           padding: "12px 16px",
           backgroundColor: "#fff",
           borderBottom: "1px solid #ddd",
-          cursor: "pointer",
-          "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.05)" },
         }}
         onClick={onMediaClick} // Handle click event
       >
-        <Typography>Media, Links, Docs</Typography>
-        <ArrowForwardIosIcon sx={{ fontSize: "16px", color: "gray" }} />
+        <Typography>Media</Typography>
       </Box>
       <Box
         sx={{
@@ -105,7 +101,7 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
           padding: "12px 16px",
         }}
       >
-        {images && images.length > 0 ? (
+        {images.length > 0 ? (
           images.map((image, index) => (
             <Box
               key={index}
@@ -115,6 +111,10 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
                 height: "100px",
                 borderRadius: "10px",
                 overflow: "hidden",
+                cursor: "pointer",
+                "&:hover": {
+                  opacity: 0.8,
+                },
               }}
             >
               <img

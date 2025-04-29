@@ -2,10 +2,9 @@ import React, { useState, useRef } from "react";
 import { Avatar, Box, IconButton, Popover } from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 
 interface AttachmentPopOverProps {
-  onFileSelect: (files: File[]) => void;  // Updated to accept array of files
+  onFileSelect: (files: File[]) => void;
   multiple?: boolean;
 }
 
@@ -15,21 +14,23 @@ export const AttachmentPopOver: React.FC<AttachmentPopOverProps> = ({
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const imageInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleFileUpload = (type: "document" | "gallery") => {
-    if (type === "document" && fileInputRef.current) {
+  const handleClick = () => {
+    if (fileInputRef.current) {
       fileInputRef.current.click();
-    } else if (type === "gallery" && imageInputRef.current) {
-      imageInputRef.current.click();
     }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-      // Convert FileList to array and pass all selected files
-      const files = Array.from(event.target.files);
-      onFileSelect(files);
+      // Convert FileList to array and filter only image files
+      const files = Array.from(event.target.files).filter(file => 
+        file.type.startsWith("image/")
+      );
+      
+      if (files.length > 0) {
+        onFileSelect(files);
+      }
     }
     // Reset the input to allow selecting the same files again
     if (event.target) {
@@ -37,25 +38,10 @@ export const AttachmentPopOver: React.FC<AttachmentPopOverProps> = ({
     }
   };
 
-  const globalIconStyle2 = {
+  const globalIconStyle = {
     height: "2rem",
     width: "2rem",
   };
-
-  const options = [
-    {
-      id: "document",
-      backgroundColor: "purple",
-      icon: <InsertDriveFileIcon sx={{ ...globalIconStyle2 }} />,
-      onClick: () => handleFileUpload("document"),
-    },
-    {
-      id: "gallery",
-      backgroundColor: "pink",
-      icon: <InsertPhotoIcon sx={{ ...globalIconStyle2 }} />,
-      onClick: () => handleFileUpload("gallery"),
-    },
-  ];
 
   const open = Boolean(anchorEl);
 
@@ -71,6 +57,7 @@ export const AttachmentPopOver: React.FC<AttachmentPopOverProps> = ({
           }}
         />
       </IconButton>
+      
       <Popover
         open={open}
         anchorEl={anchorEl}
@@ -92,39 +79,28 @@ export const AttachmentPopOver: React.FC<AttachmentPopOverProps> = ({
         elevation={0}
       >
         <Box display="flex" flexDirection="column" gap="1.2rem">
-          {options.map((item) => (
-            <Avatar
-              key={item.id}
-              sx={{
-                background: item.backgroundColor,
-                height: "3.8rem",
-                width: "3.8rem",
-                cursor: "pointer",
-              }}
-              onClick={item.onClick}
-            >
-              {item.icon}
-            </Avatar>
-          ))}
+          <Avatar
+            sx={{
+              background: "#008069", // WhatsApp green color
+              height: "3.8rem",
+              width: "3.8rem",
+              cursor: "pointer",
+            }}
+            onClick={handleClick}
+          >
+            <InsertPhotoIcon sx={{ ...globalIconStyle }} />
+          </Avatar>
         </Box>
       </Popover>
 
-      {/* Hidden input fields for file uploads */}
+      {/* Hidden input field for image upload only */}
       <input
         type="file"
-        accept=".pdf,.doc,.docx"
+        accept="image/*"
         ref={fileInputRef}
         style={{ display: "none" }}
         onChange={handleFileChange}
-        multiple={multiple}  // Added multiple attribute
-      />
-      <input
-        type="file"
-        accept="image/*,video/*"  // Added video support
-        ref={imageInputRef}
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-        multiple={multiple}  // Added multiple attribute
+        multiple={multiple}
       />
     </Box>
   );

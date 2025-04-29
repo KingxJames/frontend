@@ -5,6 +5,8 @@ import LeftPanel from "../LeftPanel/LeftPanel";
 import UBWhatsAppDetail from "../UBWhatsAppDetail/UBWhatsappDetail";
 import { ChatCardType } from "../../../common/utils/LeftPanel.types";
 import UBMedia from "../UBWhatsAppDetail/UBMedia/UBMedia";
+import { useSelector } from "react-redux";
+import { selectSharedImagesByChatId } from "../../../../store/features/UBWhatsappSlice/messageSlice";
 
 interface SharedImagesMap {
   [chatName: string]: Array<{ src: string; alt: string }>;
@@ -15,6 +17,9 @@ export const UBWhatsappWeb: React.FC = () => {
   const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [sharedImagesMap, setSharedImagesMap] = useState<SharedImagesMap>({});
   const [showMedia, setShowMedia] = useState(false);
+
+  const sharedImages = useSelector(selectSharedImagesByChatId(selectedChat?.id || ""));
+
 
   // Close detail panel and any sub-panels
   const handleCloseDetailPanel = () => {
@@ -96,7 +101,11 @@ export const UBWhatsappWeb: React.FC = () => {
         <RightPanel
           selectedChat={
             selectedChat
-              ? { id: selectedChat.id, name: selectedChat.name, lastText: selectedChat.lastText }
+              ? {
+                  id: selectedChat.id,
+                  name: selectedChat.name,
+                  lastText: selectedChat.lastText,
+                }
               : null
           }
           setShowDetailPanel={setShowDetailPanel}
@@ -122,32 +131,11 @@ export const UBWhatsappWeb: React.FC = () => {
             name={selectedChat.name}
             role={selectedChat.role}
             onClose={handleCloseDetailPanel}
-            images={sharedImagesMap[selectedChat?.name || ""] || []}
+            images={sharedImages}
             onMediaClick={() => setShowMedia(true)}
           />
 
-          {/* Media Panel */}
-          {showMedia && selectedChat && (
-            <Box
-              sx={{
-                transition: "transform 0.3s ease",
-                height: "100%",
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 10,
-                backgroundColor: "white",
-              }}
-            >
-              <UBMedia
-                onBack={() => setShowMedia(false)}
-                documents={[]}
-                links={[]}
-              />
-            </Box>
-          )}
+         
         </Box>
       )}
     </Box>
