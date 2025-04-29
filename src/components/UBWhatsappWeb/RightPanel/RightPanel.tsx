@@ -26,12 +26,14 @@ import {
   setCurrentMessageText,
   toggleEmojiPicker,
   addEmoji,
+  addSharedImage,
   selectFilteredMessages,
   selectFilePreviews,
   selectCurrentMessageText,
   selectShowSearchBar,
   selectShowEmojiPicker,
   selectSearchQuery,
+  selectSharedImagesByChatId,
 } from "../../../../store/features/UBWhatsappSlice/messageSlice";
 
 interface RightPanelProps {
@@ -104,6 +106,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     if ((!textValue.trim() && filePreviews.length === 0) || !selectedChat)
       return;
 
+    // Dispatch images to shared images first
+    filePreviews.forEach((file) => {
+      dispatch(
+        addSharedImage({
+          chatId: selectedChat.id,
+          image: {
+            src: file.url,
+            alt: `Image shared by you`,
+          },
+        })
+      );
+    });
+
     dispatch(
       addMessage({
         chatId: selectedChat.id,
@@ -118,7 +133,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     dispatch(clearFilePreviews());
   };
 
-  // In RightPanel.tsx
   const handleFileSelect = async (files: File[]) => {
     const imageFiles = files.filter((file) => file.type.startsWith("image/"));
 

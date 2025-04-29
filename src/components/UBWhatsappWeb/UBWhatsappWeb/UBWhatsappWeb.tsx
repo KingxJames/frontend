@@ -4,7 +4,6 @@ import RightPanel from "../RightPanel/RightPanel";
 import LeftPanel from "../LeftPanel/LeftPanel";
 import UBWhatsAppDetail from "../UBWhatsAppDetail/UBWhatsappDetail";
 import { ChatCardType } from "../../../common/utils/LeftPanel.types";
-import UBMedia from "../UBWhatsAppDetail/UBMedia/UBMedia";
 import { useSelector } from "react-redux";
 import { selectSharedImagesByChatId } from "../../../../store/features/UBWhatsappSlice/messageSlice";
 
