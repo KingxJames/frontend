@@ -17,7 +17,6 @@ import UBCustomAppBar from "../../../common/UBCustomAppBar/UBCustomAppBar";
 import UB_Logo from "../../../images/UB_Logo.png";
 import AttachmentPopOver from "../../../common/utils/AttachmentPopOver";
 import {
-  addMessage,
   addFilePreviews,
   removeFilePreview,
   clearFilePreviews,
@@ -26,15 +25,17 @@ import {
   setCurrentMessageText,
   toggleEmojiPicker,
   addEmoji,
-  addSharedImage,
-  selectFilteredMessages,
   selectFilePreviews,
   selectCurrentMessageText,
   selectShowSearchBar,
   selectShowEmojiPicker,
   selectSearchQuery,
-  selectSharedImagesByChatId,
 } from "../../../../store/features/UBWhatsappSlice/messageSlice";
+import {
+  useGetMessagesQuery,
+  useSendMessageMutation,
+  useGetSharedImagesQuery,
+} from "../../../../store/services/UBWhatsappAPI/messageAPI";
 
 interface RightPanelProps {
   selectedChat: { id: string; name: string; lastText: string } | null;
@@ -52,9 +53,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   setSharedImagesMap,
 }) => {
   const dispatch = useDispatch();
-  const filteredMessages = useSelector(
-    selectFilteredMessages(selectedChat?.id || "")
-  );
   const filePreviews = useSelector(selectFilePreviews);
   const textValue = useSelector(selectCurrentMessageText);
   const showSearchBar = useSelector(selectShowSearchBar);
@@ -62,75 +60,82 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   const searchQuery = useSelector(selectSearchQuery);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // RTK Query hooks
+  const { data: messages = [], isLoading: isLoadingMessages } = useGetMessagesQuery(
+    selectedChat?.id || '',
+    { skip: !selectedChat }
+  );
+
+  const { data: sharedImages = [] } = useGetSharedImagesQuery(
+    selectedChat?.id || '',
+    { skip: !selectedChat }
+  );
+
+  const [sendMessage] = useSendMessageMutation();
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Then update your useEffect like this:
+  // Filter messages based on search query
+  const filteredMessages = searchQuery
+    ? messages.filter((msg) =>
+        msg.text.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : messages;
+
   useEffect(() => {
-    if (!selectedChat) return;
-
-    const hasImageMessages = filteredMessages.some(
-      (msg) => msg.files && msg.files.some((file) => file.type === "image")
-    );
-
-    if (hasImageMessages) {
-      const imageMessages = filteredMessages
-        .filter(
-          (msg) => msg.files && msg.files.some((file) => file.type === "image")
-        )
-        .flatMap((msg) =>
-          (msg.files || [])
-            .filter((file) => file.type === "image")
-            .map((file) => ({
-              src: file.url,
-              alt: `Image shared by ${msg.sender}`,
-            }))
-        );
-
-      setSharedImagesMap((prev) => {
-        const currentImages = prev[selectedChat.id] || [];
-        if (JSON.stringify(currentImages) !== JSON.stringify(imageMessages)) {
-          return {
-            ...prev,
-            [selectedChat.id]: imageMessages,
-          };
-        }
-        return prev;
-      });
+    if (selectedChat && sharedImages.length > 0) {
+      setSharedImagesMap((prev) => ({
+        ...prev,
+        [selectedChat.id]: sharedImages,
+      }));
     }
-  }, [filteredMessages, selectedChat, setSharedImagesMap]);
+  }, [sharedImages, selectedChat, setSharedImagesMap]);
 
-  // Update your handleSendMessage function to this:
-  const handleSendMessage = () => {
-    if ((!textValue.trim() && filePreviews.length === 0) || !selectedChat)
-      return;
+  const handleSendMessage = async () => {
+    if ((!textValue.trim() && filePreviews.length === 0) || !selectedChat) return;
 
-    // Dispatch images to shared images first
-    filePreviews.forEach((file) => {
-      dispatch(
-        addSharedImage({
-          chatId: selectedChat.id,
-          image: {
-            src: file.url,
-            alt: `Image shared by you`,
-          },
-        })
-      );
-    });
+    try {
+      // Convert file previews to FormData if needed for upload
+      const formData = new FormData();
+      filePreviews.forEach((file) => {
+        // You might need to convert base64 back to Blob if your API expects files
+        // This is just a placeholder - adjust based on your actual API requirements
+        if (file.url.startsWith('data:')) {
+          const blob = dataURLtoBlob(file.url);
+          formData.append('files', blob, file.name);
+        }
+      });
 
-    dispatch(
-      addMessage({
+      // Send the message via RTK Query
+      await sendMessage({
         chatId: selectedChat.id,
-        sender: "you",
+        sender: "you", // Replace with actual user ID from auth
         text: textValue,
-        files: filePreviews.length > 0 ? [...filePreviews] : null,
-      })
-    );
+        files: filePreviews.length > 0 ? formData : undefined,
+      }).unwrap();
 
-    // Reset input
-    dispatch(setCurrentMessageText(""));
-    dispatch(clearFilePreviews());
+      // Reset input
+      dispatch(setCurrentMessageText(""));
+      dispatch(clearFilePreviews());
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      // Handle error (show toast, etc.)
+    }
+  };
+
+  // Helper function to convert data URL to Blob
+  const dataURLtoBlob = (dataURL: string): Blob => {
+    const arr = dataURL.split(',');
+    const mime = arr[0].match(/:(.*?);/)![1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
   };
 
   const handleFileSelect = async (files: File[]) => {
@@ -138,11 +143,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({
 
     const newFilePreviews = await Promise.all(
       imageFiles.map(async (file) => {
-        // Convert the image to base64
         const base64 = await convertToBase64(file);
         return {
           id: `${file.name}-${Date.now()}`,
-          url: base64, // Store the base64 string instead of object URL
+          url: base64,
           name: file.name,
           type: "image" as const,
         };
@@ -152,7 +156,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     dispatch(addFilePreviews(newFilePreviews));
   };
 
-  // Helper function to convert file to base64
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -164,9 +167,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
 
   useEffect(() => {
     scrollToBottom();
-  }, [filteredMessages]);
+  }, [messages]);
 
-  // Function to handle showing details panel
   const handleShowDetailPanel = () => {
     setShowDetailPanel(true);
   };
@@ -253,15 +255,15 @@ export const RightPanel: React.FC<RightPanelProps> = ({
           flexDirection="column"
           sx={{
             backgroundColor: "rgba(255, 255, 255, 0.6)",
-            overflow: "hidden", // Hide overflow on the container
-            position: "relative", // For proper child element positioning
+            overflow: "hidden",
+            position: "relative",
           }}
         >
           {selectedChat ? (
             <Box
               sx={{
                 height: "100%",
-                overflowY: "auto", // Enable vertical scrolling
+                overflowY: "auto",
                 display: "flex",
                 flexDirection: "column",
                 padding: "1rem",
@@ -303,9 +305,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               </Box>
 
               {/* Messages */}
-              {filteredMessages.length > 0 && (
+              {isLoadingMessages ? (
+                <Box display="flex" justifyContent="center" p={3}>
+                  <Typography>Loading messages...</Typography>
+                </Box>
+              ) : (
                 <Box display="flex" flexDirection="column">
-                  {filteredMessages.map((msg, index) => (
+                  {filteredMessages.map((msg) => (
                     <Box
                       key={msg.id}
                       display="flex"
@@ -360,8 +366,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                           </Typography>
                         )}
 
-                        {/* If the message contains a file */}
-                        {/* Display multiple files */}
                         {msg.files && msg.files.length > 0 && (
                           <Box
                             display="flex"
@@ -386,7 +390,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                                   size="small"
                                   sx={{ mt: 1 }}
                                   onClick={() => {
-                                    // Create a temporary anchor element to trigger download
                                     const link = document.createElement("a");
                                     link.href = file.url;
                                     link.download = file.name;
@@ -523,8 +526,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
 
             <AttachmentPopOver
               onFileSelect={handleFileSelect}
-              multiple={true} // or false for single file
-              // accept="image/*" // Only accept images
+              multiple={true}
             />
 
             <Box flex={1} pl="10px">

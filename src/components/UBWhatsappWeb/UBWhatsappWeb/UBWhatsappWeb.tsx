@@ -17,7 +17,7 @@ export const UBWhatsappWeb: React.FC = () => {
   const [sharedImagesMap, setSharedImagesMap] = useState<SharedImagesMap>({});
   const [showMedia, setShowMedia] = useState(false);
 
-  const sharedImages = useSelector(selectSharedImagesByChatId(selectedChat?.id || ""));
+  // const sharedImages = useSelector(selectSharedImagesByChatId(selectedChat?.id || ""));
 
 
   // Close detail panel and any sub-panels
@@ -130,7 +130,7 @@ export const UBWhatsappWeb: React.FC = () => {
             name={selectedChat.name}
             role={selectedChat.role}
             onClose={handleCloseDetailPanel}
-            images={sharedImages}
+            // images={sharedImages}
             onMediaClick={() => setShowMedia(true)}
           />
 

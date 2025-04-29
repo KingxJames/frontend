@@ -8,7 +8,7 @@ interface UBWhatsappDetailProps {
   name: string;
   role: string;
   avatarUrl?: string;
-  images: Array<{ src: string; alt: string }>; // Made non-optional
+  // images: Array<{ src: string; alt: string }>; // Made non-optional
 }
 
 export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
@@ -17,7 +17,7 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
   name,
   role,
   avatarUrl = "/static/images/avatar/1.jpg",
-  images,
+  // images,
 }) => {
   return (
     <Box
@@ -85,7 +85,7 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
       >
         <Typography>Media</Typography>
       </Box>
-      <Box
+      {/* <Box
         sx={{
           display: "flex",
           flexDirection: "row",
@@ -140,7 +140,7 @@ export const UBWhatsappDetail: React.FC<UBWhatsappDetailProps> = ({
             No media shared yet
           </Typography>
         )}
-      </Box>
+      </Box> */}
     </Box>
   );
 };

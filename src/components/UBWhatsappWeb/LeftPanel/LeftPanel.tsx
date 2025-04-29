@@ -1,10 +1,10 @@
 import React from "react";
-import { Box, IconButton, Avatar, Input, Tabs, Tab } from "@mui/material";
+import { Box, IconButton, Avatar, Input, Tabs, Tab, CircularProgress } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import UBCustomAppBar from "../../../common/UBCustomAppBar/UBCustomAppBar";
 import { UBChatCard } from "../../../common/UBChatCard/UBChatCard";
-import { ChatCardType } from "../../../common/utils/LeftPanel.types.ts"; // Ensure this path is correct
+import { ChatCardType } from "../../../common/utils/LeftPanel.types.ts";
 import {
   setActiveTab,
   setSearchQuery,
@@ -12,7 +12,8 @@ import {
   selectFilteredChats,
   selectSelectedChat,
 } from "../../../../store/features/UBWhatsappSlice/leftPanelSlice";
-import { RootState } from "../../../../store/store"; // Adjust the path based on your project structure
+import { RootState } from "../../../../store/store";
+import { useFetchLeftPanelQuery } from "../../../../store/services/UBWhatsappAPI/leftPanelAPI.tsx"; // Adjust path as needed
 
 interface LeftPanelProps {
   onSelectChat: (chat: ChatCardType) => void;
@@ -20,8 +21,10 @@ interface LeftPanelProps {
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
   const dispatch = useDispatch();
+  const { data: chats = [], isLoading, isError } = useFetchLeftPanelQuery();
   const filteredChats = useSelector(selectFilteredChats);
   const selectedChat = useSelector(selectSelectedChat);
+  const activeTab = useSelector((state: RootState) => state.leftPanel.activeTab);
 
   // Handle tab change
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -30,7 +33,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
 
   // Handle chat selection
   const handleChatSelect = (chat: ChatCardType) => {
-    dispatch(selectChat(chat.name));
+    dispatch(selectChat(chat.id)); // Using id instead of name for consistency
     onSelectChat(chat);
   };
 
@@ -38,6 +41,22 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setSearchQuery(event.target.value));
   };
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Box textAlign="center" padding="20px">
+        Error loading chats. Please try again later.
+      </Box>
+    );
+  }
 
   return (
     <Box height="100%" width="100%" overflow="hidden">
@@ -75,14 +94,14 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
               padding: "0px 13px",
               fontSize: "14px",
             }}
-            onChange={handleSearchChange} // Handle input change
+            onChange={handleSearchChange}
           />
         </Box>
       </Box>
 
       {/* Tabs Section */}
       <Tabs
-        value={useSelector((state: RootState) => state.leftPanel.activeTab)}
+        value={activeTab}
         onChange={handleChange}
         aria-label="chat categories"
         sx={{ background: "rgba(224, 218, 218, 0.1)" }}
@@ -101,15 +120,15 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
         {filteredChats.length > 0 ? (
           filteredChats.map((item) => (
             <Box
-              key={item.name}
+              key={item.id} // Using id as key is more reliable
               onClick={() => handleChatSelect(item)}
               sx={{
                 backgroundColor:
                   item.category === "emergency"
-                    ? "rgba(255, 0, 0, 0.2)" // Red background for emergency messages
+                    ? "rgba(255, 0, 0, 0.2)"
                     : item.category === "anonymous"
-                    ? "rgba(89, 175, 197, 0.2)" // Blue background for anonymous messages
-                    : selectedChat === item.name
+                    ? "rgba(89, 175, 197, 0.2)"
+                    : selectedChat === item.id
                     ? "rgba(224, 218, 218, 0.75)"
                     : "transparent",
                 transition: "background-color 0.3s",
