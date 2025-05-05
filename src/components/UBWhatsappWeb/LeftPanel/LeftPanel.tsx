@@ -1,19 +1,20 @@
-import React from "react";
-import { Box, IconButton, Avatar, Input, Tabs, Tab, CircularProgress } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  IconButton,
+  Input,
+  Tabs,
+  Tab,
+  CircularProgress,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
-import UBCustomAppBar from "../../../common/UBCustomAppBar/UBCustomAppBar";
-import { UBChatCard } from "../../../common/UBChatCard/UBChatCard";
 import { ChatCardType } from "../../../common/utils/LeftPanel.types.ts";
-import {
-  setActiveTab,
-  setSearchQuery,
-  selectChat,
-  selectFilteredChats,
-  selectSelectedChat,
-} from "../../../../store/features/UBWhatsappSlice/leftPanelSlice";
-import { RootState } from "../../../../store/store";
-import { useFetchLeftPanelQuery } from "../../../../store/services/UBWhatsappAPI/leftPanelAPI.tsx"; // Adjust path as needed
+import { useFetchMessagesQuery } from "../../../../store/services/UBWhatsappAPI/messageAPI.tsx";
+import { useFetchUserQuery } from "../../../../store/services/userAPI";
+import { setUsers, selectUsers } from "../../../../store/features/userSlice";
+import { UBChatCard } from "./../../../common/UBChatCard/UBChatCard.tsx";
+import { RootState } from "../../../../store/store.ts";
 
 interface LeftPanelProps {
   onSelectChat: (chat: ChatCardType) => void;
@@ -21,30 +22,69 @@ interface LeftPanelProps {
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
   const dispatch = useDispatch();
-  const { data: chats = [], isLoading, isError } = useFetchLeftPanelQuery();
-  const filteredChats = useSelector(selectFilteredChats);
-  const selectedChat = useSelector(selectSelectedChat);
-  const activeTab = useSelector((state: RootState) => state.leftPanel.activeTab);
+  const [activeTab, setActiveTab] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+
+  // RTK Query hooks
+  const { data: users, isLoading, isError } = useFetchUserQuery();
+  const { data: messages } = useFetchMessagesQuery();
+
+  // Update Redux store when users are fetched
+  useEffect(() => {
+    if (users) {
+      dispatch(setUsers(users));
+    }
+  }, [users, dispatch]);
+
+  // Get users from Redux store
+  const allUsers = useSelector((state: RootState) => selectUsers(state).users || []);
 
   // Handle tab change
-  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-    dispatch(setActiveTab(newValue));
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
   };
 
   // Handle chat selection
-  const handleChatSelect = (chat: ChatCardType) => {
-    dispatch(selectChat(chat.id)); // Using id instead of name for consistency
-    onSelectChat(chat);
+  const handleChatSelect = (user: ChatCardType) => {
+    setSelectedChat(user.id.toString());
+    onSelectChat(user);
   };
 
   // Handle search input change
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchQuery(event.target.value));
+    setSearchQuery(event.target.value.toLowerCase());
   };
+
+  // Filter users based on active tab and search query
+  const filteredUsers = React.useMemo(() => {
+    if (!allUsers) return [];
+    
+    return allUsers.filter((user: any) => {
+      // Filter by tab
+      const tabMatch =
+        activeTab === 0 || // All
+        (activeTab === 1 && user.messageCategoryId === 1) || // Emergency
+        (activeTab === 2 && user.messageCategoryId === 2); // Anonymous
+
+      // Filter by search
+      const searchMatch =
+        searchQuery === "" ||
+        (user.name && user.name.toLowerCase().includes(searchQuery)) ||
+        (user.username && user.username.toLowerCase().includes(searchQuery));
+
+      return tabMatch && searchMatch;
+    });
+  }, [allUsers, searchQuery, activeTab]);
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100%"
+      >
         <CircularProgress />
       </Box>
     );
@@ -53,7 +93,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
   if (isError) {
     return (
       <Box textAlign="center" padding="20px">
-        Error loading chats. Please try again later.
+        Error loading users. Please try again later.
       </Box>
     );
   }
@@ -62,7 +102,11 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
     <Box height="100%" width="100%" overflow="hidden">
       {/* Search Bar */}
       <Box
-        sx={{ background: "rgba(224, 218, 218, 0.1)", padding: "12px", marginTop: "10px" }}
+        sx={{
+          background: "rgba(224, 218, 218, 0.1)",
+          padding: "12px",
+          marginTop: "10px",
+        }}
         display="flex"
       >
         <Box
@@ -102,7 +146,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
       {/* Tabs Section */}
       <Tabs
         value={activeTab}
-        onChange={handleChange}
+        onChange={handleTabChange}
         aria-label="chat categories"
         sx={{ background: "rgba(224, 218, 218, 0.1)" }}
       >
@@ -111,36 +155,56 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
         <Tab label="Anonymous" value={2} />
       </Tabs>
 
-      {/* Chat List */}
+      {/* User List */}
       <Box
         overflow="auto"
         height="90%"
         sx={{ background: "rgba(224, 218, 218, 0.1)" }}
       >
-        {filteredChats.length > 0 ? (
-          filteredChats.map((item) => (
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map((user) => (
             <Box
-              key={item.id} // Using id as key is more reliable
-              onClick={() => handleChatSelect(item)}
+              key={user.id}
+              onClick={() =>
+                handleChatSelect({
+                  id: user.id,
+                  profilePic: user.profilePic || "default-profile-pic-url",
+                  name: user.name || user.username,
+                  lastText: user.lastMessage || "No messages yet",
+                  lastSeen: user.lastSeen || "Online",
+                  selected: selectedChat === user.id.toString(),
+                  messageCategoryId: user.messageCategoryId || 0,
+                })
+              }
               sx={{
                 backgroundColor:
-                  item.category === "emergency"
+                  user.messageCategoryId === 1 // Emergency
                     ? "rgba(255, 0, 0, 0.2)"
-                    : item.category === "anonymous"
+                    : user.messageCategoryId === 2 // Anonymous
                     ? "rgba(89, 175, 197, 0.2)"
-                    : selectedChat === item.id
+                    : selectedChat === user.id.toString()
                     ? "rgba(224, 218, 218, 0.75)"
                     : "transparent",
                 transition: "background-color 0.3s",
                 cursor: "pointer",
               }}
             >
-              <UBChatCard item={item} />
+              <UBChatCard
+                item={{
+                  id: user.id,
+                  profilePic: user.profilePic || "default-profile-pic-url",
+                  name: user.name || user.username,
+                  lastText: user.lastMessage || "No messages yet",
+                  lastSeen: user.lastSeen || "Online",
+                  selected: selectedChat === user.id.toString(),
+                  messageCategoryId: user.messageCategoryId || 0,
+                }}
+              />
             </Box>
           ))
         ) : (
           <Box textAlign="center" padding="20px">
-            No messages found.
+            No users found.
           </Box>
         )}
       </Box>

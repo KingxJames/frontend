@@ -1,10 +1,9 @@
 export interface ChatCardType {
-  id: string; 
+  id: number; 
+  profilePic: string;
   name: string;
   lastText: string;
   lastSeen: string;
   selected: boolean;
-  role: string;
-  category: string;
-  avatarUrl: string;
+  messageCategoryId: number;
 }

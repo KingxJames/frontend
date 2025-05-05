@@ -32,7 +32,6 @@ import recipientReducer from "./features/recipientSlice";
 import subMenuReducer from "./features/subMenusSlice";
 import userCampusesReducer from "./features/userCampusSlice";
 import userStatusesReducer from "./features/userStatusSlice";
-import leftPanelReducer from "./features/UBWhatsappSlice/leftPanelSlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
@@ -53,7 +52,6 @@ const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   messages: persistReducer(messagesPersistConfig, messagesReducer),
   dashboard: dashboardReducer,
-  leftPanel: leftPanelReducer,
   roles: rolesReducer,
   buildings: buildingsReducer,
   campuses: campusesReducer,

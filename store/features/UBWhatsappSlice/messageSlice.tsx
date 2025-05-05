@@ -1,100 +1,64 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
-import { createSelector } from "@reduxjs/toolkit";
 
-export interface FilePreview {
-  id: string;
-  url: string;
-  name: string;
-  type: "image";
-}
-
-export interface Message {
-  id: string;
-  chatId: string;
+export interface IMessage {
+  id: number;
+  profilePic: string;
   sender: string;
-  text: string;
-  files: FilePreview[] | null;
-  timestamp: number;
+  messageCategoryId: number;
+  images: string;
+  message: string;
+  location: string;
+  dateSent: string;
+  isDeleted: boolean;
+  type: string;
 }
 
-export interface MessagesState {
-  searchQuery: string;
-  showSearchBar: boolean;
-  filePreviews: FilePreview[];
-  currentMessageText: string;
-  showEmojiPicker: boolean;
-  // Removed messages and sharedImages from state since they'll be managed by RTK Query
+export interface MessagesInititalState {
+  messages: IMessage[];
 }
 
-const initialState: MessagesState = {
-  searchQuery: "",
-  showSearchBar: false,
-  filePreviews: [],
-  currentMessageText: "",
-  showEmojiPicker: false,
-};
+const initialState: MessagesInititalState = {
+  messages: [],
+}
 
 export const messageSlice = createSlice({
   name: "messages",
   initialState,
   reducers: {
-    setSearchQuery: (state, action: PayloadAction<string>) => {
-      state.searchQuery = action.payload;
+    setMessages: (state, action: PayloadAction<IMessage[]>) => {
+      return { ...state, messages: action.payload };
     },
-    toggleSearchBar: (state) => {
-      state.showSearchBar = !state.showSearchBar;
+    addMessage: (state, action: PayloadAction<IMessage>) => {
+      state.messages.push(action.payload);
     },
-    addFilePreviews: (state, action: PayloadAction<FilePreview[]>) => {
-      state.filePreviews.push(
-        ...action.payload.filter((file) => file.type === "image")
+    updateMessage: (state, action: PayloadAction<IMessage>) => {
+      const index = state.messages.findIndex(
+        (message) => message.dateSent === action.payload.dateSent
+      );
+      if (index !== -1) {
+        state.messages[index] = {
+          ...state.messages[index],
+          ...action.payload,
+        };
+      }
+    },
+    deleteMessage: (state, action: PayloadAction<string>) => {
+      state.messages = state.messages.filter(
+        (message) => message.dateSent !== action.payload
       );
     },
-    removeFilePreview: (state, action: PayloadAction<string>) => {
-      state.filePreviews = state.filePreviews.filter(
-        (file) => file.id !== action.payload
-      );
-    },
-    clearFilePreviews: (state) => {
-      state.filePreviews = [];
-    },
-    setCurrentMessageText: (state, action: PayloadAction<string>) => {
-      state.currentMessageText = action.payload;
-    },
-    toggleEmojiPicker: (state) => {
-      state.showEmojiPicker = !state.showEmojiPicker;
-    },
-    addEmoji: (state, action: PayloadAction<string>) => {
-      state.currentMessageText += action.payload;
-    },
-    // Removed data-related actions since they'll be handled by RTK Query
   },
 });
 
 // Action creators
 export const {
-  setSearchQuery,
-  toggleSearchBar,
-  addFilePreviews,
-  removeFilePreview,
-  clearFilePreviews,
-  setCurrentMessageText,
-  toggleEmojiPicker,
-  addEmoji,
+  setMessages,
+  addMessage,
+  updateMessage,
+  deleteMessage,
 } = messageSlice.actions;
 
-// Selectors (only for UI state now)
-export const selectFilePreviews = (state: RootState) =>
-  state.messages.filePreviews;
-export const selectCurrentMessageText = (state: RootState) =>
-  state.messages.currentMessageText;
-export const selectShowSearchBar = (state: RootState) =>
-  state.messages.showSearchBar;
-export const selectShowEmojiPicker = (state: RootState) =>
-  state.messages.showEmojiPicker;
-export const selectSearchQuery = (state: RootState) =>
-  state.messages.searchQuery;
-export const selectSharedImagesByChatId = (state: RootState, chatId: string) =>
-  state.messages.filePreviews.filter((file) => file.id === chatId);
+export const selectMessages = (state: RootState) => state.messages.messages;
 
 export default messageSlice.reducer;

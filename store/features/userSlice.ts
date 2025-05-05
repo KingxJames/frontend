@@ -3,6 +3,8 @@ import { RootState } from "../store";
 
 export interface IUser {
   id: number;
+  profilePic: string;
+  username: string;
   name: string;
   email: string;
   picture?: string;
@@ -15,6 +17,12 @@ export interface IUser {
   campus: string;
   userCampusId: number;
   primaryCampus: boolean;
+  lastMessage: string;
+  lastSeen: string;
+  lastText: string;
+  isDeleted: boolean;
+  type: string;
+  messageCategoryId: number;
 }
 
 export interface UserInitialState {
@@ -65,4 +73,5 @@ export const userSlice = createSlice({
 export const { setUsers, addUsers, updateUsers, deleteUsers, updateProfilePicture } =
   userSlice.actions;
 export const selectUsers = (state: RootState) => state.users;
+// export const selectUser = (state: RootState) => state.user.users; // Assuming 'users' is the array in the state
 export default userSlice.reducer;
