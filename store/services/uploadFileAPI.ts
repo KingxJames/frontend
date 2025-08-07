@@ -5,7 +5,7 @@ export const uploadFileAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     uploadFile: builder.mutation<IUser, Partial<IUser>>({
       query: (file) => ({
-        url: "/v1/publicSafety/uploadFile",
+        url: "/publicSafety/uploadFile",
         method: "POST",
         body: file,
       }),

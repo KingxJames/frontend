@@ -5,7 +5,7 @@ export const userStatusAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchUserStatuses: builder.query<IUserStatus[], void>({
       query: () => ({
-        url: "/v1/publicSafety/userStatuses",
+        url: "/publicSafety/userStatuses",
         method: "GET",
       }),
       transformResponse: (response: { data: IUserStatus[] }) => {
@@ -16,13 +16,13 @@ export const userStatusAPI = baseAPI.injectEndpoints({
     }),
     fetchUserStatusById: builder.query<IUserStatus, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/userStatuses/${id}`,
+        url: `/publicSafety/userStatuses/${id}`,
         method: "GET",
       }),
     }),
     createUserStatus: builder.mutation<IUserStatus, Partial<IUserStatus>>({
       query: (userStatus) => ({
-        url: "/v1/publicSafety/userStatuses",
+        url: "/publicSafety/userStatuses",
         method: "POST",
         body: userStatus,
       }),
@@ -32,14 +32,14 @@ export const userStatusAPI = baseAPI.injectEndpoints({
       { id: number; userStatuses: string }
     >({
       query: ({ id, userStatuses }) => ({
-        url: `/v1/publicSafety/userStatuses/${id}`,
+        url: `/publicSafety/userStatuses/${id}`,
         method: "PUT",
         body: { userStatuses },
       }),
     }),
     deleteUserStatus: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/userStatuses/${id}`,
+        url: `/publicSafety/userStatuses/${id}`,
         method: "DELETE",
       }),
     }),

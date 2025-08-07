@@ -26,7 +26,7 @@ export const dashboardAPI = baseAPI.injectEndpoints({
 
     fetchUsersTotal: builder.query<{ total: number }, void>({
       query: () => ({
-        url: "/v1/publicSafety/usersTotal",
+        url: "/publicSafety/usersTotal",
         method: "GET",
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
@@ -42,7 +42,7 @@ export const dashboardAPI = baseAPI.injectEndpoints({
 
     fetchReportTotal: builder.query<{ total: number }, void>({
       query: () => ({
-        url: "v1/publicSafety/incidentReportTotal",
+        url: "/publicSafety/incidentReportTotal",
         method: "GET",
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
@@ -58,7 +58,7 @@ export const dashboardAPI = baseAPI.injectEndpoints({
 
     fetchIncidentFilesTotal: builder.query<{ total: number }, void>({
       query: () => ({
-        url: "/v1/publicSafety/incidentFileTotal",
+        url: "/publicSafety/incidentFileTotal",
         method: "GET",
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
@@ -74,7 +74,7 @@ export const dashboardAPI = baseAPI.injectEndpoints({
 
     fetchMessageTotal: builder.query<{ total: number }, void>({
       query: () => ({
-        url: "/v1/publicSafety/totalMessages",
+        url: "/publicSafety/totalMessages",
         method: "GET",
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {

@@ -5,7 +5,7 @@ export const departmentsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchDepartments: builder.query<IDepartment[], void>({
       query: () => ({
-        url: "/v1/publicSafety/departments",
+        url: "/publicSafety/departments",
         method: "GET",
       }),
       transformResponse: (response: { data: IDepartment[] }) => {
@@ -16,30 +16,30 @@ export const departmentsAPI = baseAPI.injectEndpoints({
     }),
     fetchDepartmentById: builder.query<IDepartment, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/departments/${id}`,
+        url: `/publicSafety/departments/${id}`,
         method: "GET",
       }),
     }),
     createDepartment: builder.mutation<IDepartment, Partial<IDepartment>>({
       query: (department) => ({
-        url: "/v1/publicSafety/departments",
+        url: "/publicSafety/departments",
         method: "POST",
         body: department,
       }),
     }),
     updateDepartment: builder.mutation<
       IDepartment,
-      { id: number; departments: string;}
+      { id: number; departments: string }
     >({
-      query: ({ id, departments}) => ({
-        url: `/v1/publicSafety/departments/${id}`,
+      query: ({ id, departments }) => ({
+        url: `/publicSafety/departments/${id}`,
         method: "PUT",
-        body: { departments},
+        body: { departments },
       }),
     }),
     deleteDepartment: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/departments/${id}`,
+        url: `/publicSafety/departments/${id}`,
         method: "DELETE",
       }),
     }),

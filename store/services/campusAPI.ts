@@ -5,7 +5,7 @@ export const campusAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchCampuses: builder.query<ICampus[], void>({
       query: () => ({
-        url: "/v1/publicSafety/campuses",
+        url: "/publicSafety/campuses",
         method: "GET",
       }),
       transformResponse: (response: { data: ICampus[] }) => {
@@ -16,27 +16,27 @@ export const campusAPI = baseAPI.injectEndpoints({
     }),
     fetchCampusById: builder.query<ICampus, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/campuses/${id}`,
+        url: `/publicSafety/campuses/${id}`,
         method: "GET",
       }),
     }),
     createCampuses: builder.mutation<ICampus, Partial<ICampus>>({
       query: (campus) => ({
-        url: "/v1/publicSafety/campuses",
+        url: "/publicSafety/campuses",
         method: "POST",
         body: campus,
       }),
     }),
     updateCampuses: builder.mutation<ICampus, { id: number; campus: string }>({
       query: ({ id, campus }) => ({
-        url: `/v1/publicSafety/campuses/${id}`,
+        url: `/publicSafety/campuses/${id}`,
         method: "PUT",
         body: {id, campus},
       }),
     }),
     deleteCampuses: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/campuses/${id}`,
+        url: `/publicSafety/campuses/${id}`,
         method: "DELETE",
       }),
     }),

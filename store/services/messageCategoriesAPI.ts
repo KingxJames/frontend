@@ -5,7 +5,7 @@ export const messageCategoriesAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchMessageCategories: builder.query<IMessageCategory[], void>({
       query: () => ({
-        url: "/v1/publicSafety/messageCategories",
+        url: "/publicSafety/messageCategories",
         method: "GET",
       }),
       transformResponse: (response: { data: IMessageCategory[] }) =>
@@ -13,7 +13,7 @@ export const messageCategoriesAPI = baseAPI.injectEndpoints({
     }),
     fetchMessageCategoryById: builder.query<IMessageCategory, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/messageCategories/${id}`,
+        url: `/publicSafety/messageCategories/${id}`,
         method: "GET",
       }),
     }),
@@ -22,7 +22,7 @@ export const messageCategoriesAPI = baseAPI.injectEndpoints({
       Partial<IMessageCategory>
     >({
       query: (messageCategory) => ({
-        url: "/v1/publicSafety/messageCategories",
+        url: "/publicSafety/messageCategories",
         method: "POST",
         body: messageCategory,
       }),
@@ -32,14 +32,14 @@ export const messageCategoriesAPI = baseAPI.injectEndpoints({
       { id: number; category: string }
     >({
       query: ({ id, category }) => ({
-        url: `/v1/publicSafety/messageCategories/${id}`,
+        url: `/publicSafety/messageCategories/${id}`,
         method: "PUT",
         body: { category },
       }),
     }),
     deleteMessageCategory: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/messageCategories/${id}`,
+        url: `/publicSafety/messageCategories/${id}`,
         method: "DELETE",
       }),
     }),

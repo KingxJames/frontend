@@ -5,7 +5,7 @@ export const buildingsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchBuildings: builder.query<IBuilding[], void>({
       query: () => ({
-        url: "/v1/publicSafety/buildings",
+        url: "/publicSafety/buildings",
         method: "GET",
       }),
       transformResponse: (response: { data: IBuilding[] }) => {
@@ -16,27 +16,27 @@ export const buildingsAPI = baseAPI.injectEndpoints({
     }),
     fetchBuildingById: builder.query<IBuilding, number>({
       query: (id) => ({
-        url: `/v1/publicSafety/buildings/${id}`,
+        url: `/publicSafety/buildings/${id}`,
         method: "GET",
       }),
     }),
     createBuildings: builder.mutation<IBuilding, Partial<IBuilding>>({
       query: (name) => ({
-        url: "/v1/publicSafety/buildings",
+        url: "/publicSafety/buildings",
         method: "POST",
         body: name,
       }),
     }),
     updateBuildings: builder.mutation<IBuilding, Partial<IBuilding>>({
       query: ({ id, name, location, campusId, campus }) => ({
-        url: `/v1/publicSafety/buildings/${id}`,
+        url: `/publicSafety/buildings/${id}`,
         method: "PUT",
         body: { name, location, campusId, campus },
       }),
     }),
     deleteBuildings: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/buildings/${id}`,
+        url: `/publicSafety/buildings/${id}`,
         method: "DELETE",
       }),
     }),

@@ -5,20 +5,20 @@ export const userCampusAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchUserCampuses: builder.query<IUserCampus[], void>({
       query: () => ({
-        url: "/v1/publicSafety/userCampuses",
+        url: "/publicSafety/userCampuses",
         method: "GET",
       }),
       transformResponse: (response: { data: IUserCampus[] }) => response.data,
     }),
     fetchUserCampusById: builder.query<IUserCampus, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/userCampuses/${id}`,
+        url: `/publicSafety/userCampuses/${id}`,
         method: "GET",
       }),
     }),
     createUserCampus: builder.mutation<IUserCampus, Partial<IUserCampus>>({
       query: (userCampus) => ({
-        url: "/v1/publicSafety/userCampuses",
+        url: "/publicSafety/userCampuses",
         method: "POST",
         body: userCampus,
       }),
@@ -28,14 +28,14 @@ export const userCampusAPI = baseAPI.injectEndpoints({
       { id: number; userId: number; campusId: number; primaryCampus: boolean }
     >({
       query: ({ id, userId, campusId, primaryCampus }) => ({
-        url: `/v1/publicSafety/userCampuses/${id}`,
+        url: `/publicSafety/userCampuses/${id}`,
         method: "PUT",
         body: { userId, campusId, primaryCampus },
       }),
     }),
     deleteUserCampus: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/userCampuses/${id}`,
+        url: `/publicSafety/userCampuses/${id}`,
         method: "DELETE",
       }),
     }),

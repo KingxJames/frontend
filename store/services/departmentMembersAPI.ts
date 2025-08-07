@@ -5,7 +5,7 @@ export const departmentMembersAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchDepartmentMembers: builder.query<IDepartmentMembers[], void>({
       query: () => ({
-        url: "/v1/publicSafety/departmentMembers",
+        url: "/publicSafety/departmentMembers",
         method: "GET",
       }),
       transformResponse: (response: { data: IDepartmentMembers[] }) => {

@@ -5,7 +5,7 @@ export const userAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchUser: builder.query<IUser[], void>({
       query: () => ({
-        url: "/v1/publicSafety/users",
+        url: "/publicSafety/users",
         method: "GET",
       }),
       transformResponse: (response: { data: IUser[] }) => {
@@ -16,13 +16,13 @@ export const userAPI = baseAPI.injectEndpoints({
     }),
     fetchUserById: builder.query<IUser, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/users/${id}`,
+        url: `/publicSafety/users/${id}`,
         method: "GET",
       }),
     }),
     createUser: builder.mutation<IUser, Partial<IUser>>({
       query: (user) => ({
-        url: "/v1/publicSafety/users",
+        url: "/publicSafety/users",
         method: "POST",
         body: user,
       }),
@@ -54,7 +54,7 @@ export const userAPI = baseAPI.injectEndpoints({
         userStatuses,
         roles,
       }) => ({
-        url: `/v1/publicSafety/users/${id}`,
+        url: `/publicSafety/users/${id}`,
         method: "PUT",
         body: {
           name,
@@ -71,13 +71,13 @@ export const userAPI = baseAPI.injectEndpoints({
     }),
     deleteUser: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/users/${id}`,
+        url: `/publicSafety/users/${id}`,
         method: "DELETE",
       }),
     }),
     usersTotal: builder.query<IUser, void>({
       query: () => ({
-        url: "/v1/publicSafety/usersTotal",
+        url: "/publicSafety/usersTotal",
         method: "GET",
       }),
       transformResponse: (response: { data: IUser }) => response.data,

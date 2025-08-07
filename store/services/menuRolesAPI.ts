@@ -5,20 +5,20 @@ export const menuRolesAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchMenuRoles: builder.query<IMenuRole[], void>({
       query: () => ({
-        url: "/v1/publicSafety/menuRoles",
+        url: "/publicSafety/menuRoles",
         method: "GET",
       }),
       transformResponse: (response: { data: IMenuRole[] }) => response.data,
     }),
     fetchMenuRoleById: builder.query<IMenuRole, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/menuRoles/${id}`,
+        url: `/publicSafety/menuRoles/${id}`,
         method: "GET",
       }),
     }),
     createMenuRole: builder.mutation<IMenuRole, Partial<IMenuRole>>({
       query: (menuRole) => ({
-        url: "/v1/publicSafety/menuRoles",
+        url: "/publicSafety/menuRoles",
         method: "POST",
         body: menuRole,
       }),
@@ -27,15 +27,15 @@ export const menuRolesAPI = baseAPI.injectEndpoints({
       IMenuRole,
       { id: number; menuId: number; roleId: number }
     >({
-      query: ({ id, menuId, roleId}) => ({
-        url: `/v1/publicSafety/menuRoles/${id}`,
+      query: ({ id, menuId, roleId }) => ({
+        url: `/publicSafety/menuRoles/${id}`,
         method: "PUT",
         body: { menuId, roleId },
       }),
     }),
     deleteMenuRole: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/menuRoles/${id}`,
+        url: `/publicSafety/menuRoles/${id}`,
         method: "DELETE",
       }),
     }),

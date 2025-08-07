@@ -5,7 +5,7 @@ export const roleAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchRoles: builder.query<IRole[], void>({
       query: () => ({
-        url: "/v1/publicSafety/roles",
+        url: "/publicSafety/roles",
         method: "GET",
       }),
       transformResponse: (response: { data: IRole[] }) => {
@@ -16,33 +16,33 @@ export const roleAPI = baseAPI.injectEndpoints({
     }),
     fetchRoleById: builder.query<IRole, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/roles/${id}`,
+        url: `/publicSafety/roles/${id}`,
         method: "GET",
       }),
     }),
     createRole: builder.mutation<IRole, Partial<IRole>>({
       query: (roles) => ({
-        url: "/v1/publicSafety/roles",
+        url: "/publicSafety/roles",
         method: "POST",
         body: roles,
       }),
     }),
     updateRole: builder.mutation<IRole, { id: number; roles: string }>({
       query: ({ id, roles }) => ({
-        url: `/v1/publicSafety/roles/${id}`,
+        url: `/publicSafety/roles/${id}`,
         method: "PUT",
         body: { roles },
       }),
     }),
     deleteRole: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/roles/${id}`,
+        url: `/publicSafety/roles/${id}`,
         method: "DELETE",
       }),
     }),
     assignRole: builder.mutation<IRole, { userId: string; roleId: string }>({
       query: ({ userId, roleId }) => ({
-        url: `/v1/publicSafety/assignRole`,
+        url: `/publicSafety/assignRole`,
         method: "POST",
         body: { userId, roleId },
       }),

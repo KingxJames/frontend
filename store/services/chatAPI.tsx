@@ -1,24 +1,24 @@
 import { baseAPI } from "./baseAPI";
-import { IMessage } from "../../store/features/UBChat/chatSlice";
+import { IMessage } from "../../store/features/UBWhatsappSlice/messageSlice";
 
 export const chatAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchMessages: builder.query<IMessage[], void>({
       query: () => ({
-        url: "/v1/publicSafety/messages",
+        url: "/publicSafety/messages",
         method: "GET",
       }),
       transformResponse: (response: { data: IMessage[] }) => response.data,
     }),
     fetchMessageById: builder.query<IMessage, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/messages/${id}`,
+        url: `/publicSafety/messages/${id}`,
         method: "GET",
       }),
     }),
     createMessage: builder.mutation<IMessage, Partial<IMessage>>({
       query: (message) => ({
-        url: "/v1/publicSafety/messages",
+        url: "/publicSafety/messages",
         method: "POST",
         body: message,
       }),
@@ -28,25 +28,24 @@ export const chatAPI = baseAPI.injectEndpoints({
       { id: string; message: Partial<IMessage> }
     >({
       query: ({ id, message }) => ({
-        url: `/v1/publicSafety/messages/${id}`,
+        url: `/publicSafety/messages/${id}`,
         method: "PUT",
         body: message,
       }),
     }),
     deleteMessage: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/messages/${id}`,
+        url: `/publicSafety/messages/${id}`,
         method: "DELETE",
       }),
     }),
   }),
 });
 
-
 export const {
-    useFetchMessagesQuery,
-    useFetchMessageByIdQuery,
-    useCreateMessageMutation,
-    useUpdateMessageMutation,
-    useDeleteMessageMutation,
-  } = chatAPI;
+  useFetchMessagesQuery,
+  useFetchMessageByIdQuery,
+  useCreateMessageMutation,
+  useUpdateMessageMutation,
+  useDeleteMessageMutation,
+} = chatAPI;

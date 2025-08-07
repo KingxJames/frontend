@@ -5,7 +5,7 @@ export const incidentStatusAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchIncidentStatuses: builder.query<IIncidentStatus[], void>({
       query: () => ({
-        url: "/v1/publicSafety/incidentStatuses",
+        url: "/publicSafety/incidentStatuses",
         method: "GET",
       }),
       transformResponse: (response: { data: IIncidentStatus[] }) => {
@@ -16,7 +16,7 @@ export const incidentStatusAPI = baseAPI.injectEndpoints({
     }),
     fetchIncidentStatusById: builder.query<IIncidentStatus, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/incidentStatuses/${id}`,
+        url: `/publicSafety/incidentStatuses/${id}`,
         method: "GET",
       }),
     }),
@@ -25,21 +25,24 @@ export const incidentStatusAPI = baseAPI.injectEndpoints({
       Partial<IIncidentStatus>
     >({
       query: (incidentStatus) => ({
-        url: "/v1/publicSafety/incidentStatuses",
+        url: "/publicSafety/incidentStatuses",
         method: "POST",
         body: incidentStatus,
       }),
     }),
-    updateIncidentStatus: builder.mutation<IIncidentStatus,{ id: number; statuses: string }>({
+    updateIncidentStatus: builder.mutation<
+      IIncidentStatus,
+      { id: number; statuses: string }
+    >({
       query: ({ id, statuses }) => ({
-        url: `/v1/publicSafety/incidentStatuses/${id}`,
+        url: `/publicSafety/incidentStatuses/${id}`,
         method: "PUT",
         body: { statuses },
       }),
     }),
     deleteIncidentStatus: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/incidentStatuses/${id}`,
+        url: `/publicSafety/incidentStatuses/${id}`,
         method: "DELETE",
       }),
     }),

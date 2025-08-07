@@ -23,7 +23,7 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchIncidentReport: builder.query<IIncidentReport[], void>({
       query: () => ({
-        url: "/v1/publicSafety/incidentReports",
+        url: "/publicSafety/incidentReports",
         method: "GET",
       }),
       transformResponse: (response: { data: IIncidentReport[] }) => {
@@ -34,7 +34,7 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
     }),
     fetchIncidentReportById: builder.query<IIncidentReport, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/incidentReports/${id}`,
+        url: `/publicSafety/incidentReports/${id}`,
         method: "GET",
       }),
     }),
@@ -43,7 +43,7 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
       Partial<IIncidentReport>
     >({
       query: (incidentFile) => ({
-        url: "/v1/publicSafety/incidentReports",
+        url: "/publicSafety/incidentReports",
         method: "POST",
         body: incidentFile,
       }),
@@ -53,27 +53,27 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
       UpdateIncidentReportPayload
     >({
       query: (payload) => ({
-        url: `/v1/publicSafety/incidentReports/${payload.id}`,
+        url: `/publicSafety/incidentReports/${payload.id}`,
         method: "PUT",
         body: payload,
       }),
     }),
     uploadIncidentFile: builder.mutation<{ path: string }, FormData>({
       query: (formData) => ({
-        url: "/v1/publicSafety/uploadIncidentFile", // Adjust according to your API
+        url: "/publicSafety/uploadIncidentFile", // Adjust according to your API
         method: "POST",
         body: formData,
       }),
     }),
     deleteIncidentReport: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/publicSafety/incidentReports/${id}`,
+        url: `/publicSafety/incidentReports/${id}`,
         method: "DELETE",
       }),
     }),
     incidnetReportTotal: builder.query<IIncidentReport, void>({
       query: () => ({
-        url: "/v1/publicSafety/incidentReportTotal",
+        url: "/publicSafety/incidentReportTotal",
         method: "GET",
       }),
       transformResponse: (response: { data: IIncidentReport }) => response.data,
