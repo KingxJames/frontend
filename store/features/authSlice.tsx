@@ -1,36 +1,22 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  picture?: string;
-}
-
 export interface AuthState {
   token: string | null;
   username: string;
   name: string;
-  isLoading: boolean;
+  loading: boolean;
   error: string | null;
-  users: User[];
+  isGoogleAuth?: boolean;
 }
 
 const initialState: AuthState = {
   token: null,
   username: "",
   name: "",
-  isLoading: false,
+  loading: false,
   error: null,
-  users: [
-    {
-      id: "",
-      name: "",
-      email: "",
-      picture: "",
-    },
-  ],
+  isGoogleAuth: false,
 };
 
 // Slice
@@ -41,13 +27,42 @@ export const authSlice = createSlice({
     setAuthData(state, action: PayloadAction<Partial<AuthState>>) {
       return { ...state, ...action.payload };
     },
-    logout(state) {
-      return { ...state, token: null, username: "", name: "" };
+
+    setGoogleAuthData(state, action: PayloadAction<any>) {
+      return {
+        ...state,
+        token: action.payload.token,
+        username: action.payload?.email || "",
+        name: action.payload.user?.name || "",
+        loading: false,
+        error: null,
+        isGoogleAuth: true,
+      };
+    },
+
+    logout(state, action: PayloadAction<null>) {
+      return {
+        ...state,
+        token: null,
+        username: "",
+        name: "",
+        loading: false,
+        error: null,
+        isGoogleAuth: false,
+      };
+    },
+
+    setToken(state, action: PayloadAction<string | null>) {
+      return {
+        ...state,
+        token: action.payload,
+      };
     },
   },
 });
 
-export const { setAuthData, logout } = authSlice.actions;
+export const { setAuthData, setGoogleAuthData, logout, setToken } =
+  authSlice.actions;
 
 // export const
 
@@ -55,6 +70,5 @@ export default authSlice.reducer;
 
 export const selectName = (state: RootState) => state.auth.name;
 export const selectUsername = (state: RootState) => state.auth.username;
-export const selectUsers = (state: RootState) => state.auth.users;
-
-
+export const selectIsGoogleAuth = (state: RootState) => state.auth.isGoogleAuth;
+export const selectToken = (state: RootState) => state.auth.token;

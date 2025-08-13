@@ -7,7 +7,6 @@ import { Login } from "./pages/Login/Login";
 import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Settings } from "./pages/Settings/Settings";
 import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
-import UBMessenger from "./components/UBMessenger/UBMessenger";
 import { UsersTable } from "./common/crudTables/usersTable";
 import { IncidentReportTable } from "./common/crudTables/incidentReportsTable";
 import { BuildingsTable } from "./common/crudTables/buildingsTable";
@@ -30,14 +29,16 @@ const App: React.FC = () => {
     <Loader />
   ) : (
     <Routes>
+      {/* Public routes */}
       <Route path="/login" element={<Login />} />
+      {/* Protected routes */}
       <Route element={<UBPrivateRoute />}>
         <Route
           path="*"
           element={
             <DefaultLayout>
               <Routes>
-                <Route index element={<Dashboard />} />
+                <Route path="/Dashboard" element={<Dashboard />} />
                 <Route path="/Settings" element={<Settings />} />
                 <Route path="/Messages" element={<WhatsappWeb />} />
                 <Route

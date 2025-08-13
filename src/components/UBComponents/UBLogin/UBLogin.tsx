@@ -1,149 +1,195 @@
-import React, { useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import UBLogo from "../../../../src/images/UB_Logo.png";
-import {
-  Container,
-  CssBaseline,
-  Box,
-  Button,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { Container, CssBaseline, Box, Button, Alert } from "@mui/material";
+import { useSelector } from "react-redux";
 import { RootState } from "../../../../store/store";
-import { setAuthData } from "../../../../store/features/authSlice";
 import { useLoginMutation } from "../../../../store/services/authAPI";
-import { useNavigate } from "react-router-dom";
+import { API_HOST } from "../../../../store/config/api";
+import GoogleIcon from "@mui/icons-material/Google";
+
+const defaultTheme = createTheme();
+
+interface LoginCredentials {
+  username: string;
+  password: string;
+}
 
 export const UBLogin: React.FC = () => {
-  const dispatch = useDispatch();
-  const username = useSelector((state: RootState) => state.auth.username);
-  const [password, setPassword] = useState("");
-  const [login] = useLoginMutation();
-  const [warning, setWarning] = useState<string | null>(null); // State for warning message
+  const { loading } = useSelector((state: RootState) => state.auth);
+
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginCredentials>();
+
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogin = async () => {
-    setWarning(null); // Clear warning on each login attempt
+  // Memoize the unauthorized check to avoid recalculation
+  const isUnauthorized = useMemo(() => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get("unauthorized") === "true";
+  }, [location.search]);
 
-    if (!username || !password) {
-      setWarning("Username and Password are required.");
-      return;
-    }
+  const [
+    login,
+    { data: loginResult, error: loginError, isSuccess: loginIsSuccess },
+  ] = useLoginMutation();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const handleLogin = async (credentials: LoginCredentials) => {
     try {
-      const response = await login({ username, password }).unwrap();
-      console.log("Login successful:", response);
-
-      // Dispatch data to the Redux store
-      dispatch(setAuthData(response));
-      navigate("/"); // Navigate to the next page
-    } catch (err) {
-      console.error("Login failed:", err);
-      setWarning("Invalid username or password."); // Display a warning if login fails
+      await login(credentials);
+    } catch (error: any) {
+      setErrorMessage("Login failed. Please try again.");
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter") {
-      handleLogin();
-    }
+  const handleGoogleLogin = () => {
+    window.location.href = `${API_HOST}/auth/google/redirect`;
   };
 
+  // Handle login response
+  useEffect(() => {
+    if (loginError) {
+      setErrorMessage("Mismatch username/password");
+    } else if (loginResult) {
+      if (loginResult.success) {
+        navigate("/");
+      } else {
+        setErrorMessage(loginResult.message || "Login failed");
+      }
+    }
+  }, [loginResult, loginError, loginIsSuccess, navigate]);
   return (
-    <Box
-      sx={{
-        backgroundColor: "#6C3777",
-        minHeight: "100vh",
-        minWidth: "100vw",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Container
-        component="main"
-        maxWidth="xs"
+    <ThemeProvider theme={defaultTheme}>
+      <Box
         sx={{
-          backgroundColor: "#fff",
-          borderRadius: "5%",
-          padding: "3%",
+          backgroundColor: "#6C3777",
+          minHeight: "100vh",
+          minWidth: "100vw",
           display: "flex",
-          flexDirection: "column",
           justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        <CssBaseline />
-        <Box
+        <Container
+          component="main"
+          maxWidth="xs"
           sx={{
+            backgroundColor: "#fff",
+            borderRadius: "5%",
+            padding: "3%",
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <Box sx={{ mb: 2 }}>
-            <img
-              src={UBLogo}
-              alt="UB Logo"
-              style={{
-                width: "100%",
-                height: "70%",
-                transition: "width 0.3s, height 0.3s",
-              }}
-            />
-          </Box>
-
-          <TextField
-            sx={{ mb: 2, mt: "-7%", width: "100%" }}
-            id="outlined-textarea"
-            label="Username"
-            placeholder=""
-            multiline
-            value={username}
-            onChange={(e) =>
-              dispatch(setAuthData({ username: e.target.value }))
-            }
-          />
-
-          <TextField
-            sx={{ mb: 2, width: "100%" }}
-            id="password"
-            label="Password"
-            placeholder=""
-            type="password"
-            multiline={false}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-
-          {warning && (
-            <Typography
-              sx={{
-                color: "red",
-                mb: 2,
-                fontSize: "14px",
-                textAlign: "center",
-              }}
-            >
-              {warning}
-            </Typography>
-          )}
-
-          <Button
-            onClick={handleLogin}
+          <CssBaseline />
+          <Box
             sx={{
-              width: "50%",
-              backgroundColor: "#6C3777",
-              color: "white",
-              borderRadius: "20px",
-              mb: "-5%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
-            Login
-          </Button>
-        </Box>
-      </Container>
-    </Box>
+            <Box sx={{ mb: 2 }}>
+              <img
+                src={UBLogo}
+                alt="UB Logo"
+                style={{
+                  width: "100px",
+                  height: "70px",
+                  transition: "width 0.3s, height 0.3s",
+                }}
+              />
+            </Box>
+
+            {/* Display unauthorized banner */}
+            {isUnauthorized && (
+              <Alert
+                severity="error"
+                sx={{
+                  mb: 2,
+                  width: "100%",
+                  backgroundColor: "#f44336",
+                  color: "white",
+                  "& .MuiAlert-icon": {
+                    color: "white",
+                  },
+                }}
+              >
+                User is not authorized to use this application
+              </Alert>
+            )}
+
+            {/* Display error message */}
+            {errorMessage && (
+              <Alert
+                severity="error"
+                sx={{ mb: 2, width: "100%" }}
+                onClose={() => setErrorMessage(null)}
+              >
+                {errorMessage}
+              </Alert>
+            )}
+
+            <Box
+              component="form"
+              onSubmit={handleSubmit(handleLogin)}
+              sx={{ mt: 1, width: "100%" }}
+            >
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={handleGoogleLogin}
+                disabled={loading}
+                sx={{
+                  mt: 1,
+                  mb: 2,
+                  borderColor: "#4285f4",
+                  color: "#4285f4",
+                  "&:hover": {
+                    borderColor: "#3367d6",
+                    backgroundColor: "rgba(66, 133, 244, 0.04)",
+                  },
+                }}
+                startIcon={
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill="#4285f4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34a853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#fbbc05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#ea4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                }
+              >
+                Continue with Google
+              </Button>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+    </ThemeProvider>
   );
 };
 

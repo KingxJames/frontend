@@ -47,8 +47,6 @@ export const BuildingsTable: React.FC = () => {
   const [newBuilding, setNewBuilding] = useState({
     name: "",
     location: "",
-    // campusId: 0,
-    // campus: "",
   });
   const [selectedBuilding, setSelectedBuilding] = useState<{
     id: number;
@@ -80,6 +78,7 @@ export const BuildingsTable: React.FC = () => {
         building.name?.toLowerCase().includes(search.toLowerCase())
       )
     : [];
+    console.log("filteredBuildings", filteredBuildings);
 
   // Handle delete
   const handleDelete = async (id: number) => {
@@ -105,7 +104,8 @@ export const BuildingsTable: React.FC = () => {
       ["Building,Building Location,Campus"]
         .concat(
           buildings.buildings.map(
-            (building) => `${building.name},${building.location}, ${building.campus}`
+            (building) =>
+              `${building.name},${building.location}, ${building.campus}`
           )
         )
         .join("\n");
@@ -303,7 +303,7 @@ export const BuildingsTable: React.FC = () => {
             onChange={(e) =>
               setNewBuilding({ ...newBuilding, name: e.target.value })
             }
-            sx={{mt: "2%", marginBottom: 2 }} // Adds spacing
+            sx={{ mt: "2%", marginBottom: 2 }} // Adds spacing
           />
           <TextField
             label="Building Location"

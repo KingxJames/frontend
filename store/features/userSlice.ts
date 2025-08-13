@@ -70,8 +70,12 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setUsers, addUsers, updateUsers, deleteUsers, updateProfilePicture } =
-  userSlice.actions;
+export const {
+  setUsers,
+  addUsers,
+  updateUsers,
+  deleteUsers,
+  updateProfilePicture,
+} = userSlice.actions;
 export const selectUsers = (state: RootState) => state.users;
-// export const selectUser = (state: RootState) => state.user.users; // Assuming 'users' is the array in the state
 export default userSlice.reducer;

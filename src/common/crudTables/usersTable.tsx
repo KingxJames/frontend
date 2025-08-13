@@ -5,16 +5,12 @@ import Grid from "@mui/material/Grid";
 
 import {
   IconButton,
-  Avatar,
-  Box,
   Button,
   TextField,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  CircularProgress,
-  Tooltip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -54,8 +50,6 @@ export const UsersTable: React.FC = () => {
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openEdit, setOpenEdit] = useState(false);
-  const [loading, setLoading] = useState(false);
-
   const [selectedUser, setSelectedUser] = useState<{
     id: number;
     name: string;
@@ -117,6 +111,7 @@ export const UsersTable: React.FC = () => {
         user.name?.toLowerCase().includes(search.toLowerCase())
       )
     : [];
+  console.log("filteredUsers", filteredUsers);
 
   // Handle delete
   const handleDelete = async (id: number) => {
@@ -174,6 +169,7 @@ export const UsersTable: React.FC = () => {
     domain: string;
   }) => {
     setSelectedUser(user); // Ensure selectedRole is set
+    console.log("selectedUser", selectedUser);
     setSelectedRole({
       id: user.roleId,
       roles: user.roles,
@@ -341,6 +337,7 @@ export const UsersTable: React.FC = () => {
         columns={columns}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10]}
+        // getRowId={(row) => row.id}
         disableRowSelectionOnClick
       />
 
