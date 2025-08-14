@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { Box, CircularProgress } from "@mui/material";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../store/store";
 import { validateToken } from "../../../store/services/authAPI";
 import { setGoogleAuthData } from "../../../store/features/authSlice";
+import { setMenuState } from "../../../store/features/menuSlice";
 
 interface User {
   id: string;
@@ -54,12 +53,12 @@ export const UBPrivateRoute = () => {
           })
         );
 
-        // // Set menu from userData
-        // if (userData.user.menus && userData.user.menus.length) {
-        //   dispatch(setMenuState(userData.user.menus));
-        //   navigate(userData.user.menus[0].path);
-        //   // redirect here
-        // }
+        // Set menu from userData
+        if (userData.user.menus && userData.user.menus.length) {
+          dispatch(setMenuState(userData.user.menus));
+          navigate(userData.user.menus[0].path);
+          // redirect here
+        }
 
         setUser(userData);
       } catch (error: any) {

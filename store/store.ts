@@ -64,7 +64,7 @@ const rootReducer = combineReducers({
   incidentReports: incidentReportReducer,
   accessRights: accessRightReducer,
   menuRoles: menuRoleReducer,
-  menus: menuReducer,
+  menu: menuReducer,
   recipients: recipientReducer,
   subMenus: subMenuReducer,
   userCampuses: userCampusesReducer,

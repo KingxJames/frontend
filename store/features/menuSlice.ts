@@ -2,45 +2,34 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 export interface IMenu {
-  id: number;
+  id: string;
   name: string;
-  icon: string;
   path: string;
+  icon: string;
+  order: number;
+  is_active: boolean;
 }
 
 export interface IMenuInitialState {
-  menus: IMenu[];
+  menu: IMenu[];
 }
 
 const initialState: IMenuInitialState = {
-  menus: [],
+  menu: [],
 };
 
-export const menuSlice = createSlice({
+const menuSlice = createSlice({
   name: "menu",
   initialState,
   reducers: {
-    setMenus: (state, action: PayloadAction<IMenu[]>) => {
-      state.menus = action.payload;
+    setMenuState: (state, action: PayloadAction<IMenu[]>) => {
+      state.menu = action.payload;
     },
-    addMenus: (state, action: PayloadAction<IMenu>) => {
-      state.menus.push(action.payload); // Push new role directly into the array
-    },
-
-    updateMenus: (state, action: PayloadAction<IMenu>) => {
-      const index = state.menus.findIndex(
-        (menu) => menu.id === action.payload.id
-      );
-      if (index !== -1) {
-        state.menus[index] = { ...state.menus[index], ...action.payload };
-      }
-    },
-    deleteMenus: (state, action: PayloadAction<number>) => {
-      state.menus = state.menus.filter((menus) => menus.id !== action.payload);
-    },
+    resetMenuState: () => initialState,
   },
 });
 
-export const { setMenus, addMenus, updateMenus, deleteMenus } = menuSlice.actions;
-export const selectMenus = (state: RootState) => state.menus;
+export const { setMenuState, resetMenuState } = menuSlice.actions;
+menuSlice.actions;
+export const selectMenuState = (state: RootState) => state.menu.menu;
 export default menuSlice.reducer;
