@@ -13,6 +13,7 @@ import { BuildingsTable } from "./common/crudTables/buildingsTable";
 import UBMessengerListAnonymous from "./components/UBMessenger/UBMessengerList/UBMessengerListAnonymous";
 import WhatsappWeb from "./pages/WhatsappWeb/WhatsappWeb";
 import NotFound from "./pages/NotFound/NotFound";
+import { FormNames } from "./pages/Forms/FormNames";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -42,6 +43,7 @@ const App: React.FC = () => {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/Settings" element={<Settings />} />
                 <Route path="/Messages" element={<WhatsappWeb />} />
+                <Route path="/Forms" element={<FormNames />} />
                 <Route
                   path="/anonymous"
                   element={<UBMessengerListAnonymous />}
