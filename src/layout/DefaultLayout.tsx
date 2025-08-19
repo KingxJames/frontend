@@ -18,7 +18,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
       {/* <!-- ===== Page Wrapper Start ===== --> */}
       <div className="flex h-screen overflow-hidden">
         {/* <!-- ===== UBSidebar Start ===== --> */}
-        <UBSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <UBSidebar open={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         {/* <!-- ===== UBSidebar End ===== --> */}
 
         {/* <!-- ===== Content Area Start ===== --> */}

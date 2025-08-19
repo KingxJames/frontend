@@ -7,6 +7,7 @@ import MessageIcon from "@mui/icons-material/Message";
 import ReportIcon from "@mui/icons-material/Report";
 import SettingsIcon from "@mui/icons-material/Settings";
 import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
+import MenuIcon from "@mui/icons-material/Menu";
 import {
   Box,
   List,
@@ -91,13 +92,40 @@ export const UBSidebar: React.FC<UBSidebarProps> = ({
   return (
     <Box
       ref={sidebar}
-      className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden duration-300 ease-linear lg:static lg:translate-x-0
-     ${open ? "translate-x-0" : "-translate-x-full"} }
-       bg-[#6C3777] dark:bg-black`}
+      sx={{
+        position: { xs: "absolute", lg: "static" },
+        left: 0,
+        top: 0,
+        zIndex: 9999,
+        height: "100vh",
+        width: { xs: "25%", lg: "17%" },
+        display: "flex",
+        flexDirection: "column",
+        overflowY: "hidden",
+        transition: "width 0.3s ease",
+        bgcolor: "#6C3777",
+        color: "white",
+        transform: {
+          xs: open ? "translateX(0)" : "translateX(-100%)", // mobile hides it
+          lg: "translateX(0)", // always open on desktop
+        },
+      }}
     >
-      <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-2.5">
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          alignItems: "center",
+          transition: "width 0.3s ease",
+          bgcolor: "#6C3777",
+          color: "white",
+          gap: 2,
+          px: 6,
+          py: 5.5,
+        }}
+      >
         <NavLink to="/">{<img src={UBLogoWhite} alt="UBLogo" />}</NavLink>
-
         <button
           ref={trigger}
           onClick={() => setSidebarOpen(!open)}
@@ -105,7 +133,8 @@ export const UBSidebar: React.FC<UBSidebarProps> = ({
           aria-expanded={open}
           className="block lg:hidden"
         ></button>
-      </div>
+      </Box>
+
       <List sx={{ p: 0 }}>
         {menuItems.map((item: IMenu) => (
           <ListItem
@@ -139,7 +168,6 @@ export const UBSidebar: React.FC<UBSidebarProps> = ({
               {renderNameComponent(item.name)}
             </ListItemIcon>
             <ListItemText
-              primary={item.name}
               sx={{
                 opacity: open ? 1 : 0,
                 transition: "opacity 0.2s ease",

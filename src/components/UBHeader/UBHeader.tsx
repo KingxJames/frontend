@@ -1,11 +1,10 @@
-import { Link } from "react-router-dom";
 import { Box, IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { DropdownUser } from "./DropdownUser/DropdownUser";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export const UBHeader = (props: {
-  sidebarOpen: string | boolean | undefined;
+  sidebarOpen: boolean;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
   const navigate = useNavigate();
@@ -59,13 +58,13 @@ export const UBHeader = (props: {
           </button>
           {/* <!-- Hamburger Toggle BTN --> */}
         </div>
-        <IconButton 
+        <IconButton
           onClick={() => navigate(-1)}
-          sx={{ 
-            color: 'text.primary',
-            '&:hover': {
-              backgroundColor: 'action.hover'
-            }
+          sx={{
+            color: "text.primary",
+            "&:hover": {
+              backgroundColor: "action.hover",
+            },
           }}
         >
           <ArrowBackIcon />
