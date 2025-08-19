@@ -12,6 +12,7 @@ import { IncidentReportTable } from "./common/crudTables/incidentReportsTable";
 import { BuildingsTable } from "./common/crudTables/buildingsTable";
 import UBMessengerListAnonymous from "./components/UBMessenger/UBMessengerList/UBMessengerListAnonymous";
 import WhatsappWeb from "./pages/WhatsappWeb/WhatsappWeb";
+import NotFound from "./pages/NotFound/NotFound";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -38,7 +39,7 @@ const App: React.FC = () => {
           element={
             <DefaultLayout>
               <Routes>
-                <Route path="/Dashboard" element={<Dashboard />} />
+                <Route path="/" element={<Dashboard />} />
                 <Route path="/Settings" element={<Settings />} />
                 <Route path="/Messages" element={<WhatsappWeb />} />
                 <Route
@@ -56,7 +57,9 @@ const App: React.FC = () => {
           }
         ></Route>
       </Route>
-      <Route path="/*" element={<Navigate to={"/Login"} />} />
+      {/* 404 Not Found */}
+      <Route path="/404" element={<NotFound />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

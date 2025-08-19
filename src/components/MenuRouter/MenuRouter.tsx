@@ -61,10 +61,10 @@ export const MenuRouter: React.FC<MenuRouterProps> = ({ children }) => {
           if (firstAvailableMenu) {
             navigate(firstAvailableMenu.path, { replace: true });
           } else {
-            navigate("/Dashboard", { replace: true });
+            navigate("/", { replace: true });
           }
         } else {
-          navigate("/Dashboard", { replace: true });
+          navigate("/", { replace: true });
         }
       } else {
         // Route doesn't exist, redirect to 404

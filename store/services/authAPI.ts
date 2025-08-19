@@ -54,7 +54,7 @@ export const validateToken = async () => {
   if (!token) return false;
 
   try {
-    const res = await fetch(`${API_HOST}/api/user`, {
+    const res = await fetch(`${API_HOST}/api/publicSafety/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",

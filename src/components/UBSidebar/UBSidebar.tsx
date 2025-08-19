@@ -1,35 +1,83 @@
-import { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectMenuState } from "../../../store/features/menuSlice";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import MessageIcon from "@mui/icons-material/Message";
 import ReportIcon from "@mui/icons-material/Report";
 import SettingsIcon from "@mui/icons-material/Settings";
 import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from "@mui/material";
 import UBLogoWhite from "../../images/UBLogoWhite.png";
+import { IMenu } from "../../../store/features/menuSlice";
 
-interface UBISidebarProps {
-  sidebarOpen: boolean;
+interface UBSidebarProps {
+  open?: boolean;
   setSidebarOpen: (arg: boolean) => void;
 }
 
-export const UBSidebar = ({ sidebarOpen, setSidebarOpen }: UBISidebarProps) => {
+export const UBSidebar: React.FC<UBSidebarProps> = ({
+  open,
+  setSidebarOpen,
+}) => {
   const location = useLocation();
-  const { pathname } = location;
+  const menuItems = useSelector(selectMenuState);
+
+  const renderIconComponent = (iconString: string) => {
+    switch (iconString) {
+      case "DashboardIcon":
+        return <DashboardIcon />;
+      case "MessageIcon":
+        return <MessageIcon />;
+      case "ReportIcon":
+        return <ReportIcon />;
+      case "SettingsIcon":
+        return <SettingsIcon />;
+      case "FormIcon":
+        return <FormatAlignJustifyIcon />;
+      default:
+        return <></>;
+    }
+  };
+
+  const renderNameComponent = (name: string) => {
+    switch (name) {
+      case "Dashboard":
+        return <Typography>Dashboard</Typography>;
+      case "Message":
+        return <Typography>Messages</Typography>;
+      case "Reports":
+        return <Typography>Reports</Typography>;
+      case "Settings":
+        return <Typography>Settings</Typography>;
+      case "Form":
+        return <Typography>Forms</Typography>;
+      default:
+        return <></>;
+    }
+  };
+
+  // Don't render sidebar if there's only one menu item
+  if (menuItems.length <= 1) {
+    return null;
+  }
 
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
-
-  const storedSidebarExpanded = localStorage.getItem("sidebar-expanded");
-  const [sidebarExpanded] = useState(
-    storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
-  );
 
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }: MouseEvent) => {
       if (!sidebar.current || !trigger.current) return;
       if (
-        !sidebarOpen ||
+        !open ||
         sidebar.current.contains(target) ||
         trigger.current.contains(target)
       )
@@ -40,132 +88,68 @@ export const UBSidebar = ({ sidebarOpen, setSidebarOpen }: UBISidebarProps) => {
     return () => document.removeEventListener("click", clickHandler);
   });
 
-  // close if the esc key is pressed
-  useEffect(() => {
-    const keyHandler = ({ keyCode }: KeyboardEvent) => {
-      if (!sidebarOpen || keyCode !== 27) return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
-  });
-
-  useEffect(() => {
-    localStorage.setItem("sidebar-expanded", sidebarExpanded.toString());
-    if (sidebarExpanded) {
-      document.querySelector("body")?.classList.add("sidebar-expanded");
-    } else {
-      document.querySelector("body")?.classList.remove("sidebar-expanded");
-    }
-  }, [sidebarExpanded]);
-
   return (
-    <aside
+    <Box
       ref={sidebar}
       className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden duration-300 ease-linear lg:static lg:translate-x-0
-      ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} }
-      bg-[#6C3777] dark:bg-black`}
+     ${open ? "translate-x-0" : "-translate-x-full"} }
+       bg-[#6C3777] dark:bg-black`}
     >
-      {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-2.5">
         <NavLink to="/">{<img src={UBLogoWhite} alt="UBLogo" />}</NavLink>
 
         <button
           ref={trigger}
-          onClick={() => setSidebarOpen(!sidebarOpen)}
+          onClick={() => setSidebarOpen(!open)}
           aria-controls="sidebar"
-          aria-expanded={sidebarOpen}
+          aria-expanded={open}
           className="block lg:hidden"
         ></button>
       </div>
-      {/* <!-- SIDEBAR HEADER --> */}
-
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-        {/* <!-- Sidebar Menu --> */}
-        <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
-          {/* <!-- Menu Group --> */}
-          <div>
-            <h3 className="mb-4 ml-4 mt-[-10%] text-sm font-semibold text-bodydark2">
-              MENU
-            </h3>
-
-            <ul className="mb-6 flex flex-col gap-1.5">
-              {/* <!-- Menu Item Dashboard --> */}
-              <li>
-                <NavLink
-                  to="/"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("Dashboard") &&
-                    "bg-graydark dark:bg-meta-4"
-                  }`}
-                >
-                  <DashboardIcon />
-                  Dashboard
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item Dashboard --> */}
-
-              {/* <!-- Menu Item Messages --> */}
-              <li>
-                <NavLink
-                  to="/Messages"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("Message") && "bg-graydark dark:bg-meta-4"
-                  }`}
-                >
-                  <MessageIcon />
-                  Message
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item Messages --> */}
-
-              {/* <!-- Menu Item Reports --> */}
-              <li>
-                <NavLink
-                  to="/Reports"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4
-                  }`}
-                >
-                  <ReportIcon />
-                  Reports
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item Reports --> */}
-
-              {/* <!-- Menu Item Forms --> */}
-              <li>
-                <NavLink
-                  to="/Forms"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("Forms") && "bg-graydark dark:bg-meta-4"
-                  }`}
-                >
-                  <FormatAlignJustifyIcon />
-                  Forms
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item Forms --> */}
-
-              {/* <!-- Menu Item Settings --> */}
-              <li>
-                <NavLink
-                  to="/settings"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("settings") &&
-                    "bg-graydark dark:bg-meta-4"
-                  }`}
-                >
-                  <SettingsIcon />
-                  Settings
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item Settings --> */}
-            </ul>
-          </div>
-        </nav>
-        {/* <!-- Sidebar Menu --> */}
-      </div>
-    </aside>
+      <List sx={{ p: 0 }}>
+        {menuItems.map((item: IMenu) => (
+          <ListItem
+            key={item.id}
+            component={Link}
+            to={item.path}
+            sx={{
+              minHeight: 48,
+              justifyContent: open ? "initial" : "center",
+              px: 2.5,
+              color: "white",
+              backgroundColor:
+                location.pathname === item.path
+                  ? "rgba(255, 255, 255, 0.2)"
+                  : "transparent",
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.15)",
+              },
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: open ? 1 : "auto",
+                justifyContent: "center",
+                color: "inherit",
+                gap: 2, // Adds 8px spacing between items
+              }}
+            >
+              {renderIconComponent(item.icon)}
+              {renderNameComponent(item.name)}
+            </ListItemIcon>
+            <ListItemText
+              primary={item.name}
+              sx={{
+                opacity: open ? 1 : 0,
+                transition: "opacity 0.2s ease",
+                whiteSpace: "nowrap",
+              }}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Box>
   );
 };
 

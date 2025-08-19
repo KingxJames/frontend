@@ -2,9 +2,9 @@ import React from "react";
 import { Box, Typography, Button, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectMenuState } from "../../store/features/menuSlice";
-import { IMenu } from "../../store/features/menuSlice";
-import UBLogo from "../../components/icons/UB_Logo.png";
+import { selectMenuState } from "../../../store/features/menuSlice";
+import { IMenu } from "../../../store/features/menuSlice";
+import UBLogo from "../../images/UBLogoWhite.png";
 
 export const NotFound: React.FC = () => {
   const navigate = useNavigate();
@@ -93,8 +93,8 @@ export const NotFound: React.FC = () => {
               lineHeight: 1.6,
             }}
           >
-            The page you're looking for doesn't exist or has been moved. 
-            Please check the URL or use the navigation below.
+            The page you're looking for doesn't exist or has been moved. Please
+            check the URL or use the navigation below.
           </Typography>
 
           {/* Action Buttons */}
@@ -147,7 +147,8 @@ export const NotFound: React.FC = () => {
                 fontSize: "0.875rem",
               }}
             >
-              If you believe this is an error, please contact the system administrator.
+              If you believe this is an error, please contact the system
+              administrator.
             </Typography>
           </Box>
         </Box>
@@ -156,4 +157,4 @@ export const NotFound: React.FC = () => {
   );
 };
 
-export default NotFound; 
+export default NotFound;

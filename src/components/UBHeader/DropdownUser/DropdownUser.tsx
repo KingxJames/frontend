@@ -4,21 +4,35 @@ import ClickOutside from "../../../common/ClickOutside";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-import Avatar from "@mui/material/Avatar";
-
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../../../store/store";
-import { logout } from "../../../../store/features/authSlice";
+import {
+  selectName,
+  setGoogleAuthData,
+} from "../../../../store/features/authSlice";
+import { useNavigate } from "react-router-dom";
+import {
+  useLogoutMutation,
+  validateToken,
+} from "../../../../store/services/authAPI";
 
 export const DropdownUser: React.FC = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const name = useSelector((state: RootState) => state.auth.name);
+  const name = useSelector(selectName);
+  // const name = useSelector((state: RootState) => state.auth.name);
+  const [logout] = useLogoutMutation();
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    try {
+      await logout(null).unwrap();
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
+  
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
       <Link

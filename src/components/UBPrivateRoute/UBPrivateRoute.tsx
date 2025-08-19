@@ -10,7 +10,6 @@ interface User {
   id: string;
   name: string;
   email: string;
-  // Add other user properties as needed
 }
 
 export const UBPrivateRoute = () => {
@@ -52,6 +51,8 @@ export const UBPrivateRoute = () => {
             email: userData.user.email,
           })
         );
+
+        console.log("--->", userData.user.name);
 
         // Set menu from userData
         if (userData.user.menus && userData.user.menus.length) {
