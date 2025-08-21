@@ -1,20 +1,20 @@
 import { baseAPI } from "./baseAPI";
-import { IBuilding } from "../features/buildingSlice";
+import { IBuilding, setBuildings } from "../features/buildingSlice";
 
 export const buildingsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchBuildings: builder.query<IBuilding[], void>({
+    fetchBuildings: builder.query<IBuilding, void>({
       query: () => ({
         url: "/publicSafety/buildings",
         method: "GET",
       }),
-      transformResponse: (response: { data: IBuilding[] }) => {
-        console.log("API Response:", response); // Log full response
-        console.log("Transformed Data:", response.data); // Log extracted data
+      transformResponse: (response: { data: IBuilding }) => {
+        console.log(response.data);
+
         return response.data;
       },
     }),
-    fetchBuildingById: builder.query<IBuilding, number>({
+    fetchBuildingById: builder.query<IBuilding, string>({
       query: (id) => ({
         url: `/publicSafety/buildings/${id}`,
         method: "GET",

@@ -33,7 +33,7 @@ export const authSlice = createSlice({
         ...state,
         token: action.payload.token,
         username: action.payload?.email || "",
-        name: action.payload.user?.name || "",
+        name: action.payload?.name || "",
         loading: false,
         error: null,
         isGoogleAuth: true,

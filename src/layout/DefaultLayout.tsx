@@ -8,17 +8,21 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const location = useLocation();
 
   // Define routes where UBHeader should be hidden
-  const hiddenHeaderRoutes = ["/Messages"];
+  const hiddenHeaderRoutes = ["/messages", "/forms/incidentReportForm"];
+  const hiddenSidebarRoutes = ["/forms/incidentReportForm"];
 
   // Check if current route is in the hidden list
   const hideHeader = hiddenHeaderRoutes.includes(location.pathname);
+  const hideSidebar = hiddenSidebarRoutes.includes(location.pathname);
 
   return (
     <div className="dark:bg-boxdark-2 dark:text-bodydark">
       {/* <!-- ===== Page Wrapper Start ===== --> */}
       <div className="flex h-screen overflow-hidden">
         {/* <!-- ===== UBSidebar Start ===== --> */}
-        <UBSidebar open={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        {!hideSidebar && (
+          <UBSidebar open={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        )}
         {/* <!-- ===== UBSidebar End ===== --> */}
 
         {/* <!-- ===== Content Area Start ===== --> */}

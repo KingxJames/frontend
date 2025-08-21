@@ -1,17 +1,24 @@
 import { baseAPI } from "./baseAPI";
-import { ICampus } from "../features/campusSlice";
+import {
+  CampusInitialState,
+  ICampus,
+  setCampuses,
+} from "../features/campusSlice";
 
 export const campusAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchCampuses: builder.query<ICampus[], void>({
+    fetchCampuses: builder.query({
       query: () => ({
         url: "/publicSafety/campuses",
         method: "GET",
       }),
-      transformResponse: (response: { data: ICampus[] }) => {
-        console.log("API Response:", response); // Log full response
-        console.log("Transformed Data:", response.data); // Log extracted data
-        return response.data;
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setCampuses(data as ICampus[]));
+        } catch (error) {
+          console.error("Failed to fetch campuses:", error);
+        }
       },
     }),
     fetchCampusById: builder.query<ICampus, string>({
@@ -20,18 +27,18 @@ export const campusAPI = baseAPI.injectEndpoints({
         method: "GET",
       }),
     }),
-    createCampuses: builder.mutation<ICampus, Partial<ICampus>>({
-      query: (campus) => ({
+    createCampuses: builder.mutation({
+      query: (body: Partial<CampusInitialState>) => ({
         url: "/publicSafety/campuses",
         method: "POST",
-        body: campus,
+        body,
       }),
     }),
-    updateCampuses: builder.mutation<ICampus, { id: number; campus: string }>({
+    updateCampuses: builder.mutation<ICampus, { id: number; campus: string}>({
       query: ({ id, campus }) => ({
         url: `/publicSafety/campuses/${id}`,
         method: "PUT",
-        body: {id, campus},
+        body: { id, campus },
       }),
     }),
     deleteCampuses: builder.mutation<void, string>({

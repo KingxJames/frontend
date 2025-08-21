@@ -25,21 +25,19 @@ import { useFetchCampusesQuery } from "../../../store/services/campusAPI";
 
 import {
   setBuildings,
-  updateBuildings,
-  addBuildings,
-  deleteBuildings,
+  // updateBuildings,
+  // addBuildings,
+  // deleteBuildings,
   selectBuildings,
 } from "../../../store/features/buildingSlice";
-
-import { updateCampuses } from "../../../store/features/campusSlice";
 
 export const BuildingsTable: React.FC = () => {
   const dispatch = useDispatch();
   const { data: buildingsData, refetch } = useFetchBuildingsQuery();
   const { data: campusData } = useFetchCampusesQuery();
-  const [createBuilding] = useCreateBuildingsMutation();
-  const [deleteBuilding] = useDeleteBuildingsMutation();
-  const [updateBuilding] = useUpdateBuildingsMutation();
+  // const [createBuilding] = useCreateBuildingsMutation();
+  // const [deleteBuilding] = useDeleteBuildingsMutation();
+  // const [updateBuilding] = useUpdateBuildingsMutation();
   const buildings = useSelector(selectBuildings);
   const [search, setSearch] = useState("");
   const [openAdd, setOpenAdd] = useState(false);
@@ -60,154 +58,157 @@ export const BuildingsTable: React.FC = () => {
     campus: string;
   } | null>(null);
 
-  useEffect(() => {
-    if (buildingsData) {
-      // Map campusId to campus name (example logic)
-      const mappedBuildings = buildingsData.map((building) => ({
-        ...building,
-        campus:
-          campusData?.find((campus) => campus.id === building.campusId)
-            ?.campus || "",
-      }));
-      dispatch(setBuildings(mappedBuildings));
-    }
-  }, [buildingsData, campusData, dispatch]);
+  
+
+  // useEffect(() => {
+  //   if (buildingsData) {
+  //     // Map campusId to campus name (example logic)
+  //     const mappedBuildings = buildingsData?.map((building => ({
+  //       ...building,
+  //       campus:
+  //         campusData?.find((campus) => campus.id === building.campusId)
+  //           ?.campus || "Unknown Campus",
+  //     }));
+  //     dispatch(setBuildings(mappedBuildings));
+  //   }
+  // }, [buildingsData, campusData, dispatch]);
+
+  // console.log("Buildings Data:", buildingsData);
 
   const filteredBuildings = buildings.buildings
     ? buildings.buildings.filter((building) =>
         building.name?.toLowerCase().includes(search.toLowerCase())
       )
     : [];
-    console.log("filteredBuildings", filteredBuildings);
+  console.log("filteredBuildings", filteredBuildings);
 
   // Handle delete
-  const handleDelete = async (id: number) => {
-    try {
-      const buildingToDelete = buildings.buildings.find(
-        (building) => building.id === id
-      );
-      if (buildingToDelete) {
-        await deleteBuilding(buildingToDelete.id.toString()).unwrap(); // Call the delete mutation
-        dispatch(deleteBuildings(buildingToDelete.id)); // Update Redux store
+  // const handleDelete = async (id: number) => {
+  //   try {
+  //     const buildingToDelete = buildings.buildings.find(
+  //       (building) => building.id === id
+  //     );
+  //     if (buildingToDelete) {
+  //       await deleteBuilding(buildingToDelete.id.toString()).unwrap(); // Call the delete mutation
+  //       dispatch(deleteBuildings(buildingToDelete.id)); // Update Redux store
 
-        // Force re-fetch to get the latest data
-        await refetch();
-      }
-    } catch (error) {
-      console.error("Error deleting role:", error);
-    }
-  };
+  //       // Force re-fetch to get the latest data
+  //       await refetch();
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting role:", error);
+  //   }
+  // };
 
-  const handleExport = () => {
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      ["Building,Building Location,Campus"]
-        .concat(
-          buildings.buildings.map(
-            (building) =>
-              `${building.name},${building.location}, ${building.campus}`
-          )
-        )
-        .join("\n");
+  // const handleExport = () => {
+  //   const csvContent =
+  //     "data:text/csv;charset=utf-8," +
+  //     ["Building,Building Location,Campus"]
+  //       .concat(
+  //         buildings.buildings.map(
+  //           (building) =>
+  //             `${building.name},${building.location}, ${building.campus}`
+  //         )
+  //       )
+  //       .join("\n");
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "buildings.csv");
-    document.body.appendChild(link);
-    link.click();
-  };
+  //   const encodedUri = encodeURI(csvContent);
+  //   const link = document.createElement("a");
+  //   link.setAttribute("href", encodedUri);
+  //   link.setAttribute("download", "buildings.csv");
+  //   document.body.appendChild(link);
+  //   link.click();
+  // };
 
-  const handleAddBuilding = async () => {
-    if (
-      !newBuilding.name.trim() ||
-      !newBuilding.location.trim() ||
-      !selectedCampus?.campus
-    ) {
-      alert("All fields are required.");
-      return;
-    }
+  // const handleAddBuilding = async () => {
+  //   if (
+  //     !newBuilding.name.trim() ||
+  //     !newBuilding.location.trim() ||
+  //     !selectedCampus?.campus
+  //   ) {
+  //     alert("All fields are required.");
+  //     return;
+  //   }
 
-    try {
-      const buildingData = {
-        name: newBuilding.name.trim(),
-        location: newBuilding.location.trim(),
-        campusId: selectedCampus.id, // Use selectedCampus ID
-        campus: selectedCampus.campus, // Use selectedCampus name
-      };
+  //   try {
+  //     const buildingData = {
+  //       name: newBuilding.name.trim(),
+  //       location: newBuilding.location.trim(),
+  //       campusId: selectedCampus.id, // Use selectedCampus ID
+  //       campus: selectedCampus.campus, // Use selectedCampus name
+  //     };
+  //     const response = await createBuilding(buildingData).unwrap();
 
-      const response = await createBuilding(buildingData).unwrap();
+  //     if (response) {
+  //       await refetch(); // Fetch the latest data
+  //       dispatch(addBuildings(response));
 
-      if (response) {
-        await refetch(); // Fetch the latest data
-        dispatch(addBuildings(response));
+  //       // Reset form
+  //       setNewBuilding({ name: "", location: "" }); // No need for campusId and campus
+  //       setSelectedCampus(null);
+  //       setOpenAdd(false);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error adding Building:", error);
+  //     alert("Failed to add building. Please try again.");
+  //   }
+  // };
 
-        // Reset form
-        setNewBuilding({ name: "", location: "" }); // No need for campusId and campus
-        setSelectedCampus(null);
-        setOpenAdd(false);
-      }
-    } catch (error) {
-      console.error("Error adding Building:", error);
-      alert("Failed to add building. Please try again.");
-    }
-  };
+  // const handleEdit = (building: {
+  //   id: number;
+  //   name: string;
+  //   location: string;
+  //   campusId: number;
+  //   campus: string;
+  // }) => {
+  //   setSelectedBuilding(building);
+  //   setSelectedCampus({ id: building.campusId, campus: building.campus });
+  //   setOpenEdit(true);
+  // };
 
-  const handleEdit = (building: {
-    id: number;
-    name: string;
-    location: string;
-    campusId: number;
-    campus: string;
-  }) => {
-    setSelectedBuilding(building);
-    setSelectedCampus({ id: building.campusId, campus: building.campus });
-    setOpenEdit(true);
-  };
+  // const handleUpdateBuilding = async () => {
+  //   if (
+  //     !selectedBuilding ||
+  //     !selectedBuilding.name.trim() ||
+  //     !selectedBuilding.location.trim() ||
+  //     !selectedCampus?.id ||
+  //     !selectedCampus?.campus.trim()
+  //   ) {
+  //     alert("All fields are required.");
+  //     return;
+  //   }
 
-  const handleUpdateBuilding = async () => {
-    if (
-      !selectedBuilding ||
-      !selectedBuilding.name.trim() ||
-      !selectedBuilding.location.trim() ||
-      !selectedCampus?.id ||
-      !selectedCampus?.campus.trim()
-    ) {
-      alert("All fields are required.");
-      return;
-    }
+  //   try {
+  //     // Ensure building has the updated campusId
+  //     const updatedBuilding = {
+  //       ...selectedBuilding,
+  //       campusId: selectedCampus.id, // Assign the correct campusId
+  //       campus: selectedCampus.campus,
+  //     };
 
-    try {
-      // Ensure building has the updated campusId
-      const updatedBuilding = {
-        ...selectedBuilding,
-        campusId: selectedCampus.id, // Assign the correct campusId
-        campus: selectedCampus.campus,
-      };
+  //     // API call to update building
+  //     const updatedBuildingResponse = await updateBuilding(
+  //       updatedBuilding
+  //     ).unwrap();
+  //     dispatch(updateBuildings(updatedBuildingResponse));
 
-      // API call to update building
-      const updatedBuildingResponse = await updateBuilding(
-        updatedBuilding
-      ).unwrap();
-      dispatch(updateBuildings(updatedBuildingResponse));
+  //     // Update campus only if it's modified
+  //     if (selectedCampus) {
+  //       const updatedCampus = {
+  //         id: selectedCampus.id,
+  //         campus: selectedCampus.campus,
+  //       };
+  //       dispatch(updateCampuses(updatedCampus));
+  //     }
 
-      // Update campus only if it's modified
-      if (selectedCampus) {
-        const updatedCampus = {
-          id: selectedCampus.id,
-          campus: selectedCampus.campus,
-        };
-        dispatch(updateCampuses(updatedCampus));
-      }
-
-      refetch();
-      setOpenEdit(false);
-      setSelectedBuilding(null);
-      setSelectedCampus(null);
-    } catch (error) {
-      console.error("Error updating building:", error);
-    }
-  };
+  //     refetch();
+  //     setOpenEdit(false);
+  //     setSelectedBuilding(null);
+  //     setSelectedCampus(null);
+  //   } catch (error) {
+  //     console.error("Error updating building:", error);
+  //   }
+  // };
 
   const columns: GridColDef[] = [
     { field: "name", headerName: "Building", flex: 1 },
@@ -227,11 +228,14 @@ export const BuildingsTable: React.FC = () => {
         };
         return (
           <div>
-            <IconButton onClick={() => handleEdit(row)} color="primary">
+            <IconButton
+              //onClick={() => handleEdit(row)}
+              color="primary"
+            >
               <EditIcon />
             </IconButton>
             <IconButton
-              onClick={() => handleDelete(row.id)}
+              // onClick={() => handleDelete(row.id)}
               color="secondary"
               aria-label="delete"
             >
@@ -275,7 +279,7 @@ export const BuildingsTable: React.FC = () => {
             variant="contained"
             color="secondary"
             startIcon={<FileDownloadIcon />}
-            onClick={handleExport}
+            // onClick={handleExport}
           >
             Export CSV
           </Button>
@@ -327,11 +331,12 @@ export const BuildingsTable: React.FC = () => {
               }}
               label="Campus"
             >
-              {campusData?.map((campus) => (
-                <MenuItem key={campus.id} value={campus.id}>
-                  {campus.campus}
-                </MenuItem>
-              ))}
+              {Array.isArray(campusData) &&
+                campusData.map((campus) => (
+                  <MenuItem key={campus.id} value={campus.id}>
+                    {campus.campus}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
         </DialogContent>
@@ -339,7 +344,10 @@ export const BuildingsTable: React.FC = () => {
           <Button onClick={() => setOpenAdd(false)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleAddBuilding} color="primary">
+          <Button
+            //onClick={handleAddBuilding}
+            color="primary"
+          >
             Add
           </Button>
         </DialogActions>
@@ -386,11 +394,12 @@ export const BuildingsTable: React.FC = () => {
               }}
               label="Campus"
             >
-              {campusData?.map((campus) => (
-                <MenuItem key={campus.id} value={campus.id}>
-                  {campus.campus}
-                </MenuItem>
-              ))}
+              {Array.isArray(campusData) &&
+                campusData.map((campus) => (
+                  <MenuItem key={campus.id} value={campus.id}>
+                    {campus.campus}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
         </DialogContent>
@@ -398,7 +407,10 @@ export const BuildingsTable: React.FC = () => {
           <Button onClick={() => setOpenEdit(false)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleUpdateBuilding} color="primary">
+          <Button
+            //onClick={handleUpdateBuilding}
+            color="primary"
+          >
             Save Changes
           </Button>
         </DialogActions>

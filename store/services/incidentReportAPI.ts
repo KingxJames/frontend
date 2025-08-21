@@ -21,6 +21,12 @@ interface UpdateIncidentReportPayload {
 
 export const incidentReportAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
+    initializeIncidentReport: builder.query<void, void>({
+      query: () => ({
+        url: "/publicSafety/incidentReports/initialize",
+        method: "post",
+      }),
+    }),
     fetchIncidentReport: builder.query<IIncidentReport[], void>({
       query: () => ({
         url: "/publicSafety/incidentReports",
@@ -82,6 +88,7 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
 });
 
 export const {
+  useInitializeIncidentReportQuery,
   useFetchIncidentReportQuery,
   useFetchIncidentReportByIdQuery,
   useCreateIncidentReportMutation,

@@ -7,11 +7,16 @@ export interface ICampus {
 }
 
 export interface CampusInitialState {
-  campus: ICampus[];
+  campuses: ICampus[];
 }
 
 const initialState: CampusInitialState = {
-  campus: [],
+  campuses: [
+    {
+      id: 0,
+      campus: "",
+    },
+  ],
 };
 
 export const campusSlice = createSlice({
@@ -19,24 +24,26 @@ export const campusSlice = createSlice({
   initialState,
   reducers: {
     setCampuses: (state, action: PayloadAction<ICampus[]>) => {
-      state.campus = action.payload;
+      state.campuses = action.payload;
     },
 
     addCampuses: (state, action: PayloadAction<ICampus>) => {
-      state.campus.push(action.payload);
+      state.campuses.push(action.payload);
     },
 
     updateCampuses: (state, action: PayloadAction<ICampus>) => {
-      const index = state.campus.findIndex(
-        (campus) => campus.id === action.payload.id
+      const index = state.campuses.findIndex(
+        (campuses) => campuses.id === action.payload.id
       );
       if (index !== -1) {
-        state.campus[index] = { ...state.campus[index], ...action.payload };
+        state.campuses[index] = { ...state.campuses[index], ...action.payload };
       }
     },
 
     deleteCampuses: (state, action: PayloadAction<number>) => {
-      state.campus = state.campus.filter((campus) => campus.id !== action.payload);
+      state.campuses = state.campuses.filter(
+        (campuses) => campuses.id !== action.payload
+      );
     },
   },
 });
@@ -44,6 +51,6 @@ export const campusSlice = createSlice({
 export const { setCampuses, addCampuses, updateCampuses, deleteCampuses } =
   campusSlice.actions;
 
-export const selectCampuses = (state: RootState) => state.campuses;
+export const selectCampus = (state: RootState) => state.campuses;
 
 export default campusSlice.reducer;

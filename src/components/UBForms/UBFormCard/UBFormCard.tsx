@@ -4,9 +4,14 @@ import { Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
 interface UBFormCardProps {
   title: string;
   image: string;
+  onClick?: () => void;
 }
 
-export const UBFormCard: React.FC<UBFormCardProps> = ({ title, image }) => {
+export const UBFormCard: React.FC<UBFormCardProps> = ({
+  title,
+  image,
+  onClick,
+}) => {
   return (
     <Box
       sx={{
@@ -14,9 +19,11 @@ export const UBFormCard: React.FC<UBFormCardProps> = ({ title, image }) => {
         flexWrap: "wrap",
         justifyContent: "left",
         padding: "3%",
+        cursor: onClick ? "pointer" : "default",
       }}
     >
       <Card
+        onClick={onClick}
         sx={{
           width: 220,
           borderRadius: 3,

@@ -6,7 +6,9 @@ export interface IBuilding {
   name: string;
   location: string;
   campusId: number;
-  campus: string;
+  created_at: string;
+  updated_at: string;
+  // campus: string;
 }
 
 export interface BuildingInitialState {
@@ -14,7 +16,16 @@ export interface BuildingInitialState {
 }
 
 const initialState: BuildingInitialState = {
-  buildings: [],
+  buildings: [
+    {
+      id: 0,
+      name: "",
+      location: "",
+      campusId: 0,
+      created_at: "",
+      updated_at: "",
+    },
+  ],
 };
 
 export const buildingSlice = createSlice({
