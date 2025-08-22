@@ -16,31 +16,22 @@ export interface BuildingInitialState {
 }
 
 const initialState: BuildingInitialState = {
-  buildings: [
-    {
-      id: 0,
-      name: "",
-      location: "",
-      campusId: 0,
-      created_at: "",
-      updated_at: "",
-    },
-  ],
+  buildings: [],
 };
 
 export const buildingSlice = createSlice({
   name: "building",
   initialState,
   reducers: {
-    setBuildings: (state, action: PayloadAction<IBuilding[]>) => {
+    setBuilding: (state, action: PayloadAction<IBuilding[]>) => {
       return { ...state, buildings: action.payload };
     },
 
-    addBuildings: (state, action: PayloadAction<IBuilding>) => {
+    addBuilding: (state, action: PayloadAction<IBuilding>) => {
       state.buildings.push(action.payload);
     },
 
-    updateBuildings: (state, action: PayloadAction<IBuilding>) => {
+    updateBuilding: (state, action: PayloadAction<IBuilding>) => {
       const index = state.buildings.findIndex(
         (building) => building.id === action.payload.id
       );
@@ -51,7 +42,7 @@ export const buildingSlice = createSlice({
         };
       }
     },
-    deleteBuildings: (state, action: PayloadAction<number>) => {
+    deleteBuilding: (state, action: PayloadAction<number>) => {
       state.buildings = state.buildings.filter(
         (buildings) => buildings.id !== action.payload
       );
@@ -59,7 +50,7 @@ export const buildingSlice = createSlice({
   },
 });
 
-export const { setBuildings, addBuildings, updateBuildings, deleteBuildings } =
+export const { setBuilding, addBuilding, updateBuilding, deleteBuilding } =
   buildingSlice.actions;
-export const selectBuildings = (state: RootState) => state.buildings;
+export const selectBuildings = (state: RootState) => state.buildings.buildings;
 export default buildingSlice.reducer;

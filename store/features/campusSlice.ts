@@ -11,12 +11,7 @@ export interface CampusInitialState {
 }
 
 const initialState: CampusInitialState = {
-  campuses: [
-    {
-      id: 0,
-      campus: "",
-    },
-  ],
+  campuses: [],
 };
 
 export const campusSlice = createSlice({

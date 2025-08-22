@@ -1,33 +1,47 @@
 import { baseAPI } from "./baseAPI";
-import { IBuilding, setBuildings } from "../features/buildingSlice";
+import {
+  IBuilding,
+  setBuilding,
+  BuildingInitialState,
+} from "../features/buildingSlice";
 
 export const buildingsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchBuildings: builder.query<IBuilding, void>({
-      query: () => ({
-        url: "/publicSafety/buildings",
-        method: "GET",
-      }),
-      transformResponse: (response: { data: IBuilding }) => {
-        console.log(response.data);
-
-        return response.data;
+    fetchBuildings: builder.query<IBuilding[], void>({
+      query: () => "/publicSafety/buildings",
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          console.log(data);
+          dispatch(setBuilding(data));
+        } catch (error) {
+          console.error("Failed to fetch buildings:", error);
+        }
       },
     }),
     fetchBuildingById: builder.query<IBuilding, string>({
       query: (id) => ({
         url: `/publicSafety/buildings/${id}`,
         method: "GET",
-      }),
+      })
     }),
-    createBuildings: builder.mutation<IBuilding, Partial<IBuilding>>({
-      query: (name) => ({
+    createBuildings: builder.mutation({
+      query: (body: Partial<BuildingInitialState>) => ({
         url: "/publicSafety/buildings",
         method: "POST",
-        body: name,
+        body,
       }),
     }),
-    updateBuildings: builder.mutation<IBuilding, Partial<IBuilding>>({
+    updateBuildings: builder.mutation<
+      IBuilding,
+      {
+        id: number;
+        name: string;
+        location: string;
+        campusId: number;
+        campus: string;
+      }
+    >({
       query: ({ id, name, location, campusId, campus }) => ({
         url: `/publicSafety/buildings/${id}`,
         method: "PUT",

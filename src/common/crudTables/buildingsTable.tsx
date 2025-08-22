@@ -24,7 +24,7 @@ import {
 import { useFetchCampusesQuery } from "../../../store/services/campusAPI";
 
 import {
-  setBuildings,
+  setBuilding,
   // updateBuildings,
   // addBuildings,
   // deleteBuildings,
@@ -58,29 +58,22 @@ export const BuildingsTable: React.FC = () => {
     campus: string;
   } | null>(null);
 
-  
-
-  // useEffect(() => {
-  //   if (buildingsData) {
-  //     // Map campusId to campus name (example logic)
-  //     const mappedBuildings = buildingsData?.map((building => ({
-  //       ...building,
-  //       campus:
-  //         campusData?.find((campus) => campus.id === building.campusId)
-  //           ?.campus || "Unknown Campus",
-  //     }));
-  //     dispatch(setBuildings(mappedBuildings));
-  //   }
-  // }, [buildingsData, campusData, dispatch]);
-
+  useEffect(() => {
+    if (buildingsData) {
+      console.log("Buildings Data:", buildingsData);
+      dispatch(setBuilding(buildingsData.data.buildings));
+    }
+  }, [buildingsData, campusData, dispatch]);
   // console.log("Buildings Data:", buildingsData);
+  // console.log("Campus Data:", campusData);
+  // console.log("Mapped Buildings:", );
 
-  const filteredBuildings = buildings.buildings
-    ? buildings.buildings.filter((building) =>
+  // Safe filtering - check if buildings is an array before filtering
+  const filteredBuildings = Array.isArray(buildings)
+    ? buildings.filter((building: any) =>
         building.name?.toLowerCase().includes(search.toLowerCase())
       )
     : [];
-  console.log("filteredBuildings", filteredBuildings);
 
   // Handle delete
   // const handleDelete = async (id: number) => {
@@ -290,6 +283,7 @@ export const BuildingsTable: React.FC = () => {
       <DataGrid
         rows={filteredBuildings}
         columns={columns}
+        getRowId={(row) => row.id}
         paginationModel={{ page: 0, pageSize: 5 }}
         pageSizeOptions={[5, 10]}
         disableRowSelectionOnClick
