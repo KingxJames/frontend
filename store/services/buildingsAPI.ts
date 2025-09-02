@@ -12,7 +12,7 @@ export const buildingsAPI = baseAPI.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log(data);
+          // console.log(data);
           dispatch(setBuilding(data));
         } catch (error) {
           console.error("Failed to fetch buildings:", error);
@@ -23,7 +23,7 @@ export const buildingsAPI = baseAPI.injectEndpoints({
       query: (id) => ({
         url: `/publicSafety/buildings/${id}`,
         method: "GET",
-      })
+      }),
     }),
     createBuildings: builder.mutation({
       query: (body: Partial<BuildingInitialState>) => ({
@@ -38,14 +38,13 @@ export const buildingsAPI = baseAPI.injectEndpoints({
         id: number;
         name: string;
         location: string;
-        campusId: number;
         campus: string;
       }
     >({
-      query: ({ id, name, location, campusId, campus }) => ({
+      query: ({ id, name, location, campus }) => ({
         url: `/publicSafety/buildings/${id}`,
         method: "PUT",
-        body: { name, location, campusId, campus },
+        body: { name, location, campus },
       }),
     }),
     deleteBuildings: builder.mutation<void, string>({

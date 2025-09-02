@@ -32,7 +32,7 @@ import {
   selectUsers,
 } from "./../../../store/features/userSlice";
 
-import { updateCampuses } from "../../../store/features/campusSlice";
+import { updateCampus } from "../../../store/features/campusSlice";
 
 import { updateUserStatuses } from "../../../store/features/userStatusSlice";
 import { updateRoles } from "../../../store/features/roleSlice";
@@ -222,7 +222,7 @@ export const UsersTable: React.FC = () => {
           id: selectedCampus.id,
           campus: selectedCampus.campus,
         };
-        dispatch(updateCampuses(updatedCampus));
+        dispatch(updateCampus(updatedCampus));
       }
 
       //update userStatus only if it's modified

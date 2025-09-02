@@ -2,20 +2,17 @@ import { baseAPI } from "./baseAPI";
 import {
   CampusInitialState,
   ICampus,
-  setCampuses,
+  setCampus,
 } from "../features/campusSlice";
 
 export const campusAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    fetchCampuses: builder.query({
-      query: () => ({
-        url: "/publicSafety/campuses",
-        method: "GET",
-      }),
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+    fetchCampuses: builder.query<ICampus[], void>({
+      query: () => "/publicSafety/campuses",
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setCampuses(data as ICampus[]));
+          dispatch(setCampus(data as ICampus[]));
         } catch (error) {
           console.error("Failed to fetch campuses:", error);
         }

@@ -54,7 +54,7 @@ const rootReducer = combineReducers({
   dashboard: dashboardReducer,
   roles: rolesReducer,
   buildings: buildingsReducer,
-  campuses: campusesReducer,
+  campus: campusesReducer,
   departments: departmentsReducers,
   incidentStatuses: incidentStatusesReducer,
   incidentTypes: incidentTypesReducer,

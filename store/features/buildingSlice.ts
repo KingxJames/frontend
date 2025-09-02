@@ -2,13 +2,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 export interface IBuilding {
-  id: number;
+  id: string;
   name: string;
   location: string;
-  campusId: number;
+  campus: string;
   created_at: string;
   updated_at: string;
-  // campus: string;
 }
 
 export interface BuildingInitialState {
@@ -42,7 +41,7 @@ export const buildingSlice = createSlice({
         };
       }
     },
-    deleteBuilding: (state, action: PayloadAction<number>) => {
+    deleteBuilding: (state, action: PayloadAction<string>) => {
       state.buildings = state.buildings.filter(
         (buildings) => buildings.id !== action.payload
       );
