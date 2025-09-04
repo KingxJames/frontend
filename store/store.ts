@@ -15,17 +15,12 @@ import sessionStorage from "redux-persist/lib/storage/session";
 import authReducer from "./features/authSlice";
 import dashboardReducer from "./features/dashboardSlice";
 import messagesReducer from "./features/UBWhatsappSlice/messageSlice";
-import rolesReducer from "./features/roleSlice";
 import buildingsReducer from "./features/buildingSlice";
 import campusesReducer from "./features/campusSlice";
 import departmentsReducers from "./features/departmentSlice";
-import incidentStatusesReducer from "./features/incidentStatusSlice";
-import incidentTypesReducer from "./features/incidentTypeSlice";
 import messageCategoryReducer from "./features/messageCategoriesSlice";
 import departmentMemberReducer from "./features/departmentMemberSlice";
 import incidentReportReducer from "./features/incidentReportSlice";
-import accessRightReducer from "./features/accessRightSlice";
-import menuRoleReducer from "./features/menuRoleSlice";
 import menuReducer from "./features/menuSlice";
 import usersReducer from "./features/userSlice";
 import recipientReducer from "./features/recipientSlice";
@@ -52,18 +47,13 @@ const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   messages: persistReducer(messagesPersistConfig, messagesReducer),
   dashboard: dashboardReducer,
-  roles: rolesReducer,
   buildings: buildingsReducer,
   campus: campusesReducer,
   departments: departmentsReducers,
-  incidentStatuses: incidentStatusesReducer,
-  incidentTypes: incidentTypesReducer,
   messageCategories: messageCategoryReducer,
   users: usersReducer,
   departmentMembers: departmentMemberReducer,
   incidentReports: incidentReportReducer,
-  accessRights: accessRightReducer,
-  menuRoles: menuRoleReducer,
   menu: menuReducer,
   recipients: recipientReducer,
   subMenus: subMenuReducer,

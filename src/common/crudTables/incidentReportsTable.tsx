@@ -9,13 +9,13 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Box,
   Typography,
 } from "@mui/material";
 import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useSelector, useDispatch } from "react-redux";
 import {
   useFetchIncidentReportQuery,
@@ -23,7 +23,6 @@ import {
   useUpdateIncidentReportMutation,
 } from "./../../../store/services/incidentReportAPI";
 // import { useFetchBuildingsQuery } from "../../../store/services/buildingsAPI";
-
 import {
   setIncidentReport,
   updateIncidentReport,
@@ -31,10 +30,12 @@ import {
   selectIncidentReports,
   IIncidentFile,
 } from "./../../../store/features/incidentReportSlice";
-import {
-  selectBuildings,
-  setBuilding,
-} from "../../../store/features/buildingSlice";
+// import {
+//   selectBuildings,
+//   setBuilding,
+// } from "../../../store/features/buildingSlice";
+import axios from "axios";
+import { buildApiUrl } from "../../../store/config/api";
 
 interface IncidentReportFile {
   name: string;
@@ -166,14 +167,6 @@ export const IncidentReportTable: React.FC = () => {
     uploadedBy: string;
   }) => {
     if (!incidentReport) return;
-
-    // // Convert existing file paths to File objects or URLs for preview
-    // const existingFiles = incidentReport.incidentFiles
-    //   ? incidentReport.incidentFiles.split(", ").map((filePath) => ({
-    //       name: filePath.split("/").pop() || "", // Extract filename
-    //       path: filePath, // Full path from database
-    //     }))
-    //   : [];
 
     setSelectedIncidentReport({
       ...incidentReport,
@@ -428,18 +421,30 @@ export const IncidentReportTable: React.FC = () => {
             </Grid>
 
             <Grid size={6}>
-              <TextField
-                margin="dense"
-                label="incident Files"
-                fullWidth
-                variant="outlined"
-                value={selectedIncidentReport?.incidentFiles || ""}
-                onChange={(e) =>
-                  setSelectedIncidentReport((prev) =>
-                    prev ? { ...prev, incident: e.target.value } : null
-                  )
-                }
-              />
+              <Button
+                component="label"
+                role={undefined}
+                variant="contained"
+                tabIndex={-1}
+                startIcon={<CloudUploadIcon />}
+              >
+                Upload files
+              </Button>
+
+              <Typography>
+                Upload Photos:
+                {selectedIncidentReport?.incidentFiles.map((file, index) => (
+                  <span key={index} style={{ display: "block" }}>
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {file.name}
+                    </a>
+                  </span>
+                ))}
+              </Typography>
             </Grid>
 
             <TextField
