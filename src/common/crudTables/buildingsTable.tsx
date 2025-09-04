@@ -25,8 +25,6 @@ import {
 import {
   setBuilding,
   updateBuilding,
-  addBuilding,
-  deleteBuilding,
   selectBuildings,
   IBuilding,
 } from "../../../store/features/buildingSlice";

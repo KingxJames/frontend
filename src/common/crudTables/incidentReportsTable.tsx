@@ -20,16 +20,21 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   useFetchIncidentReportQuery,
   useDeleteIncidentReportMutation,
-  useUpdateIncidentReportMutation,
+  // useUpdateIncidentReportMutation,
 } from "./../../../store/services/incidentReportAPI";
-import { useFetchIncidentStatusesQuery } from "../../../store/services/incidentStatusAPI";
-import { useFetchIncidentTypesQuery } from "../../../store/services/incidentTypesAPI";
+import { useFetchBuildingsQuery } from "../../../store/services/buildingsAPI";
+
 import {
-  setIncidentReports,
-  updateIncidentReports,
-  deleteIncidentReports,
+  setIncidentReport,
+  updateIncidentReport,
+  deleteIncidentReport,
   selectIncidentReports,
+  IIncidentFile,
 } from "./../../../store/features/incidentReportSlice";
+import {
+  selectBuildings,
+  setBuilding,
+} from "../../../store/features/buildingSlice";
 
 interface IncidentReportFile {
   name: string;
@@ -41,59 +46,38 @@ export const IncidentReportTable: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]); // Store multiple file objects
 
   const { data: incidentReportsData, refetch } = useFetchIncidentReportQuery();
-  const { data: incidentStatusesData } = useFetchIncidentStatusesQuery();
-  const { data: incidentTypesData } = useFetchIncidentTypesQuery();
-  const [deleteIncidentReport] = useDeleteIncidentReportMutation();
-  const [updateIncidentReport] = useUpdateIncidentReportMutation();
+
+  const [deleteIncidentReports] = useDeleteIncidentReportMutation();
+  // const [updateIncidentReports] = useUpdateIncidentReportMutation();
   const incidentReports = useSelector(selectIncidentReports);
+  const buildings = useSelector(selectBuildings);
 
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openEdit, setOpenEdit] = useState(false);
 
   const [selectedIncidentReport, setSelectedIncidentReport] = useState<{
-    id: number;
+    id: string;
     action: string;
-    buildingId: number;
-    campusId: number;
     caseNumber: string;
     disposition: string;
-    frequency: number;
-    incidentFiles: (File | IncidentReportFile)[]; // Can be either new Files or existing file objects
-    path: string;
-    incidentReoccured: string;
-    incidentStatusId: number;
-    statuses: string;
-    incidentTypeId: number;
-    type: string;
-    location: string;
+    incidentStatus: string;
+    incidentType: string;
+    incidentFiles: IIncidentFile[];
+    buildingId: string;
+    buildingLocation: string;
     report: string;
     uploadedBy: string;
-    userId: number;
   } | null>(null);
 
   useEffect(() => {
     if (incidentReportsData) {
-      const mappedIncidentReports = incidentReportsData.map(
-        (incidentReport) => ({
-          ...incidentReport,
-          incidentStatuses:
-            incidentStatusesData?.find(
-              (statuses) => statuses?.id === incidentReport.incidentStatusId
-            )?.statuses || "",
-          incidentTypes:
-            incidentTypesData?.find(
-              (incidentTypes) =>
-                incidentTypes?.id === incidentReport.incidentTypeId
-            )?.type || "",
-        })
-      );
-      dispatch(setIncidentReports(mappedIncidentReports));
+      dispatch(setIncidentReport(incidentReportsData.data));
     }
-  }, [incidentReportsData, incidentStatusesData, incidentTypesData, dispatch]);
+  }, [incidentReportsData, dispatch]);
 
-  const filteredIncidentReports = incidentReports.incidentReports
-    ? incidentReports.incidentReports.filter(
+  const filteredIncidentReports = Array.isArray(incidentReports)
+    ? incidentReports.filter(
         (incidentReport) =>
           incidentReport.report?.toLowerCase().includes(search.toLowerCase()) ||
           incidentReport.caseNumber
@@ -102,19 +86,13 @@ export const IncidentReportTable: React.FC = () => {
       )
     : [];
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
+    if (!id) return;
     try {
-      const incidentReportToDelete = incidentReports.incidentReports.find(
-        (incidentReport) => incidentReport.id === id
-      );
-      if (incidentReportToDelete) {
-        await deleteIncidentReport(
-          incidentReportToDelete.id.toString()
-        ).unwrap();
-        dispatch(deleteIncidentReports(incidentReportToDelete.id));
-      }
+      await deleteIncidentReports(id).unwrap(); // API call
+      refetch();
     } catch (error) {
-      console.error("Error deleting Incident Reports:", error);
+      console.error("Failed to delete incident report:", error);
     }
   };
 
@@ -122,31 +100,29 @@ export const IncidentReportTable: React.FC = () => {
     const csvHeaders = [
       "ID",
       "CaseNumber",
+      "Incident Type",
+      "Location",
+
       "Report",
       "Disposition",
       "Action",
-      "Location",
-      "UploadedBy",
-      "Frequency",
-      "Incident Occured",
-      "Incident Status",
       "Incident File",
-      "Incident Type",
+
+      "UploadedBy",
     ];
 
-    const csvRows = incidentReports.incidentReports.map((incidentReport) =>
+    const csvRows = incidentReports.map((incidentReport) =>
       [
         incidentReport.id,
         incidentReport.caseNumber,
+        incidentReport.incidentType,
+        incidentReport.buildingLocation,
+        incidentReport.incidentStatus,
         incidentReport.report,
         incidentReport.disposition,
         incidentReport.action,
-        incidentReport.location,
+        incidentReport.incidentFiles,
         incidentReport.uploadedBy,
-        incidentReport.frequency,
-        incidentReport.incidentReoccured,
-        incidentReport.statuses,
-        incidentReport.type,
       ]
         .map((field) => `"${String(field).replace(/"/g, '""')}"`)
         .join(",")
@@ -165,186 +141,166 @@ export const IncidentReportTable: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  const handleEdit = (incidentReport: {
-    id: number;
-    report: string;
-    disposition: string;
-    caseNumber: string;
-    action: string;
-    location: string;
-    uploadedBy: string;
-    frequency: number;
-    incidentReoccured: string;
-    incidentFiles: string; // This should be the file paths from your database
-    path: string;
-    incidentStatusId: number;
-    statuses: string;
-    userId: number;
-    campusId: number;
-    buildingId: number;
-    incidentTypeId: number;
-    type: string;
-  }) => {
-    if (!incidentReport) return;
+  // const handleEdit = (incidentReport: {
+  //   id: string;
+  //   action: string;
+  //   caseNumber: string;
+  //   disposition: string;
+  //   incidentStatus: string;
+  //   incidentType: string;
+  //   incidentFiles: IIncidentFile[];
+  //   buildingId: number;
+  //   buildingLocation: string;
+  //   report: string;
+  //   uploadedBy: string;
+  // }) => {
+  //   if (!incidentReport) return;
 
-    // Convert existing file paths to File objects or URLs for preview
-    const existingFiles = incidentReport.incidentFiles
-      ? incidentReport.incidentFiles.split(", ").map((filePath) => ({
-          name: filePath.split("/").pop() || "", // Extract filename
-          path: filePath, // Full path from database
-        }))
-      : [];
+  //   // Convert existing file paths to File objects or URLs for preview
+  //   const existingFiles = incidentReport.incidentFiles
+  //     ? incidentReport.incidentFiles.split(", ").map((filePath) => ({
+  //         name: filePath.split("/").pop() || "", // Extract filename
+  //         path: filePath, // Full path from database
+  //       }))
+  //     : [];
 
-    setSelectedIncidentReport({
-      ...incidentReport,
-      incidentFiles: existingFiles, // Initialize with existing files
-    });
-    setOpenEdit(true);
-  };
+  //   setSelectedIncidentReport({
+  //     ...incidentReport,
+  //     incidentFiles: existingFiles, // Initialize with existing files
+  //   });
+  //   setOpenEdit(true);
+  // };
 
-  const handleUpdateIncidentReport = async (
-    index: number,
-    files: (File | IncidentReportFile)[] | null
-  ) => {
-    if (
-      !selectedIncidentReport ||
-      !selectedIncidentReport.report.trim() ||
-      !selectedIncidentReport.disposition.trim() ||
-      !selectedIncidentReport.caseNumber.trim() ||
-      !selectedIncidentReport.action.trim() ||
-      !selectedIncidentReport.location.trim() ||
-      !selectedIncidentReport.uploadedBy.trim() ||
-      !selectedIncidentReport.frequency ||
-      !selectedIncidentReport.incidentReoccured.trim() ||
-      !selectedIncidentReport.incidentStatusId ||
-      !selectedIncidentReport.userId ||
-      !selectedIncidentReport.campusId ||
-      !selectedIncidentReport.buildingId ||
-      !selectedIncidentReport.incidentTypeId
-    ) {
-      alert("All fields are required.");
-      return;
-    }
+  // const handleUpdateIncidentReport = async (
+  //   index: number,
+  //   files: (File | IncidentReportFile)[] | null
+  // ) => {
+  //   if (
+  //     !selectedIncidentReport ||
+  //     !selectedIncidentReport.action ||
+  //     !selectedIncidentReport.caseNumber ||
+  //     !selectedIncidentReport.report ||
+  //     !selectedIncidentReport.disposition ||
+  //     !selectedIncidentReport.incidentStatus ||
+  //     !selectedIncidentReport.incidentFiles ||
+  //     !selectedIncidentReport.incidentType ||
+  //     !selectedIncidentReport.buildingId ||
+  //     !selectedIncidentReport.buildingLocation ||
+  //     !selectedIncidentReport.uploadedBy
+  //   ) {
+  //     alert("All fields are required.");
+  //     return;
+  //   }
 
-    try {
-      const formData = new FormData();
+  //   try {
+  //     const formData = new FormData();
 
-      // Append non-file fields to FormData
-      formData.append("id", selectedIncidentReport.id.toString());
-      formData.append("report", selectedIncidentReport.report);
-      formData.append("disposition", selectedIncidentReport.disposition);
-      formData.append("caseNumber", selectedIncidentReport.caseNumber);
-      formData.append("action", selectedIncidentReport.action);
-      formData.append("location", selectedIncidentReport.location);
-      formData.append("uploadedBy", selectedIncidentReport.uploadedBy);
-      formData.append("frequency", selectedIncidentReport.frequency.toString());
-      formData.append(
-        "incidentReoccured",
-        selectedIncidentReport.incidentReoccured
-      );
-      formData.append(
-        "incidentStatusId",
-        selectedIncidentReport.incidentStatusId.toString()
-      );
-      formData.append("userId", selectedIncidentReport.userId.toString());
-      formData.append("campusId", selectedIncidentReport.campusId.toString());
-      formData.append(
-        "buildingId",
-        selectedIncidentReport.buildingId.toString()
-      );
-      formData.append(
-        "incidentTypeId",
-        selectedIncidentReport.incidentTypeId.toString()
-      );
+  //     // Append non-file fields to FormData
+  //     formData.append("id", selectedIncidentReport.id.toString());
+  //     formData.append("report", selectedIncidentReport.report);
+  //     formData.append("disposition", selectedIncidentReport.disposition);
+  //     formData.append("caseNumber", selectedIncidentReport.caseNumber);
+  //     formData.append("action", selectedIncidentReport.action);
+  //     formData.append("location", selectedIncidentReport.buildingLocation);
+  //     formData.append("uploadedBy", selectedIncidentReport.uploadedBy);
 
-      // Append files if they exist
-      if (files && files.length > 0) {
-        files.forEach((file) => {
-          if (file instanceof File) {
-            formData.append("incidentFiles[]", file);
-          }
-        });
-      }
+  //     // Append files if they exist
+  //     if (files && files.length > 0) {
+  //       files.forEach((file) => {
+  //         if (file instanceof File) {
+  //           formData.append("incidentFiles[]", file);
+  //         }
+  //       });
+  //     }
 
-      const updatedIncidentReportPayload = {
-        id: selectedIncidentReport.id,
-        report: selectedIncidentReport.report,
-        disposition: selectedIncidentReport.disposition,
-        caseNumber: selectedIncidentReport.caseNumber,
-        action: selectedIncidentReport.action,
-        location: selectedIncidentReport.location,
-        uploadedBy: selectedIncidentReport.uploadedBy,
-        frequency: selectedIncidentReport.frequency,
-        incidentReoccured: selectedIncidentReport.incidentReoccured,
-        incidentStatusId: selectedIncidentReport.incidentStatusId,
-        userId: selectedIncidentReport.userId,
-        campusId: selectedIncidentReport.campusId,
-        buildingId: selectedIncidentReport.buildingId,
-        incidentTypeId: selectedIncidentReport.incidentTypeId,
-        incidentFiles:
-          files && files.length > 0
-            ? files
-                .map((file) => (file instanceof File ? file.name : file.path))
-                .join(", ")
-            : "",
-      };
+  //     const updatedIncidentReportPayload = {
+  //       id: selectedIncidentReport.id,
+  //       action: selectedIncidentReport.action,
+  //       caseNumber: selectedIncidentReport.caseNumber,
+  //       disposition: selectedIncidentReport.disposition,
+  //       incidentStatus: selectedIncidentReport.incidentStatus,
+  //       incidentType: selectedIncidentReport.incidentType,
+  //       buildingId: selectedIncidentReport.buildingId,
+  //       buildingLocation: selectedIncidentReport.buildingLocation,
+  //       report: selectedIncidentReport.report,
+  //       uploadedBy: selectedIncidentReport.uploadedBy,
+  //       incidentFiles:
+  //         files && files.length > 0
+  //           ? files
+  //               .map((file) => (file instanceof File ? file.name : file.path))
+  //               .join(", ")
+  //           : "",
+  //     };
 
-      const updatedIncidentReport = await updateIncidentReport(
-        updatedIncidentReportPayload
-      ).unwrap();
+  //     const updatedIncidentReport = await updateIncidentReports(
+  //       updatedIncidentReportPayload
+  //     ).unwrap();
 
-      dispatch(updateIncidentReports(updatedIncidentReport));
-      refetch();
+  //     dispatch(updateIncidentReport(updatedIncidentReport));
+  //     refetch();
 
-      setOpenEdit(false);
-      setSelectedIncidentReport(null);
-      setFiles([]);
-    } catch (error) {
-      console.error("Error updating incident report:", error);
-    }
-  };
+  //     setOpenEdit(false);
+  //     setSelectedIncidentReport(null);
+  //     setFiles([]);
+  //   } catch (error) {
+  //     console.error("Error updating incident report:", error);
+  //   }
+  // };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    if (e.target.files) {
-      console.log(e.target.files);
-      const fileList = Array.from(e.target.files); // Convert FileList to an array
-      setSelectedIncidentReport((prev) => {
-        const existingFiles = prev?.incidentFiles || [];
-        return prev
-          ? {
-              ...prev,
-              incidentFiles: [...existingFiles, ...fileList], // Combine existing and new files
-            }
-          : {
-              id: 0,
-              report: "",
-              disposition: "",
-              caseNumber: "",
-              action: "",
-              location: "",
-              uploadedBy: "",
-              frequency: 0,
-              incidentFiles: fileList, // Initialize incidentFiles
-              path: "",
-              incidentReoccured: "",
-              incidentStatusId: 0,
-              statuses: "",
-              userId: 0,
-              campusId: 0,
-              buildingId: 0,
-              incidentTypeId: 0,
-              type: "",
-            };
-      });
-    }
-  };
+  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  //   if (e.target.files) {
+  //     console.log(e.target.files);
+  //     const fileList = Array.from(e.target.files); // Convert FileList to an array
+  //     setSelectedIncidentReport((prev) => {
+  //       const existingFiles = prev?.incidentFiles || [];
+  //       return prev
+  //         ? {
+  //             ...prev,
+  //             incidentFiles: [...existingFiles, ...fileList], // Combine existing and new files
+  //           }
+  //         : {
+  //             id: 0,
+  //             report: "",
+  //             disposition: "",
+  //             caseNumber: "",
+  //             action: "",
+  //             location: "",
+  //             uploadedBy: "",
+  //             frequency: 0,
+  //             incidentFiles: fileList, // Initialize incidentFiles
+  //             path: "",
+  //             incidentReoccured: "",
+  //             incidentStatusId: 0,
+  //             statuses: "",
+  //             userId: 0,
+  //             campusId: 0,
+  //             buildingId: 0,
+  //             incidentTypeId: 0,
+  //             type: "",
+  //           };
+  //     });
+  //   }
+  // };
 
   const columns: GridColDef[] = [
     { field: "caseNumber", headerName: "Case Number", flex: 1 },
+    { field: "incidentType", headerName: "Incident Type", flex: 1 },
+    // {
+    //   field: "buildingId",
+    //   headerName: "Building",
+    //   flex: 1,
+    //   valueGetter: (params) => {
+    //     // Get the building name from the buildingMap using buildingId
+    //     console.log(params.row.buildingId);
+    //     return buildingMap[params.row.buildingId] || "Unknown Building";
+    //   },
+    // },
+    { field: "buildingLocation", headerName: "Location", flex: 1 },
+    { field: "incidentStatus", headerName: "Incident Status", flex: 1 },
     { field: "report", headerName: "Incident Report", flex: 1 },
-    { field: "location", headerName: "Location", flex: 1 },
-    { field: "incidentReoccured", headerName: "Incident Occured", flex: 1 },
-    { field: "incidentStatuses", headerName: "Incident Statuses", flex: 1 },
+    { field: "disposition", headerName: "Disposition", flex: 1 },
+    { field: "action", headerName: "Action Taken", flex: 1 },
+    { field: "incidentFiles", headerName: "Incident Files", flex: 1 },
     { field: "uploadedBy", headerName: "Uploaded By", flex: 1 },
 
     {
@@ -353,28 +309,24 @@ export const IncidentReportTable: React.FC = () => {
       flex: 1,
       renderCell: (params) => {
         const row = params.row as {
-          id: number;
-          report: string;
-          disposition: string;
-          caseNumber: string;
+          id: string;
           action: string;
-          location: string;
+          caseNumber: string;
+          disposition: string;
+          incidentStatus: string;
+          incidentType: string;
+          incidentFiles: IIncidentFile[];
+          buildingId: string;
+          buildingLocation: string;
+          report: string;
           uploadedBy: string;
-          frequency: number;
-          incidentReoccured: string;
-          incidentFiles: string;
-          path: string;
-          incidentStatusId: number;
-          statuses: string;
-          userId: number;
-          campusId: number;
-          buildingId: number;
-          incidentTypeId: number;
-          type: string;
         };
         return (
           <div>
-            <IconButton onClick={() => handleEdit(row)} color="primary">
+            <IconButton
+              // onClick={() => handleEdit(row)}
+              color="primary"
+            >
               <EditIcon />
             </IconButton>
             <IconButton
@@ -451,24 +403,17 @@ export const IncidentReportTable: React.FC = () => {
                     prev
                       ? { ...prev, caseNumber: e.target.value }
                       : {
-                          id: 0,
-                          report: "",
-                          disposition: "",
-                          caseNumber: e.target.value,
+                          id: "",
                           action: "",
-                          location: "",
-                          uploadedBy: "",
-                          frequency: 0,
-                          incidentReoccured: "",
+                          caseNumber: e.target.value,
+                          disposition: "",
+                          incidentStatus: "",
+                          incidentType: "",
                           incidentFiles: [],
-                          path: "",
-                          incidentStatusId: 0,
-                          statuses: "",
-                          userId: 0,
-                          campusId: 0,
-                          buildingId: 0,
-                          incidentTypeId: 0,
-                          type: "",
+                          buildingId: "",
+                          buildingLocation: "",
+                          report: "",
+                          uploadedBy: "",
                         }
                   )
                 }
@@ -486,24 +431,17 @@ export const IncidentReportTable: React.FC = () => {
                     prev
                       ? { ...prev, disposition: e.target.value }
                       : {
-                          id: 0,
-                          report: "",
-                          disposition: e.target.value,
-                          caseNumber: "",
+                          id: "",
                           action: "",
-                          location: "",
-                          uploadedBy: "",
-                          frequency: 0,
-                          incidentReoccured: "",
+                          caseNumber: "",
+                          disposition: e.target.value,
+                          incidentStatus: "",
+                          incidentType: "",
                           incidentFiles: [],
-                          path: "",
-                          incidentStatusId: 0,
-                          statuses: "",
-                          userId: 0,
-                          campusId: 0,
-                          buildingId: 0,
-                          incidentTypeId: 0,
-                          type: "",
+                          buildingId: "",
+                          buildingLocation: "",
+                          report: "",
+                          uploadedBy: "",
                         }
                   )
                 }
@@ -521,24 +459,17 @@ export const IncidentReportTable: React.FC = () => {
                     prev
                       ? { ...prev, action: e.target.value }
                       : {
-                          id: 0,
-                          report: "",
-                          disposition: "",
-                          caseNumber: "",
+                          id: "",
                           action: e.target.value,
-                          location: "",
-                          uploadedBy: "",
-                          frequency: 0,
-                          incidentReoccured: "",
+                          caseNumber: "",
+                          disposition: "",
+                          incidentStatus: "",
+                          incidentType: "",
                           incidentFiles: [],
-                          path: "",
-                          incidentStatusId: 0,
-                          statuses: "",
-                          userId: 0,
-                          campusId: 0,
-                          buildingId: 0,
-                          incidentTypeId: 0,
-                          type: "",
+                          buildingId: "",
+                          buildingLocation: "",
+                          report: "",
+                          uploadedBy: "",
                         }
                   )
                 }
@@ -550,30 +481,23 @@ export const IncidentReportTable: React.FC = () => {
                 label="Location"
                 fullWidth
                 variant="outlined"
-                value={selectedIncidentReport?.location || ""}
+                value={selectedIncidentReport?.buildingLocation || ""}
                 onChange={(e) =>
                   setSelectedIncidentReport((prev) =>
                     prev
                       ? { ...prev, location: e.target.value }
                       : {
-                          id: 0,
-                          report: "",
-                          disposition: "",
-                          caseNumber: "",
+                          id: "",
                           action: "",
-                          location: e.target.value,
-                          uploadedBy: "",
-                          frequency: 0,
-                          incidentReoccured: "",
+                          caseNumber: "",
+                          disposition: "",
+                          incidentStatus: "",
+                          incidentType: "",
                           incidentFiles: [],
-                          path: "",
-                          incidentStatusId: 0,
-                          statuses: "",
-                          userId: 0,
-                          campusId: 0,
-                          buildingId: 0,
-                          incidentTypeId: 0,
-                          type: "",
+                          buildingId: "",
+                          buildingLocation: e.target.value,
+                          report: "",
+                          uploadedBy: "",
                         }
                   )
                 }
@@ -591,104 +515,28 @@ export const IncidentReportTable: React.FC = () => {
                     prev
                       ? { ...prev, uploadedBy: e.target.value }
                       : {
-                          id: 0,
-                          report: "",
-                          disposition: "",
-                          caseNumber: "",
+                          id: "",
                           action: "",
-                          location: "",
+                          caseNumber: "",
+                          disposition: "",
+                          incidentStatus: "",
+                          incidentType: "",
+                          incidentFiles: [],
+                          buildingId: "",
+                          buildingLocation: "",
+                          report: "",
                           uploadedBy: e.target.value,
-                          frequency: 0,
-                          incidentReoccured: "",
-                          incidentFiles: [],
-                          path: "",
-                          incidentStatusId: 0,
-                          statuses: "",
-                          userId: 0,
-                          campusId: 0,
-                          buildingId: 0,
-                          incidentTypeId: 0,
-                          type: "",
                         }
                   )
                 }
               />
             </Grid>
-            <Grid size={6}>
-              <TextField
-                margin="dense"
-                label="Frequency"
-                fullWidth
-                variant="outlined"
-                value={selectedIncidentReport?.frequency || ""}
-                onChange={(e) =>
-                  setSelectedIncidentReport((prev) =>
-                    prev
-                      ? { ...prev, frequency: Number(e.target.value) }
-                      : {
-                          id: 0,
-                          report: "",
-                          disposition: "",
-                          caseNumber: "",
-                          action: "",
-                          location: "",
-                          uploadedBy: "",
-                          frequency: Number(e.target.value),
-                          incidentReoccured: "",
-                          incidentFiles: [],
-                          path: "",
-                          incidentStatusId: 0,
-                          statuses: "",
-                          userId: 0,
-                          campusId: 0,
-                          buildingId: 0,
-                          incidentTypeId: 0,
-                          type: "",
-                        }
-                  )
-                }
-              />
-            </Grid>
-            <Grid size={6}>
-              <TextField
-                margin="dense"
-                label="Incident Occured"
-                fullWidth
-                variant="outlined"
-                value={selectedIncidentReport?.incidentReoccured || ""}
-                onChange={(e) =>
-                  setSelectedIncidentReport((prev) =>
-                    prev
-                      ? { ...prev, incidentReoccured: e.target.value }
-                      : {
-                          id: 0,
-                          report: "",
-                          disposition: "",
-                          caseNumber: "",
-                          action: "",
-                          location: "",
-                          uploadedBy: "",
-                          frequency: 0,
-                          incidentReoccured: e.target.value,
-                          incidentFiles: [],
-                          path: "",
-                          incidentStatusId: 0,
-                          statuses: "",
-                          userId: 0,
-                          campusId: 0,
-                          buildingId: 0,
-                          incidentTypeId: 0,
-                          type: "",
-                        }
-                  )
-                }
-              />
-            </Grid>
-            <Grid size={6}>
+
+            {/* <Grid size={6}>
               <FormControl margin="dense" fullWidth variant="outlined">
                 <InputLabel>Incident Status</InputLabel>
                 <Select
-                  value={selectedIncidentReport?.incidentStatusId || ""}
+                  value={selectedIncidentReport?.incidentStatus || ""}
                   label="Incident Status"
                   onChange={(e) => {
                     const incidentStatus = incidentStatusesData?.find(
@@ -727,9 +575,9 @@ export const IncidentReportTable: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid> */}
 
-            <FormControl margin="dense" fullWidth variant="outlined">
+            {/* <FormControl margin="dense" fullWidth variant="outlined">
               <InputLabel>Incident Type</InputLabel>
               <Select
                 value={selectedIncidentReport?.incidentTypeId || ""}
@@ -772,13 +620,13 @@ export const IncidentReportTable: React.FC = () => {
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
-            <Box sx={{ mb: 2 }}>
+            </FormControl> */}
+            {/* <Box sx={{ mb: 2 }}>
               <Typography sx={{ mb: 1 }}>Incident Pictures</Typography>
-              <input type="file" multiple onChange={handleChange} />
+              <input type="file" multiple onChange={handleChange} /> */}
 
-              {/* Display existing files */}
-              {selectedIncidentReport?.incidentFiles?.map((file, index) => (
+            {/* Display existing files */}
+            {/* {selectedIncidentReport?.incidentFiles?.map((file, index) => (
                 <div
                   key={index}
                   style={{ display: "inline-block", margin: "5px" }}
@@ -808,7 +656,7 @@ export const IncidentReportTable: React.FC = () => {
                   </Typography>
                 </div>
               ))}
-            </Box>
+            </Box> */}
 
             <TextField
               autoFocus
@@ -824,24 +672,17 @@ export const IncidentReportTable: React.FC = () => {
                   prev
                     ? { ...prev, report: e.target.value }
                     : {
-                        id: 0,
-                        report: e.target.value,
-                        disposition: "",
-                        caseNumber: "",
+                        id: "",
                         action: "",
-                        location: "",
-                        uploadedBy: "",
-                        frequency: 0,
-                        incidentReoccured: "",
+                        caseNumber: "",
+                        disposition: "",
+                        incidentStatus: "",
+                        incidentType: "",
                         incidentFiles: [],
-                        path: "",
-                        incidentStatusId: 0,
-                        statuses: "",
-                        userId: 0,
-                        campusId: 0,
-                        buildingId: 0,
-                        incidentTypeId: 0,
-                        type: "",
+                        buildingId: "",
+                        buildingLocation: "",
+                        report: e.target.value,
+                        uploadedBy: "",
                       }
                 )
               }
@@ -856,12 +697,12 @@ export const IncidentReportTable: React.FC = () => {
             Cancel
           </Button>
           <Button
-            onClick={() =>
-              handleUpdateIncidentReport(
-                0,
-                selectedIncidentReport?.incidentFiles ?? null
-              )
-            }
+            // onClick={() =>
+            //   handleUpdateIncidentReport(
+            //     0,
+            //     selectedIncidentReport?.incidentFiles ?? null
+            //   )
+            // }
             color="primary"
           >
             Save Changes

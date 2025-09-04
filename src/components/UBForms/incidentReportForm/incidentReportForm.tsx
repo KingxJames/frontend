@@ -1,14 +1,14 @@
 import React from "react";
 import { Box, Button, TextField, Typography, Grid, Paper } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { useInitializeIncidentReportQuery } from "../../../../store/services/incidentReportAPI";
+// import { useInitializeIncidentReportQuery } from "../../../../store/services/incidentReportAPI";
 import { selectIncidentReports } from "../../../../store/features/incidentReportSlice";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 export const IncidentReportForm: React.FC = () => {
   const dispatch = useDispatch();
   const incidentReports = useSelector(selectIncidentReports);
-  const { data: incidentReportsData } = useInitializeIncidentReportQuery();
+  // const { data: incidentReportsData } = useInitializeIncidentReportQuery();
 
   return (
     <Box

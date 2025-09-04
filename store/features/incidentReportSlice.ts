@@ -2,37 +2,30 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 export interface IIncidentFile {
-  id?: number;
+  id: string;
   path: string; // URL of the file
   name: string; // File name
 }
 
 export interface IIncidentReport {
-  id: number;
+  id: string;
   action: string;
-  buildingId: number;
-  campusId: number;
   caseNumber: string;
   disposition: string;
-  frequency: number;
-  incidentFiles: IIncidentFile[]; // Now an array
-  existingFiles: string[];
-  incidentReoccured: string;
-  incidentStatusId: number;
-  statuses: string;
-  incidentTypeId: number;
-  type: string;
-  location: string;
+  incidentStatus: string;
+  incidentType: string;
+  incidentFiles: IIncidentFile[];
+  buildingId: string;
+  buildingLocation: string;
   report: string;
   uploadedBy: string;
-  userId: number;
 }
 
-export interface IncidentReportState {
+export interface IncidentReportInitialState {
   incidentReports: IIncidentReport[];
 }
 
-const initialState: IncidentReportState = {
+const initialState: IncidentReportInitialState = {
   incidentReports: [],
 };
 
@@ -40,15 +33,15 @@ export const incidentReportSlice = createSlice({
   name: "incidentReports",
   initialState,
   reducers: {
-    setIncidentReports: (state, action: PayloadAction<IIncidentReport[]>) => {
+    setIncidentReport: (state, action: PayloadAction<IIncidentReport[]>) => {
       return { ...state, incidentReports: action.payload };
     },
 
-    addIncidentReports: (state, action: PayloadAction<IIncidentReport>) => {
+    addIncidentReport: (state, action: PayloadAction<IIncidentReport>) => {
       state.incidentReports.push(action.payload); // Push new role directly into the array
     },
 
-    updateIncidentReports: (state, action: PayloadAction<IIncidentReport>) => {
+    updateIncidentReport: (state, action: PayloadAction<IIncidentReport>) => {
       const index = state.incidentReports.findIndex(
         (incidentReport) => incidentReport.id === action.payload.id
       );
@@ -59,7 +52,7 @@ export const incidentReportSlice = createSlice({
         };
       }
     },
-    deleteIncidentReports: (state, action: PayloadAction<number>) => {
+    deleteIncidentReport: (state, action: PayloadAction<string>) => {
       state.incidentReports = state.incidentReports.filter(
         (incidentReports) => incidentReports.id !== action.payload
       );
@@ -68,14 +61,13 @@ export const incidentReportSlice = createSlice({
 });
 
 export const {
-  setIncidentReports,
-  addIncidentReports,
-  updateIncidentReports,
-  deleteIncidentReports,
+  setIncidentReport,
+  addIncidentReport,
+  updateIncidentReport,
+  deleteIncidentReport,
 } = incidentReportSlice.actions;
 
 export const selectIncidentReports = (state: RootState) =>
-  state.incidentReports;
-
+  state.incidentReports.incidentReports;
 
 export default incidentReportSlice.reducer;
