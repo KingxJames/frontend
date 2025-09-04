@@ -35,7 +35,7 @@ export const buildingsAPI = baseAPI.injectEndpoints({
     updateBuildings: builder.mutation<
       IBuilding,
       {
-        id: number;
+        id: string;
         name: string;
         location: string;
         campus: string;

@@ -45,7 +45,7 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
         incidentStatus: string;
         incidentType: string;
         incidentFiles: IIncidentFile[];
-        buildingId: number;
+        buildingId: string;
         buildingLocation: string;
         report: string;
         uploadedBy: string;
