@@ -8,6 +8,23 @@ import {
 
 export const incidentReportAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
+    initializeIncidentReport: builder.mutation({
+      query: (body: Partial<IncidentReportInitialState>) => ({
+        url: "/publicSafety/initialize/incidentReport",
+        method: "POST",
+        body,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          console.log("---->", data);
+          dispatch(setIncidentReport(data));
+        } catch (error) {
+          console.error("Failed to fetch incident reports:", error);
+        }
+      },
+    }),
+
     fetchIncidentReport: builder.query<IIncidentReport[], void>({
       query: () => "/publicSafety/incidentReports",
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
@@ -104,6 +121,7 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
 });
 
 export const {
+  useInitializeIncidentReportMutation,
   useFetchIncidentReportQuery,
   useFetchIncidentReportByIdQuery,
   useCreateIncidentReportMutation,

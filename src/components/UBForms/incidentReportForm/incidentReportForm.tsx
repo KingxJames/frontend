@@ -1,12 +1,16 @@
 import React from "react";
 import { Box, Button, TextField, Typography, Grid, Paper } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-// import { useInitializeIncidentReportQuery } from "../../../../store/services/incidentReportAPI";
+import { useFetchIncidentReportQuery } from "../../../../store/services/incidentReportAPI";
 import { selectIncidentReports } from "../../../../store/features/incidentReportSlice";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { useParams } from "react-router-dom"; //Use useParams to get the case number and fetch the correct report
 
 export const IncidentReportForm: React.FC = () => {
   const dispatch = useDispatch();
+  const { caseNumber } = useParams();
+  // const { data: incidentReport, isLoading } = useFetchIncidentReportQuery(caseNumber);
+
   const incidentReports = useSelector(selectIncidentReports);
   // const { data: incidentReportsData } = useInitializeIncidentReportQuery();
 
@@ -25,7 +29,7 @@ export const IncidentReportForm: React.FC = () => {
         sx={{
           width: "100%",
           height: "80px",
-          bgcolor: "#5E4B8B", // Purple
+          bgcolor: "#6C3777;", // Purple
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -71,7 +75,7 @@ export const IncidentReportForm: React.FC = () => {
               pb: 1,
             }}
           >
-            Incident Details
+            Incident Details - (caseNumber)
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
@@ -97,6 +101,14 @@ export const IncidentReportForm: React.FC = () => {
             <Grid item xs={12} md={6}>
               <TextField label="Campus" fullWidth />
             </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField label="Incident Type" fullWidth />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField label="Incident Status" fullWidth />
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 label="Description of Incident"
@@ -106,6 +118,14 @@ export const IncidentReportForm: React.FC = () => {
               />
             </Grid>
 
+            <Grid item xs={12}>
+              <TextField
+                label="Action Taken"
+                multiline
+                rows={4}
+                fullWidth
+              ></TextField>
+            </Grid>
             <Grid item xs={12} md={6}>
               <Button
                 component="label"
@@ -113,11 +133,11 @@ export const IncidentReportForm: React.FC = () => {
                 // tabIndex={-1}
                 startIcon={<CloudUploadIcon />}
                 sx={{
-                  bgcolor: "#5E4B8B",
+                  bgcolor: "#6C3777;",
                   color: "#fff",
                   fontWeight: "bold",
                   "&:hover": {
-                    bgcolor: "#4a3970",
+                    bgcolor: "#6d54a3ff",
                   },
                 }}
               >
@@ -163,11 +183,11 @@ export const IncidentReportForm: React.FC = () => {
             <Button
               variant="contained"
               sx={{
-                bgcolor: "#5E4B8B",
+                bgcolor: "#6C3777;",
                 color: "#fff",
                 fontWeight: "bold",
                 "&:hover": {
-                  bgcolor: "#4a3970",
+                  bgcolor: "#6d54a3ff",
                 },
               }}
             >

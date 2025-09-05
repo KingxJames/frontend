@@ -56,7 +56,7 @@ const App: React.FC = () => {
                   element={<IncidentReportTable />}
                 />
                 <Route
-                  path="/forms/incidentReportForm"
+                  path="/forms/incidentReportForm/:caseNumber"
                   element={<IncidentReportForm />}
                 />
               </Routes>

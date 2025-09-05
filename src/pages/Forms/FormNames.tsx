@@ -3,15 +3,26 @@ import UBFormCard from "../../components/UBForms/UBFormCard/UBFormCard";
 import { Box, Typography } from "@mui/material";
 import warning from "../../images/incident/warning.png";
 import { useNavigate } from "react-router-dom";
+import { useInitializeIncidentReportMutation } from "../../../store/services/incidentReportAPI";
+// import { useSelector } from "react-redux";
+// import { selectIncidentReports } from "../../../store/features/incidentReportSlice";
 
 export const FormNames: React.FC = () => {
   const navigate = useNavigate();
+  const [initializeIncidentReport] = useInitializeIncidentReportMutation();
 
-  const handleClick = () => {
-    navigate("incidentReportForm");
+  const handleClick = async () => {
+    try {
+      const response = await initializeIncidentReport({}).unwrap();
+      console.log("Initialized Incident Report:", response);
+
+      // Navigate with ID if form needs to load data
+      navigate(`incidentReportForm/${response.caseNumber}`);
+    } catch (error) {
+      console.error("Failed to initialize incident report:", error);
+    }
   };
 
-  console.log(handleClick);
   return (
     <Box>
       <UBFormCard

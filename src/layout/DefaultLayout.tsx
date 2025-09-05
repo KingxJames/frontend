@@ -8,12 +8,22 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const location = useLocation();
 
   // Define routes where UBHeader should be hidden
-  const hiddenHeaderRoutes = ["/messages", "/forms/incidentReportForm"];
-  const hiddenSidebarRoutes = ["/forms/incidentReportForm"];
+  const hiddenHeaderRoutes = [
+    "/messages",
+    "/forms/incidentReportForm/:caseNumber",
+  ];
+  const hiddenSidebarRoutes = ["/forms/incidentReportForm/:caseNumber"];
 
   // Check if current route is in the hidden list
-  const hideHeader = hiddenHeaderRoutes.includes(location.pathname);
-  const hideSidebar = hiddenSidebarRoutes.includes(location.pathname);
+  const hideHeader =
+    hiddenHeaderRoutes.some((route) =>
+      location.pathname.startsWith("/forms/incidentReportForm/")
+    ) || hiddenHeaderRoutes.includes(location.pathname);
+
+  const hideSidebar =
+    hiddenSidebarRoutes.some((route) =>
+      location.pathname.startsWith("/forms/incidentReportForm/")
+    ) || hiddenSidebarRoutes.includes(location.pathname);
 
   return (
     <div className="dark:bg-boxdark-2 dark:text-bodydark">

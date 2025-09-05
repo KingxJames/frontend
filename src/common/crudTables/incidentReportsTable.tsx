@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   Typography,
+  Box,
 } from "@mui/material";
 import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -220,7 +221,6 @@ export const IncidentReportTable: React.FC = () => {
     { field: "action", headerName: "Action Taken", flex: 1 },
     { field: "incidentFiles", headerName: "Incident Files", flex: 1 },
     { field: "uploadedBy", headerName: "Uploaded By", flex: 1 },
-
     {
       field: "actions",
       headerName: "Actions",
@@ -431,19 +431,38 @@ export const IncidentReportTable: React.FC = () => {
                 Upload files
               </Button>
 
-              <Typography>
+              <Typography sx={{ mt: 2 }}>
                 Upload Photos:
-                {selectedIncidentReport?.incidentFiles.map((file, index) => (
-                  <span key={index} style={{ display: "block" }}>
-                    <a
-                      href={file.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {file.name}
-                    </a>
-                  </span>
-                ))}
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 1 }}>
+                  {(selectedIncidentReport?.data?.incidentFiles ?? []).map((file, index) => {
+                    const incidentPicture = file.incidentPicture; // ✅ string like "app/private/uploads/photos/txjce3YKKVtvYBFGGEFZY.jpeg"
+
+
+                    // ✅ Build full URL
+                    const url = incidentPicture
+                      ? buildApiUrl(
+                          `publicSafety/uploadIncidentReportPhoto/${incidentPicture
+                            .split("/")
+                            .pop()}`
+                        )
+                      : "";
+
+                    console.log("--->url", url);
+
+                    return (
+                      <img
+                        key={index}
+                        src={url}
+                        alt="incident report"
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    );
+                  })}
+                </Box>
               </Typography>
             </Grid>
 
