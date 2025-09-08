@@ -41,7 +41,11 @@ const App: React.FC = () => {
           element={
             <DefaultLayout>
               <Routes>
-                <Route path="/" element={<Dashboard />} />
+                <Route
+                  path="/"
+                  element={<Navigate to="/dashboard" replace />}
+                />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/Settings" element={<Settings />} />
                 <Route path="/Messages" element={<WhatsappWeb />} />
                 <Route path="/Forms" element={<FormNames />} />

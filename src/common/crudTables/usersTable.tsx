@@ -169,7 +169,7 @@ export const UsersTable: React.FC = () => {
     domain: string;
   }) => {
     setSelectedUser(user); // Ensure selectedRole is set
-    console.log("selectedUser", selectedUser);
+    // console.log("selectedUser", selectedUser);
     setSelectedRole({
       id: user.roleId,
       roles: user.roles,

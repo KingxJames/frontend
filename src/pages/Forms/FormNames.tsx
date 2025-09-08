@@ -14,7 +14,7 @@ export const FormNames: React.FC = () => {
   const handleClick = async () => {
     try {
       const response = await initializeIncidentReport({}).unwrap();
-      console.log("Initialized Incident Report:", response);
+      // console.log("Initialized Incident Report:", response);
 
       // Navigate with ID if form needs to load data
       navigate(`incidentReportForm/${response.caseNumber}`);

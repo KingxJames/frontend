@@ -1,18 +1,38 @@
 import React from "react";
-import { Box, Button, TextField, Typography, Grid, Paper } from "@mui/material";
+import { Box, Button, TextField, Typography, Grid, Paper, Select } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { useFetchIncidentReportQuery } from "../../../../store/services/incidentReportAPI";
-import { selectIncidentReports } from "../../../../store/features/incidentReportSlice";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { useParams } from "react-router-dom"; //Use useParams to get the case number and fetch the correct report
+import {
+  selectIncidentReports,
+  setAction,
+  setCaseNumber,
+  setDisposition,
+  setIncidentStatus,
+  setIncidentType,
+  setIncidentReports,
+  setBuildingId,
+  setBuildingLocation,
+  setReport,
+  setUploadedBy,
+  setDate,
+  setTime,
+} from "../../../../store/features/incidentReportSlice";
+
+import { IBuilding } from "../../../../store/features/buildingSlice";
+import {selectBuildings} from "../../../../store/features/buildingSlice";
+import { useFetchBuildingsQuery } from "../../../../store/services/buildingsAPI";
+
+
 
 export const IncidentReportForm: React.FC = () => {
   const dispatch = useDispatch();
-  const { caseNumber } = useParams();
-  // const { data: incidentReport, isLoading } = useFetchIncidentReportQuery(caseNumber);
-
   const incidentReports = useSelector(selectIncidentReports);
-  // const { data: incidentReportsData } = useInitializeIncidentReportQuery();
+  const { data: buildingsData } = useFetchBuildingsQuery();
+
+  // console.log("incidentReports", incidentReports);
+  const buildings = useSelector(selectBuildings);
+
+  console.log("buildings", buildings);
 
   return (
     <Box
@@ -75,7 +95,7 @@ export const IncidentReportForm: React.FC = () => {
               pb: 1,
             }}
           >
-            Incident Details - (caseNumber)
+            Incident Details - {incidentReports.caseNumber}
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
@@ -84,6 +104,8 @@ export const IncidentReportForm: React.FC = () => {
                 type="date"
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                value={incidentReports.date as string}
+                onChange={(e) => dispatch(setDate(e.target.value))}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -92,8 +114,14 @@ export const IncidentReportForm: React.FC = () => {
                 type="time"
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                value={incidentReports.time}
+                onChange={(e) => dispatch(setTime(e.target.value))}
               />
             </Grid>
+            <Grid item xs={12} md={6} >
+              <Select> </Select>
+            </Grid>
+
             <Grid item xs={12} md={6}>
               <TextField label="Location" fullWidth />
             </Grid>

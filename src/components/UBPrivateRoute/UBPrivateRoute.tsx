@@ -52,12 +52,12 @@ export const UBPrivateRoute = () => {
           })
         );
 
-        console.log("--->", userData.user.name);
+        // console.log("--->", userData.user.name);
 
         // Set menu from userData
         if (userData.user.menus && userData.user.menus.length) {
           dispatch(setMenuState(userData.user.menus));
-          navigate(userData.user.menus[0].path);
+          // navigate(userData.user.menus[0].path);
           // redirect here
         }
 

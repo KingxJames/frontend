@@ -19,6 +19,7 @@ import {
 import UBLogoWhite from "../../images/UBLogoWhite.png";
 import { IMenu } from "../../../store/features/menuSlice";
 
+
 interface UBSidebarProps {
   open?: boolean;
   setSidebarOpen: (arg: boolean) => void;

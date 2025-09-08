@@ -19,9 +19,9 @@ import UBChatList from "../../../common/UBChatList/UBChatList.tsx";
 export const UBDashboard: React.FC = () => {
   // Fetch the totals using hooks
   const { data: usersTotalData } = useFetchUsersTotalQuery();
-  const { data: reportTotalData } = useFetchReportTotalQuery();
-  const { data: incidentFilesTotalData } = useFetchIncidentFilesTotalQuery();
-  const { data: messageTotalData } = useFetchMessageTotalQuery();
+  // const { data: reportTotalData } = useFetchReportTotalQuery();
+  // const { data: incidentFilesTotalData } = useFetchIncidentFilesTotalQuery();
+  // const { data: messageTotalData } = useFetchMessageTotalQuery();
 
   const dashboardData = useSelector(selectDashboard);
   const stats = [
@@ -30,24 +30,24 @@ export const UBDashboard: React.FC = () => {
       total: usersTotalData?.total || dashboardData.total.usersTotal || 0,
       icon: <RemoveRedEyeIcon />,
     },
-    {
-      title: "Total Incident Reports",
-      total: reportTotalData?.total || dashboardData.total.reportTotal || 0,
-      icon: <AssessmentIcon />,
-    },
-    {
-      title: "Total incident Files",
-      total:
-        incidentFilesTotalData?.total ||
-        dashboardData.total.incidentFilesTotal ||
-        0,
-      icon: <AssessmentIcon />,
-    },
-    {
-      title: "Total Messages Sent",
-      total: messageTotalData?.total || dashboardData.total.messageTotal || 0,
-      icon: <MarkEmailReadIcon />,
-    },
+    // {
+    //   title: "Total Incident Reports",
+    //   total: reportTotalData?.total || dashboardData.total.reportTotal || 0,
+    //   icon: <AssessmentIcon />,
+    // },
+    // {
+    //   title: "Total incident Files",
+    //   total:
+    //     incidentFilesTotalData?.total ||
+    //     dashboardData.total.incidentFilesTotal ||
+    //     0,
+    //   icon: <AssessmentIcon />,
+    // },
+    // {
+    //   title: "Total Messages Sent",
+    //   total: messageTotalData?.total || dashboardData.total.messageTotal || 0,
+    //   icon: <MarkEmailReadIcon />,
+    // },
   ];
 
   return (

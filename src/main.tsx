@@ -10,15 +10,18 @@ import App from "./App.tsx";
 import "./App.css";
 import "./css/satoshi.css";
 import "./css/style.css";
+import { Loader } from "./common/Loader/Loader";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 createRoot(document.getElementById("root")!).render(
   <GoogleOAuthProvider clientId="954779929729-hkv9gd5snnsfh2f824sf8pp22h3kuml9.apps.googleusercontent.com">
     <StrictMode>
       <Provider store={store}>
-        <Router>
-          <App />
-        </Router>
+        <PersistGate loading={<Loader />} persistor={persistor}>
+          <Router>
+            <App />
+          </Router>
+        </PersistGate>
       </Provider>
     </StrictMode>
   </GoogleOAuthProvider>

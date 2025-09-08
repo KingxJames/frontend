@@ -20,13 +20,13 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useSelector, useDispatch } from "react-redux";
 import {
   useFetchIncidentReportQuery,
-  useDeleteIncidentReportMutation,
-  useUpdateIncidentReportMutation,
+  // useDeleteIncidentReportMutation,
+  // useUpdateIncidentReportMutation,
 } from "./../../../store/services/incidentReportAPI";
 // import { useFetchBuildingsQuery } from "../../../store/services/buildingsAPI";
 import {
-  setIncidentReport,
-  updateIncidentReport,
+  setIncidentReportState,
+  // updateIncidentReport,
   // deleteIncidentReport,
   selectIncidentReports,
   IIncidentFile,
@@ -47,11 +47,11 @@ export const IncidentReportTable: React.FC = () => {
   const dispatch = useDispatch();
   const [files, setFiles] = useState<File[]>([]); // Store multiple file objects
 
-  const { data: incidentReportsData, refetch } = useFetchIncidentReportQuery();
+  // const { data: incidentReportsData, refetch } = useFetchIncidentReportQuery();
 
-  const [deleteIncidentReports] = useDeleteIncidentReportMutation();
-  const [updateIncidentReports] = useUpdateIncidentReportMutation();
-  const incidentReports = useSelector(selectIncidentReports);
+  // const [deleteIncidentReports] = useDeleteIncidentReportMutation();
+  // const [updateIncidentReports] = useUpdateIncidentReportMutation();
+  // const incidentReports = useSelector(selectIncidentReports);
   // const buildings = useSelector(selectBuildings);
 
   const paginationModel = { page: 0, pageSize: 5 };
@@ -85,31 +85,31 @@ export const IncidentReportTable: React.FC = () => {
     uploadedBy: string;
   } | null>(null);
 
-  useEffect(() => {
-    if (incidentReportsData) {
-      dispatch(setIncidentReport(incidentReportsData.data));
-    }
-  }, [incidentReportsData, dispatch]);
+  // useEffect(() => {
+  //   if (incidentReportsData) {
+  //     dispatch(setIncidentReport(incidentReportsData.data));
+  //   }
+  // }, [incidentReportsData, dispatch]);
 
-  const filteredIncidentReports = Array.isArray(incidentReports)
-    ? incidentReports.filter(
-        (incidentReport) =>
-          incidentReport.report?.toLowerCase().includes(search.toLowerCase()) ||
-          incidentReport.caseNumber
-            ?.toLowerCase()
-            .includes(search.toLowerCase())
-      )
-    : [];
+  // const filteredIncidentReports = Array.isArray(incidentReports)
+  //   ? incidentReports.filter(
+  //       (incidentReport) =>
+  //         incidentReport.report?.toLowerCase().includes(search.toLowerCase()) ||
+  //         incidentReport.caseNumber
+  //           ?.toLowerCase()
+  //           .includes(search.toLowerCase())
+  //     )
+  //   : [];
 
-  const handleDelete = async (id: string) => {
-    if (!id) return;
-    try {
-      await deleteIncidentReports(id).unwrap(); // API call
-      refetch();
-    } catch (error) {
-      console.error("Failed to delete incident report:", error);
-    }
-  };
+  // const handleDelete = async (id: string) => {
+  //   if (!id) return;
+  //   try {
+  //     await deleteIncidentReports(id).unwrap(); // API call
+  //     refetch();
+  //   } catch (error) {
+  //     console.error("Failed to delete incident report:", error);
+  //   }
+  // };
 
   const handleExport = () => {
     const csvHeaders = [
@@ -124,22 +124,22 @@ export const IncidentReportTable: React.FC = () => {
       "UploadedBy",
     ];
 
-    const csvRows = incidentReports.map((incidentReport) =>
-      [
-        incidentReport.id,
-        incidentReport.caseNumber,
-        incidentReport.incidentType,
-        incidentReport.buildingLocation,
-        incidentReport.incidentStatus,
-        incidentReport.report,
-        incidentReport.disposition,
-        incidentReport.action,
-        incidentReport.incidentFiles,
-        incidentReport.uploadedBy,
-      ]
-        .map((field) => `"${String(field).replace(/"/g, '""')}"`)
-        .join(",")
-    );
+    // const csvRows = incidentReports.map((incidentReport) =>
+    //   [
+    //     incidentReport.id,
+    //     incidentReport.caseNumber,
+    //     incidentReport.incidentType,
+    //     incidentReport.buildingLocation,
+    //     incidentReport.incidentStatus,
+    //     incidentReport.report,
+    //     incidentReport.disposition,
+    //     incidentReport.action,
+    //     incidentReport.incidentFiles,
+    //     incidentReport.uploadedBy,
+    //   ]
+    //     .map((field) => `"${String(field).replace(/"/g, '""')}"`)
+    //     .join(",")
+    // );
 
     const csvContent =
       "data:text/csv;charset=utf-8," +
