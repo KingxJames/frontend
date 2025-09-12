@@ -19,6 +19,7 @@ import {
   selectTime,
   setDate,
   setTime,
+  setIncidentReportStatus,
 } from "../../../../store/features/incidentReportSlice";
 import {
   selectIncidentStatus,
