@@ -7,7 +7,6 @@ import MessageIcon from "@mui/icons-material/Message";
 import ReportIcon from "@mui/icons-material/Report";
 import SettingsIcon from "@mui/icons-material/Settings";
 import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
-import MenuIcon from "@mui/icons-material/Menu";
 import {
   Box,
   List,
@@ -31,6 +30,7 @@ export const UBSidebar: React.FC<UBSidebarProps> = ({
 }) => {
   const location = useLocation();
   const menuItems = useSelector(selectMenuState);
+  console.log("--->menuItems", menuItems);
 
   const renderIconComponent = (iconString: string) => {
     switch (iconString) {

@@ -20,6 +20,7 @@ import campusesReducer from "./features/campusSlice";
 import departmentsReducers from "./features/departmentSlice";
 import messageCategoryReducer from "./features/messageCategoriesSlice";
 import departmentMemberReducer from "./features/departmentMemberSlice";
+import incidentStatusReducer from "./features/incidentStatusSlice";
 import incidentReportReducer from "./features/incidentReportSlice";
 import menuReducer from "./features/menuSlice";
 import usersReducer from "./features/userSlice";
@@ -54,6 +55,7 @@ const rootReducer = combineReducers({
   users: usersReducer,
   departmentMembers: departmentMemberReducer,
   incidentReports: incidentReportReducer,
+  incidentStatus: incidentStatusReducer,
   menu: menuReducer,
   recipients: recipientReducer,
   subMenus: subMenuReducer,

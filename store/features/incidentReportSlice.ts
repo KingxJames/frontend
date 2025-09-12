@@ -7,7 +7,7 @@ export interface IIncidentFile {
 }
 
 export interface IIncidentReport {
-  incidentFiles?: IIncidentFile[]; // Array of incident files (picture URL)
+  incidentFiles?: IIncidentFile[];
 }
 
 export interface IncidentReportInitialState {
@@ -15,9 +15,10 @@ export interface IncidentReportInitialState {
   action: string;
   caseNumber: string;
   disposition: string;
-  incidentStatus: string;
+  incidentStatusID: string;
+  incidentReportStatus: string;
   incidentType: string;
-  incidentReports: IIncidentReport[];
+  incidentFiles: IIncidentFile[];
   buildingId: string;
   buildingLocation: string;
   report: string;
@@ -32,9 +33,10 @@ const initialState: IncidentReportInitialState = {
   action: "",
   caseNumber: "",
   disposition: "",
-  incidentStatus: "",
+  incidentStatusID: "",
+  incidentReportStatus: "",
   incidentType: "",
-  incidentReports: [],
+  incidentFiles: [],
   buildingId: "",
   buildingLocation: "",
   report: "",
@@ -48,45 +50,50 @@ export const incidentReportSlice = createSlice({
   name: "incidentReports",
   initialState,
   reducers: {
-    setIncidentReportState: (state, action: PayloadAction<IIncidentReport>) => {
-      return { ...state, ...action.payload };
+    setIncidentReportState: (
+      state,
+      action: PayloadAction<Partial<IncidentReportInitialState>>
+    ) => {
+      Object.assign(state, action.payload);
     },
-
     setAction: (state, action: PayloadAction<string>) => {
-      return { ...state, action: action.payload };
+      state.action = action.payload;
     },
     setCaseNumber: (state, action: PayloadAction<string>) => {
-      return { ...state, caseNumber: action.payload };
+      state.caseNumber = action.payload;
     },
     setDisposition: (state, action: PayloadAction<string>) => {
-      return { ...state, disposition: action.payload };
+      state.disposition = action.payload;
     },
     setIncidentStatus: (state, action: PayloadAction<string>) => {
-      return { ...state, incidentStatus: action.payload };
+      state.incidentStatus = action.payload;
     },
     setIncidentType: (state, action: PayloadAction<string>) => {
-      return { ...state, incidentType: action.payload };
+      state.incidentType = action.payload;
     },
-    setIncidentReports: (state, action: PayloadAction<IIncidentReport[]>) => {
-      return { ...state, incidentReports: action.payload };
+    setIncidentFiles: (state, action: PayloadAction<IIncidentFile[]>) => {
+      state.incidentFiles = action.payload;
     },
     setBuildingId: (state, action: PayloadAction<string>) => {
-      return { ...state, buildingId: action.payload };
+      state.buildingId = action.payload;
     },
     setBuildingLocation: (state, action: PayloadAction<string>) => {
-      return { ...state, buildingLocation: action.payload };
+      state.buildingLocation = action.payload;
     },
     setReport: (state, action: PayloadAction<string>) => {
-      return { ...state, report: action.payload };
+      state.report = action.payload;
     },
     setUploadedBy: (state, action: PayloadAction<string>) => {
-      return { ...state, uploadedBy: action.payload };
+      state.uploadedBy = action.payload;
     },
     setDate: (state, action: PayloadAction<string>) => {
-      return { ...state, date: action.payload };
+      state.date = action.payload;
     },
     setTime: (state, action: PayloadAction<string>) => {
-      return { ...state, time: action.payload };
+      state.time = action.payload;
+    },
+    setFormSubmitted: (state, action: PayloadAction<boolean>) => {
+      state.formSubmitted = action.payload;
     },
   },
 });
@@ -98,13 +105,14 @@ export const {
   setDisposition,
   setIncidentStatus,
   setIncidentType,
-  setIncidentReports,
+  setIncidentFiles,
   setBuildingId,
   setBuildingLocation,
   setReport,
   setUploadedBy,
   setDate,
   setTime,
+  setFormSubmitted,
 } = incidentReportSlice.actions;
 
 export const selectIncidentReports = (state: RootState) =>

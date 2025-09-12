@@ -1,38 +1,58 @@
-import React from "react";
-import { Box, Button, TextField, Typography, Grid, Paper, Select } from "@mui/material";
+import React, { useEffect } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Grid,
+  Paper,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {
   selectIncidentReports,
-  setAction,
-  setCaseNumber,
-  setDisposition,
-  setIncidentStatus,
-  setIncidentType,
-  setIncidentReports,
-  setBuildingId,
-  setBuildingLocation,
-  setReport,
-  setUploadedBy,
+  selectCaseNumber,
+  selectDate,
+  selectTime,
   setDate,
   setTime,
 } from "../../../../store/features/incidentReportSlice";
+import {
+  selectIncidentStatus,
+  IIncidentStatus,
+  setIncidentStatus,
+  selectSelectedIncidentStatus,
+  setSelectedIncidentStatus,
+} from "../../../../store/features/incidentStatusSlice";
+import { useFetchIncidentStatusesQuery } from "../../../../store/services/incidentStatusAPI";
 
-import { IBuilding } from "../../../../store/features/buildingSlice";
-import {selectBuildings} from "../../../../store/features/buildingSlice";
-import { useFetchBuildingsQuery } from "../../../../store/services/buildingsAPI";
-
-
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 export const IncidentReportForm: React.FC = () => {
   const dispatch = useDispatch();
+
   const incidentReports = useSelector(selectIncidentReports);
-  const { data: buildingsData } = useFetchBuildingsQuery();
+  console.log("incidentReports", incidentReports);
+  const caseNumber = useSelector(selectCaseNumber);
+  const date = useSelector(selectDate);
+  const time = useSelector(selectTime);
+  // const { data: incidentReportsData } = useInitializeIncidentReportQuery();
 
-  // console.log("incidentReports", incidentReports);
-  const buildings = useSelector(selectBuildings);
+  const { data: incidentStatusData } = useFetchIncidentStatusesQuery();
+  // console.log("incidentStatusData", incidentStatusData);
 
-  console.log("buildings", buildings);
+  const incidentStatus = useSelector(selectIncidentStatus);
+  // console.log("incidentStatus", incidentStatus);
+
+  const selectedIncidentStatus = useSelector(selectSelectedIncidentStatus);
+  console.log("selectedIncidentStatus", selectedIncidentStatus);
+
+  if (incidentStatus.length <= 1) {
+    return null;
+  }
 
   return (
     <Box
@@ -95,7 +115,7 @@ export const IncidentReportForm: React.FC = () => {
               pb: 1,
             }}
           >
-            Incident Details - {incidentReports.caseNumber}
+            Incident Details - {caseNumber}
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
@@ -104,8 +124,8 @@ export const IncidentReportForm: React.FC = () => {
                 type="date"
                 fullWidth
                 InputLabelProps={{ shrink: true }}
-                value={incidentReports.date as string}
                 onChange={(e) => dispatch(setDate(e.target.value))}
+                value={date}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -114,14 +134,10 @@ export const IncidentReportForm: React.FC = () => {
                 type="time"
                 fullWidth
                 InputLabelProps={{ shrink: true }}
-                value={incidentReports.time}
+                value={time}
                 onChange={(e) => dispatch(setTime(e.target.value))}
               />
             </Grid>
-            <Grid item xs={12} md={6} >
-              <Select> </Select>
-            </Grid>
-
             <Grid item xs={12} md={6}>
               <TextField label="Location" fullWidth />
             </Grid>
@@ -135,7 +151,25 @@ export const IncidentReportForm: React.FC = () => {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <TextField label="Incident Status" fullWidth />
+              {/* <TextField label="Incident Status" fullWidth /> */}
+              <FormControl fullWidth>
+                <InputLabel id="incident-status-label">
+                  Incident Status
+                </InputLabel>
+                <Select
+                  labelId="incident-status-label"
+                  value={selectedIncidentStatus}
+                  onChange={(e) =>
+                    dispatch(setSelectedIncidentStatus(e.target.value))
+                  }
+                >
+                  {incidentStatus.data?.map((status: IIncidentStatus) => (
+                    <MenuItem key={status.id} value={status.incidentStatus}>
+                      {status.incidentStatus}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12}>
               <TextField

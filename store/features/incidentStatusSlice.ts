@@ -2,51 +2,64 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 export interface IIncidentStatus {
-  id: number;
-  statuses: string;
+  id: string;
+  incidentStatus: string;
 }
 
 export interface IncidentStatusInitialState {
-  statuses: IIncidentStatus[];
+  incidentStatus: IIncidentStatus[];
+  selectedStatus: string;
 }
 
 const initialState: IncidentStatusInitialState = {
-  statuses: [],
+  incidentStatus: [],
+  selectedStatus: "",
 };
 
 export const incidentStatustSlice = createSlice({
-  name: "incidentStatuses",
+  name: "incidentStatus",
   initialState,
   reducers: {
-    setIncidentStatuses: (state, action: PayloadAction<IIncidentStatus[]>) => {
-      return { ...state, statuses: action.payload };
+    setIncidentStatus: (state, action: PayloadAction<IIncidentStatus[]>) => {
+      state.incidentStatus = action.payload;
     },
 
-    addIncidentStatuses: (state, action: PayloadAction<IIncidentStatus>) => {
-      state.statuses.push(action.payload);
+    setSelectedIncidentStatus: (state, action: PayloadAction<string>) => {
+      state.selectedStatus = action.payload;
     },
 
-    updateIncidentStatuses: (state, action: PayloadAction<IIncidentStatus>) => {
-      const index = state.statuses.findIndex(
-        (statuses) => statuses.id === action.payload.id
+    addIncidentStatus: (state, action: PayloadAction<IIncidentStatus>) => {
+      state.incidentStatus.push(action.payload);
+    },
+
+    updateIncidentStatus: (state, action: PayloadAction<IIncidentStatus>) => {
+      const index = state.incidentStatus.findIndex(
+        (incidentStatus) => incidentStatus.id === action.payload.id
       );
       if (index !== -1) {
-        state.statuses[index] = { ...state.statuses[index], ...action.payload };
+        state.incidentStatus[index] = {
+          ...state.incidentStatus[index],
+          ...action.payload,
+        };
       }
     },
-    deleteIncidentStatuses: (state, action: PayloadAction<number>) => {
-      state.statuses = state.statuses.filter(
-        (statuses) => statuses.id !== action.payload
+    deleteIncidentStatus: (state, action: PayloadAction<string>) => {
+      state.incidentStatus = state.incidentStatus.filter(
+        (incidentStatus) => incidentStatus.id !== action.payload
       );
     },
   },
 });
 
 export const {
-  setIncidentStatuses,
-  addIncidentStatuses,
-  updateIncidentStatuses,
-  deleteIncidentStatuses,
+  setIncidentStatus,
+  setSelectedIncidentStatus,
+  addIncidentStatus,
+  updateIncidentStatus,
+  deleteIncidentStatus,
 } = incidentStatustSlice.actions;
-export const selectIncidentStatuses = (state: RootState) => state.incidentStatuses;
+export const selectIncidentStatus = (state: RootState) =>
+  state.incidentStatus.incidentStatus;
+export const selectSelectedIncidentStatus = (state: RootState) =>
+  state.incidentStatus.selectedStatus;
 export default incidentStatustSlice.reducer;

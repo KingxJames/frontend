@@ -338,7 +338,7 @@ export const IncidentReportTable: React.FC = () => {
                   <MenuItem value="Environmental Incidents">
                     Environmental Incidents
                   </MenuItem>
-                  <MenuItem value="ResolSecurity Incidentsved">
+                  <MenuItem value="Security Incidents">
                     Security Incidents
                   </MenuItem>
                   <MenuItem value="Equipment Malfunctions">
