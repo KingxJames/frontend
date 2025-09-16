@@ -12,7 +12,6 @@ export const buildingsAPI = baseAPI.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log(data);
           dispatch(setBuilding(data));
         } catch (error) {
           console.error("Failed to fetch buildings:", error);

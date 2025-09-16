@@ -19,7 +19,7 @@ export const campusSlice = createSlice({
   initialState,
   reducers: {
     setCampus: (state, action: PayloadAction<ICampus[]>) => {
-      state.campus = action.payload;
+      return { ...state, campus: action.payload };
     },
 
     addCampus: (state, action: PayloadAction<ICampus>) => {
@@ -46,6 +46,6 @@ export const campusSlice = createSlice({
 export const { setCampus, addCampus, updateCampus, deleteCampus } =
   campusSlice.actions;
 
-export const selectCampus = (state: RootState) => state.campus;
+export const selectCampus = (state: RootState) => state.campus.campus;
 
 export default campusSlice.reducer;

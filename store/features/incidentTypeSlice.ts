@@ -3,9 +3,7 @@ import { RootState } from "../store";
 
 export interface IIncidentType {
   id: number;
-  icon: string;
   type: string;
-  message: string;
 }
 
 export interface IncidentTypeInitialState {
@@ -44,5 +42,5 @@ export const incidnetTypesSlice = createSlice({
 
 export const { setIncidentTypes, addIncidentTypes, updateIncidentTypes, deleteIncidentTypes } =
 incidnetTypesSlice.actions;
-export const selectIncidentTypes = (state: RootState) => state.incidentTypes;
+export const selectIncidentTypes = (state: RootState) => state.incidentTypes.incidentTypes;
 export default incidnetTypesSlice.reducer;

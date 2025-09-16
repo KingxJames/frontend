@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -11,49 +11,106 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   selectIncidentReports,
-  selectCaseNumber,
-  selectDate,
-  selectTime,
   setDate,
   setTime,
   setIncidentReportStatus,
+  setBuildingName,
+  setCampus,
+  setIncidentType,
+  setDescription,
+  setAction,
+  setContact,
+  setReportedBy,
+  setWitnesses,
+  setFormSubmitted,
 } from "../../../../store/features/incidentReportSlice";
 import {
   selectIncidentStatus,
   IIncidentStatus,
-  setIncidentStatus,
-  selectSelectedIncidentStatus,
-  setSelectedIncidentStatus,
 } from "../../../../store/features/incidentStatusSlice";
-import { useFetchIncidentStatusesQuery } from "../../../../store/services/incidentStatusAPI";
+import {
+  selectBuildings,
+  IBuilding,
+} from "../../../../store/features/buildingSlice";
+import { selectCampus, ICampus } from "../../../../store/features/campusSlice";
+import {
+  selectIncidentTypes,
+  IIncidentType,
+} from "../../../../store/features/incidentTypeSlice";
 
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { useFetchIncidentStatusesQuery } from "../../../../store/services/incidentStatusAPI";
+import { useFetchBuildingsQuery } from "../../../../store/services/buildingsAPI";
+import { useFetchCampusesQuery } from "../../../../store/services/campusAPI";
+import { useFetchIncidentTypesQuery } from "../../../../store/services/incidentTypesAPI";
+
+import axios from "axios";
 
 export const IncidentReportForm: React.FC = () => {
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+
   const dispatch = useDispatch();
+  const { data: incidentStatusData } = useFetchIncidentStatusesQuery();
+  const { data: buildingsData } = useFetchBuildingsQuery();
+  const { data: campusData } = useFetchCampusesQuery();
+  const { data: incidentTypesData } = useFetchIncidentTypesQuery();
 
   const incidentReports = useSelector(selectIncidentReports);
-  console.log("incidentReports", incidentReports);
-  const caseNumber = useSelector(selectCaseNumber);
-  const date = useSelector(selectDate);
-  const time = useSelector(selectTime);
-  // const { data: incidentReportsData } = useInitializeIncidentReportQuery();
-
-  const { data: incidentStatusData } = useFetchIncidentStatusesQuery();
-  // console.log("incidentStatusData", incidentStatusData);
-
   const incidentStatus = useSelector(selectIncidentStatus);
-  // console.log("incidentStatus", incidentStatus);
-
-  const selectedIncidentStatus = useSelector(selectSelectedIncidentStatus);
-  console.log("selectedIncidentStatus", selectedIncidentStatus);
+  const campus = useSelector(selectCampus);
+  const buildings = useSelector(selectBuildings);
+  const incidentTypes = useSelector(selectIncidentTypes);
 
   if (incidentStatus.length <= 1) {
     return null;
   }
+
+  if (buildings.length <= 1) {
+    return null;
+  }
+
+  if (campus.length <= 1) {
+    return null;
+  }
+
+  if (incidentTypes.length <= 1) {
+    return null;
+  }
+
+  // Handle file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    setSelectedFiles(files);
+
+    // Generate preview URLs
+    const previewUrls = files.map((file) => URL.createObjectURL(file));
+    setPreviews(previewUrls);
+  };
+
+  // Upload files using Axios
+  const handleUpload = async () => {
+    if (selectedFiles.length === 0) return;
+
+    const formData = new FormData();
+    selectedFiles.forEach((file) => {
+      formData.append("images[]", file); // backend expects `images[]`
+    });
+
+    try {
+      const response = await axios.post("/api/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      console.log("Upload success:", response.data);
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
+  };
 
   return (
     <Box
@@ -116,7 +173,7 @@ export const IncidentReportForm: React.FC = () => {
               pb: 1,
             }}
           >
-            Incident Details - {caseNumber}
+            Incident Details - {incidentReports.caseNumber}
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
@@ -126,7 +183,7 @@ export const IncidentReportForm: React.FC = () => {
                 fullWidth
                 InputLabelProps={{ shrink: true }}
                 onChange={(e) => dispatch(setDate(e.target.value))}
-                value={date}
+                value={incidentReports.date}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -135,33 +192,80 @@ export const IncidentReportForm: React.FC = () => {
                 type="time"
                 fullWidth
                 InputLabelProps={{ shrink: true }}
-                value={time}
+                value={incidentReports.time}
                 onChange={(e) => dispatch(setTime(e.target.value))}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField label="Location" fullWidth />
+              <FormControl fullWidth>
+                <InputLabel id="building-location-label">
+                  Building Name
+                </InputLabel>
+                <Select
+                  labelId="building-location-label"
+                  label="Building Location"
+                  value={incidentReports.buildingName}
+                  onChange={(e) => dispatch(setBuildingName(e.target.value))}
+                >
+                  {buildings?.data?.buildings?.map((building: IBuilding) => (
+                    <MenuItem key={building.id} value={building.name}>
+                      {building.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <TextField label="Campus" fullWidth />
+              {/* <TextField label="Campus" fullWidth /> */}
+              <FormControl fullWidth>
+                <InputLabel id="building-location-label">Campus</InputLabel>
+                <Select
+                  labelId="building-location-label"
+                  label="Campus"
+                  value={incidentReports.campus}
+                  onChange={(e) => dispatch(setCampus(e.target.value))}
+                >
+                  {campus?.data?.campus?.map((campus: ICampus) => (
+                    <MenuItem key={campus.id} value={campus.campus}>
+                      {campus.campus}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <TextField label="Incident Type" fullWidth />
+              <FormControl fullWidth>
+                <InputLabel id="incident-type-label">Incident Type</InputLabel>
+                <Select
+                  labelId="incident-type-label"
+                  label="Incident Type"
+                  value={incidentReports.incidentType}
+                  onChange={(e) => dispatch(setIncidentType(e.target.value))}
+                >
+                  {incidentTypes?.data?.incidentType.map(
+                    (type: IIncidentType) => (
+                      <MenuItem key={type.id} value={type.type}>
+                        {type.type}
+                      </MenuItem>
+                    )
+                  )}
+                </Select>
+              </FormControl>
             </Grid>
 
             <Grid item xs={12} md={6}>
-              {/* <TextField label="Incident Status" fullWidth /> */}
               <FormControl fullWidth>
                 <InputLabel id="incident-status-label">
                   Incident Status
                 </InputLabel>
                 <Select
                   labelId="incident-status-label"
-                  value={selectedIncidentStatus}
+                  label="Incident Status"
+                  value={incidentReports.incidentReportStatus}
                   onChange={(e) =>
-                    dispatch(setSelectedIncidentStatus(e.target.value))
+                    dispatch(setIncidentReportStatus(e.target.value))
                   }
                 >
                   {incidentStatus.data?.map((status: IIncidentStatus) => (
@@ -175,8 +279,11 @@ export const IncidentReportForm: React.FC = () => {
             <Grid item xs={12}>
               <TextField
                 label="Description of Incident"
+                type="text"
                 multiline
                 rows={4}
+                value={incidentReports.description}
+                onChange={(e) => dispatch(setDescription(e.target.value))}
                 fullWidth
               />
             </Grid>
@@ -186,9 +293,12 @@ export const IncidentReportForm: React.FC = () => {
                 label="Action Taken"
                 multiline
                 rows={4}
+                value={incidentReports.action}
+                onChange={(e) => dispatch(setAction(e.target.value))}
                 fullWidth
               ></TextField>
             </Grid>
+
             <Grid item xs={12} md={6}>
               <Button
                 component="label"
@@ -205,8 +315,47 @@ export const IncidentReportForm: React.FC = () => {
                 }}
               >
                 Upload files
-              </Button>{" "}
+                <input
+                  type="file"
+                  hidden
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </Button>
             </Grid>
+
+            {/* Preview Section */}
+            <Grid item xs={12}>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {previews.map((src, index) => (
+                  <img
+                    key={index}
+                    src={src}
+                    alt={`preview-${index}`}
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                    }}
+                  />
+                ))}
+              </div>
+            </Grid>
+
+            {/* Upload button */}
+            {selectedFiles.length > 0 && (
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleUpload}
+                >
+                  Submit Upload
+                </Button>
+              </Grid>
+            )}
           </Grid>
 
           {/* Section: People Involved */}
@@ -225,13 +374,28 @@ export const IncidentReportForm: React.FC = () => {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
-              <TextField label="Reported By" fullWidth />
+              <TextField
+                label="Reported By"
+                fullWidth
+                value={incidentReports.reportedBy}
+                onChange={(e) => dispatch(setReportedBy(e.target.value))}
+              />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField label="Contact" fullWidth />
+              <TextField
+                label="Contact"
+                fullWidth
+                value={incidentReports.contact}
+                onChange={(e) => dispatch(setContact(e.target.value))}
+              />
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Witnesses" fullWidth />
+              <TextField
+                label="Witnesses"
+                fullWidth
+                value={incidentReports.witnesses}
+                onChange={(e) => dispatch(setWitnesses(e.target.value))}
+              />
             </Grid>
           </Grid>
 
@@ -253,6 +417,7 @@ export const IncidentReportForm: React.FC = () => {
                   bgcolor: "#6d54a3ff",
                 },
               }}
+              onClick={() => dispatch(setFormSubmitted(true))}
             >
               Submit Report
             </Button>

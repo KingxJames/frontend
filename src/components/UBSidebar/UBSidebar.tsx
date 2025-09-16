@@ -18,7 +18,6 @@ import {
 import UBLogoWhite from "../../images/UBLogoWhite.png";
 import { IMenu } from "../../../store/features/menuSlice";
 
-
 interface UBSidebarProps {
   open?: boolean;
   setSidebarOpen: (arg: boolean) => void;
@@ -30,7 +29,6 @@ export const UBSidebar: React.FC<UBSidebarProps> = ({
 }) => {
   const location = useLocation();
   const menuItems = useSelector(selectMenuState);
-  console.log("--->menuItems", menuItems);
 
   const renderIconComponent = (iconString: string) => {
     switch (iconString) {

@@ -1,17 +1,17 @@
 import { baseAPI } from "./baseAPI";
-import { IIncidentType } from "../features/incidentTypeSlice";
+import { IIncidentType, setIncidentTypes } from "../features/incidentTypeSlice";
 
 export const incidentTypesAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fetchIncidentTypes: builder.query<IIncidentType[], void>({
-      query: () => ({
-        url: "/publicSafety/incidentTypes",
-        method: "GET",
-      }),
-      transformResponse: (response: { data: IIncidentType[] }) => {
-        console.log("API Response:", response); // Log full response
-        console.log("Transformed Data:", response.data); // Log extracted data
-        return response.data;
+      query: () => "/publicSafety/incidentTypes",
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setIncidentTypes(data));
+        } catch (error) {
+          console.error("Failed to fetch incident types:", error);
+        }
       },
     }),
     fetchIncidentTypeById: builder.query<IIncidentType, string>({

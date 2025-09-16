@@ -8,12 +8,10 @@ export interface IIncidentStatus {
 
 export interface IncidentStatusInitialState {
   incidentStatus: IIncidentStatus[];
-  selectedStatus: string;
 }
 
 const initialState: IncidentStatusInitialState = {
   incidentStatus: [],
-  selectedStatus: "",
 };
 
 export const incidentStatustSlice = createSlice({
@@ -24,9 +22,7 @@ export const incidentStatustSlice = createSlice({
       state.incidentStatus = action.payload;
     },
 
-    setSelectedIncidentStatus: (state, action: PayloadAction<string>) => {
-      state.selectedStatus = action.payload;
-    },
+   
 
     addIncidentStatus: (state, action: PayloadAction<IIncidentStatus>) => {
       state.incidentStatus.push(action.payload);
@@ -53,13 +49,10 @@ export const incidentStatustSlice = createSlice({
 
 export const {
   setIncidentStatus,
-  setSelectedIncidentStatus,
   addIncidentStatus,
   updateIncidentStatus,
   deleteIncidentStatus,
 } = incidentStatustSlice.actions;
 export const selectIncidentStatus = (state: RootState) =>
   state.incidentStatus.incidentStatus;
-export const selectSelectedIncidentStatus = (state: RootState) =>
-  state.incidentStatus.selectedStatus;
 export default incidentStatustSlice.reducer;

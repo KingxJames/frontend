@@ -12,7 +12,7 @@ export const campusAPI = baseAPI.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setCampus(data as ICampus[]));
+          dispatch(setCampus(data));
         } catch (error) {
           console.error("Failed to fetch campuses:", error);
         }

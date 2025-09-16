@@ -8,7 +8,6 @@ export const incidentStatusAPI = baseAPI.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log("---->", data);
           dispatch(setIncidentStatus(data));
         } catch (error) {
           console.error("Failed to fetch incident statuses:", error);
