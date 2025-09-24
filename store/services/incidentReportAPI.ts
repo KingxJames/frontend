@@ -39,13 +39,6 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
       },
     }),
 
-    // fetchIncidentReportById: builder.query<IIncidentReport, string>({
-    //   query: (id) => ({
-    //     url: `/publicSafety/incidentReports/${id}`,
-    //     method: "GET",
-    //   }),
-    // }),
-
     fetchIncidentReportByID: builder.query({
       query: (id: string) => ({
         url: `/publicSafety/incidentReports/${id}`,
@@ -68,66 +61,40 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
         method: "POST",
         body,
       }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          console.log("---->", data);
+          dispatch(setIncidentReportState(data));
+        } catch (error) {
+          console.error("Failed to fetch incident reports:", error);
+        }
+      },
     }),
 
-    // updateIncidentReport: builder.mutation<
-    //   IIncidentReport,
-    //   {
-    //     id: string;
-    //     action: string;
-    //     caseNumber: string;
-    //     disposition: string;
-    //     incidentStatus: string;
-    //     incidentType: string;
-    //     incidentFiles: IIncidentFile[];
-    //     buildingId: string;
-    //     buildingLocation: string;
-    //     report: string;
-    //     uploadedBy: string;
-    //   }
-    // >({
-    //   query: ({
-    //     id,
-    //     action,
-    //     caseNumber,
-    //     disposition,
-    //     incidentStatus,
-    //     incidentType,
-    //     incidentFiles,
-    //     buildingId,
-    //     buildingLocation,
-    //     report,
-    //     uploadedBy,
-    //   }) => ({
-    //     url: `/publicSafety/incidentReports/${id}`,
-    //     method: "PUT",
-    //     body: {
-    //       action,
-    //       caseNumber,
-    //       disposition,
-    //       incidentStatus,
-    //       incidentType,
-    //       incidentFiles,
-    //       buildingId,
-    //       buildingLocation,
-    //       report,
-    //       uploadedBy,
-    //     },
-    //   }),
-    // }),
-    // uploadIncidentFile: builder.mutation<{ path: string }, FormData>({
-    //   query: (formData) => ({
-    //     url: "/publicSafety/uploadIncidentFile", // Adjust according to your API
-    //     method: "POST",
-    //     body: formData,
-    //   }),
-    // }),
-    // deleteIncidentReport: builder.mutation<void, string>({
-    //   query: (id) => ({
-    //     url: `/publicSafety/incidentReports/${id}`,
-    //     method: "DELETE",
-    //   }),
-    // }),
+    updateIncidentReport: builder.mutation({
+      query: (body: Partial<IncidentReportInitialState> & { id: string }) => ({
+        url: `/publicSafety/incidentReports/${body.id}`,
+        method: "PUT",
+    }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          console.log("---->", data);
+          dispatch(setIncidentReportState(data));
+        } catch (error) {
+          console.error("Failed to fetch incident reports:", error);
+        }
+      },
+    }),
+
+   
+    deleteIncidentReport: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/publicSafety/incidentReports/${id}`,
+        method: "DELETE",
+      }),
+    }),
     // incidnetReportTotal: builder.query<IIncidentReport, void>({
     //   query: () => ({
     //     url: "/publicSafety/incidentReportTotal",
@@ -143,8 +110,8 @@ export const {
   useFetchIncidentReportQuery,
   // useFetchIncidentReportByIdQuery,
   useCreateIncidentReportMutation,
-  // useUpdateIncidentReportMutation,
-  // useDeleteIncidentReportMutation,
+  useUpdateIncidentReportMutation,
+  useDeleteIncidentReportMutation,
   // useIncidnetReportTotalQuery,
   // useUploadIncidentFileMutation,
 } = incidentReportAPI;

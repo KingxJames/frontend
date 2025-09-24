@@ -29,6 +29,8 @@ import {
   setReportedBy,
   setWitnesses,
   setFormSubmitted,
+  setIncidentFiles,
+  IIncidentReport,
 } from "../../../../store/features/incidentReportSlice";
 import {
   selectIncidentStatus,
@@ -48,20 +50,30 @@ import { useFetchIncidentStatusesQuery } from "../../../../store/services/incide
 import { useFetchBuildingsQuery } from "../../../../store/services/buildingsAPI";
 import { useFetchCampusesQuery } from "../../../../store/services/campusAPI";
 import { useFetchIncidentTypesQuery } from "../../../../store/services/incidentTypesAPI";
+import { useUpdateIncidentReportMutation } from "../../../../store/services/incidentReportAPI";
 
 import axios from "axios";
+import { buildApiUrl } from "../../../../store/config/api";
+import { RootState } from "../../../../store/store";
+import { useNavigate } from "react-router-dom";
 
 export const IncidentReportForm: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const token = useSelector((state: RootState) => state.auth.token);
   const { data: incidentStatusData } = useFetchIncidentStatusesQuery();
   const { data: buildingsData } = useFetchBuildingsQuery();
   const { data: campusData } = useFetchCampusesQuery();
   const { data: incidentTypesData } = useFetchIncidentTypesQuery();
 
   const incidentReports = useSelector(selectIncidentReports);
+  const id = incidentReports.id;
+
+  const [updateIncidentReport] = useUpdateIncidentReportMutation();
+
   const incidentStatus = useSelector(selectIncidentStatus);
   const campus = useSelector(selectCampus);
   const buildings = useSelector(selectBuildings);
@@ -91,24 +103,48 @@ export const IncidentReportForm: React.FC = () => {
     // Generate preview URLs
     const previewUrls = files.map((file) => URL.createObjectURL(file));
     setPreviews(previewUrls);
+
+    // Automatically save in Redux state
+    const incidentFiles = files.map((file) => ({
+      incidentPicture: file.name,
+      // Optionally, you can add displayURL: URL.createObjectURL(file)
+    }));
+    dispatch(setIncidentFiles(incidentFiles));
   };
 
-  // Upload files using Axios
-  const handleUpload = async () => {
-    if (selectedFiles.length === 0) return;
-
-    const formData = new FormData();
-    selectedFiles.forEach((file) => {
-      formData.append("images[]", file); // backend expects `images[]`
-    });
-
+  // Submit form and upload files
+  const handleSubmit = async () => {
     try {
-      const response = await axios.post("/api/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      console.log("Upload success:", response.data);
+      // 1. First upload the files if there are any
+      if (selectedFiles.length > 0) {
+        const formData = new FormData();
+        formData.append("incidentReportId", id);
+        selectedFiles.forEach((file) => {
+          formData.append("file[]", file);
+        });
+
+        const uploadResponse = await axios.post(
+          buildApiUrl(`/publicSafety/uploadPhoto/${id}`),
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Update Redux with uploaded files response
+        dispatch(setIncidentFiles(uploadResponse.data));
+      }
+
+      // 2. Then update incident report in DB
+      await updateIncidentReport({ ...incidentReports, id }).unwrap();
+
+      // 3. Navigate away
+      navigate(`/forms`);
     } catch (error) {
-      console.error("Upload failed:", error);
+      console.error("Failed to submit incident report:", error);
     }
   };
 
@@ -343,19 +379,6 @@ export const IncidentReportForm: React.FC = () => {
                 ))}
               </div>
             </Grid>
-
-            {/* Upload button */}
-            {selectedFiles.length > 0 && (
-              <Grid item xs={12}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleUpload}
-                >
-                  Submit Upload
-                </Button>
-              </Grid>
-            )}
           </Grid>
 
           {/* Section: People Involved */}
@@ -417,7 +440,7 @@ export const IncidentReportForm: React.FC = () => {
                   bgcolor: "#6d54a3ff",
                 },
               }}
-              onClick={() => dispatch(setFormSubmitted(true))}
+              onClick={handleSubmit} // ⬅️ now triggers upload + DB update
             >
               Submit Report
             </Button>

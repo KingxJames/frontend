@@ -39,7 +39,11 @@ export const UBPrivateRoute = () => {
         if (token) {
           localStorage.setItem("access_token", token);
           // Clean URL by removing query parameters
-          window.history.replaceState({}, document.title, "/");
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
         }
 
         // Validate token with backend

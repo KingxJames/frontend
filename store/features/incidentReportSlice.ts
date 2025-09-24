@@ -15,7 +15,6 @@ export interface IncidentReportInitialState {
   action: string;
   description: string;
   caseNumber: string;
-  disposition: string;
   incidentReportStatus: string;
   incidentType: string;
   incidentFiles: IIncidentFile[];
@@ -35,7 +34,6 @@ const initialState: IncidentReportInitialState = {
   action: "",
   description: "",
   caseNumber: "",
-  disposition: "",
   incidentReportStatus: "",
   incidentType: "",
   incidentFiles: [],
@@ -68,9 +66,6 @@ export const incidentReportSlice = createSlice({
     },
     setCaseNumber: (state, action: PayloadAction<string>) => {
       state.caseNumber = action.payload;
-    },
-    setDisposition: (state, action: PayloadAction<string>) => {
-      state.disposition = action.payload;
     },
     setIncidentReportStatus: (state, action: PayloadAction<string>) => {
       state.incidentReportStatus = action.payload;
@@ -116,7 +111,6 @@ export const {
   setAction,
   setDescription,
   setCaseNumber,
-  setDisposition,
   setIncidentReportStatus,
   setIncidentType,
   setIncidentFiles,
@@ -138,8 +132,6 @@ export const selectDescription = (state: RootState) =>
   state.incidentReports.description;
 export const selectCaseNumber = (state: RootState) =>
   state.incidentReports.caseNumber;
-export const selectDisposition = (state: RootState) =>
-  state.incidentReports.disposition;
 export const selectIncidentStatus = (state: RootState) =>
   state.incidentReports.incidentReportStatus;
 export const selectIncidentType = (state: RootState) =>
