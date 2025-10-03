@@ -31,7 +31,7 @@ export const campusAPI = baseAPI.injectEndpoints({
         body,
       }),
     }),
-    updateCampuses: builder.mutation<ICampus, { id: number; campus: string }>({
+    updateCampuses: builder.mutation<ICampus, { id: string; campus: string }>({
       query: ({ id, campus }) => ({
         url: `/publicSafety/campuses/${id}`,
         method: "PUT",

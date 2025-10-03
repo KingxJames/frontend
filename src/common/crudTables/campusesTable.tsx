@@ -21,57 +21,52 @@ import {
   useUpdateCampusesMutation,
 } from "../../../store/services/campusAPI";
 import {
-  setCampuses,
-  updateCampuses,
-  addCampuses,
-  deleteCampuses,
-  selectCampuses,
+  setCampus,
+  updateCampus,
+  addCampus,
+  ICampus,
+  selectCampus,
 } from "../../../store/features/campusSlice";
 
 export const CampusesTable: React.FC = () => {
   const dispatch = useDispatch();
   const { data: campusesData, refetch } = useFetchCampusesQuery();
-  const [createCampus] = useCreateCampusesMutation();
-  const [deleteCampus] = useDeleteCampusesMutation();
-  const [updateCampus] = useUpdateCampusesMutation();
-  const campuses = useSelector(selectCampuses);
+  const [createCampuses] = useCreateCampusesMutation();
+  const [deleteCampuses] = useDeleteCampusesMutation();
+  const [updateCampuses] = useUpdateCampusesMutation();
+  const campuses = useSelector(selectCampus);
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [newCampus, setNewCampus] = useState({ campus: "" });
   const [selectedCampus, setSelectedCampus] = useState<{
-    id: number;
+    id: string;
     campus: string;
   } | null>(null);
 
   // Fetch campuses when component mounts
   useEffect(() => {
     if (campusesData) {
-      dispatch(setCampuses(campusesData)); // Store campuses in Redux
+      dispatch(setCampus(campusesData.data.campus)); // Store campuses in Redux
     }
   }, [campusesData, dispatch]);
 
   // Filter campuses based on search query
-  const filteredCampuses = Array.isArray(campuses?.campus)
-    ? campuses.campus.filter((campus) =>
+  const filteredCampuses = Array.isArray(campuses)
+    ? campuses.filter((campus) =>
         campus?.campus?.toLowerCase().includes(search.toLowerCase())
       )
     : [];
 
-  // Handle delete
-  const handleDelete = async (id: number) => {
+  //Handle delete
+  const handleDelete = async (id: string) => {
+    if (!id) return;
     try {
-      const campusToDelete = campuses.campus.find((campus) => campus.id === id);
-      if (campusToDelete) {
-        await deleteCampus(campusToDelete.id.toString()).unwrap(); // Call the delete mutation
-        dispatch(deleteCampuses(campusToDelete.id)); // Update Redux store
-
-        // Force re-fetch to get the latest data
-        await refetch();
-      }
+      await deleteCampuses(id).unwrap(); // API call
+      refetch();
     } catch (error) {
-      console.error("Error deleting campus:", error);
+      console.error("Failed to delete campus:", error);
     }
   };
 
@@ -80,9 +75,7 @@ export const CampusesTable: React.FC = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
       ["ID,Campus"]
-        .concat(
-          campuses.campus.map((campus) => `${campus.id},${campus.campus}`)
-        )
+        .concat(campuses.map((campus) => `${campus.id},${campus.campus}`))
         .join("\n");
 
     const encodedUri = encodeURI(csvContent);
@@ -93,26 +86,35 @@ export const CampusesTable: React.FC = () => {
     link.click();
   };
 
-  // Handle add new campus
   const handleAddCampus = async () => {
+    if (!newCampus.campus.trim()) {
+      alert("The campus field is required.");
+      return;
+    }
+
     try {
-      const response = await createCampus({
+      const campusesData: Partial<ICampus> = {
         campus: newCampus.campus,
-      }).unwrap();
+      };
+
+      const response = await createCampuses(campusesData).unwrap();
 
       if (response) {
+        // Option 1: Use refetch for accurate data
         await refetch();
-        dispatch(addCampuses(response)); // Update Redux store with the newly created campus
+
+        // Reset Form
         setNewCampus({ campus: "" });
         setOpenAdd(false);
       }
     } catch (error) {
-      console.error("Error adding campus:", error);
+      console.error("Error adding Campus:", error);
+      alert("Failed to add Campus. Please try again.");
     }
   };
 
   // Handle edit campus - open dialog
-  const handleEdit = (campus: { id: number; campus: string }) => {
+  const handleEdit = (campus: { id: string; campus: string }) => {
     if (!campus) return;
     setSelectedCampus(campus); // Ensure selectedCampus is set
     setOpenEdit(true);
@@ -125,12 +127,12 @@ export const CampusesTable: React.FC = () => {
     }
 
     try {
-      const updatedCampus = await updateCampus({
-        id: selectedCampus.id,
-        campus: selectedCampus.campus,
+      const updatedCampusResponse = await updateCampuses({
+       id: selectedCampus.id,
+       campus: selectedCampus.campus,
       }).unwrap();
 
-      dispatch(updateCampuses(updatedCampus));
+      dispatch(updateCampus(updatedCampusResponse));
       await refetch();
 
       setOpenEdit(false);
@@ -141,14 +143,13 @@ export const CampusesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    // { field: "id", headerName: "ID", flex: 1 },
     { field: "campus", headerName: "Campus", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",
       flex: 1,
       renderCell: (params) => {
-        const row = params.row as { id: number; campus: string };
+        const row = params.row as { id: string; campus: string };
         return (
           <div>
             <IconButton onClick={() => handleEdit(row)} color="primary">
@@ -255,8 +256,7 @@ export const CampusesTable: React.FC = () => {
             onChange={(e) =>
               setSelectedCampus((prev) =>
                 prev
-                  ? { ...prev, campus: e.target.value }
-                  : { id: 0, campus: e.target.value }
+                  ? { ...prev, campus: e.target.value } : null
               )
             }
           />

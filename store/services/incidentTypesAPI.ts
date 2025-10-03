@@ -1,5 +1,5 @@
 import { baseAPI } from "./baseAPI";
-import { IIncidentType, setIncidentTypes } from "../features/incidentTypeSlice";
+import { IIncidentType, setIncidentType } from "../features/incidentTypeSlice";
 
 export const incidentTypesAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -8,7 +8,7 @@ export const incidentTypesAPI = baseAPI.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setIncidentTypes(data));
+          dispatch(setIncidentType(data));
         } catch (error) {
           console.error("Failed to fetch incident types:", error);
         }
@@ -31,12 +31,12 @@ export const incidentTypesAPI = baseAPI.injectEndpoints({
     ),
     updateIncidentType: builder.mutation<
       IIncidentType,
-      { id: number; type: string; icon: string; message: string }
+      { id: string; type: string }
     >({
-      query: ({ id, type, icon, message }) => ({
+      query: ({ id, type }) => ({
         url: `/publicSafety/incidentTypes/${id}`,
         method: "PUT",
-        body: { type, icon, message },
+        body: { type },
       }),
     }),
     deleteIncidentType: builder.mutation<void, string>({

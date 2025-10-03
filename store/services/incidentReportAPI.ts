@@ -15,7 +15,7 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log("---->", data);
+          // console.log("---->", data);
           dispatch(setIncidentReportState(data));
         } catch (error) {
           console.error("Failed to fetch incident reports:", error);
@@ -31,7 +31,7 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log("---->", data);
+          // console.log("---->", data);
           dispatch(setIncidentReportState(data));
         } catch (error) {
           console.error("Failed to fetch incident reports:", error);
@@ -47,7 +47,7 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log("---->", data);
+          // console.log("---->", data);
           dispatch(setIncidentReportState(data));
         } catch (error) {
           console.error("Failed to fetch incident reports:", error);
@@ -64,8 +64,10 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log("---->", data);
-          dispatch(setIncidentReportState(data));
+          // console.log("---->", data);
+          if (data?.data?.id) {
+            dispatch(setIncidentReportState(data.data));
+          }
         } catch (error) {
           console.error("Failed to fetch incident reports:", error);
         }
@@ -73,22 +75,13 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
     }),
 
     updateIncidentReport: builder.mutation({
-      query: (body: Partial<IncidentReportInitialState> & { id: string }) => ({
-        url: `/publicSafety/incidentReports/${body.id}`,
+      query: ({ id, ...patch }) => ({
+        url: `/publicSafety/incidentReports/${id}`,
         method: "PUT",
-    }),
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          console.log("---->", data);
-          dispatch(setIncidentReportState(data));
-        } catch (error) {
-          console.error("Failed to fetch incident reports:", error);
-        }
-      },
+        body: patch, // send the rest of the data to Laravel
+      }),
     }),
 
-   
     deleteIncidentReport: builder.mutation<void, string>({
       query: (id) => ({
         url: `/publicSafety/incidentReports/${id}`,

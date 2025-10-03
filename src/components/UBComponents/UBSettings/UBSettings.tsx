@@ -13,6 +13,8 @@ export const UBSettings: React.FC = () => {
       Buildings: "/buildings",
       "Incident Reports": "/incidentReports",
       Users: "/users",
+      Campuses: "/campuses",
+      "Incident Type": "/incidentTypes",
     };
 
     if (routes[text]) {
@@ -22,7 +24,13 @@ export const UBSettings: React.FC = () => {
   return (
     <div style={{ padding: "3%" }}>
       <Grid container spacing={3}>
-        {["Buildings", "Incident Reports", "Users"].map((text, index) => (
+        {[
+          "Buildings",
+          "Incident Reports",
+          "Users",
+          "Campuses",
+          "Incident Type",
+        ].map((text, index) => (
           <Grid
             item
             xs={4}

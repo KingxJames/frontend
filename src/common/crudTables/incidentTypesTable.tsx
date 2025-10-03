@@ -21,19 +21,18 @@ import {
   useUpdateIncidentTypeMutation,
 } from "./../../../store/services/incidentTypesAPI";
 import {
-  setIncidentTypes,
-  updateIncidentTypes,
-  addIncidentTypes,
-  deleteIncidentTypes,
+  setIncidentType,
+  updateIncidentType,
   selectIncidentTypes,
+  IIncidentType,
 } from "./../../../store/features/incidentTypeSlice";
 
 export const IncidentTypesTable: React.FC = () => {
   const dispatch = useDispatch();
   const { data: incidentTypesData, refetch } = useFetchIncidentTypesQuery();
-  const [createIncidentType] = useCreateIncidentTypeMutation();
-  const [deleteIncidentType] = useDeleteIncidentTypeMutation();
-  const [updateIncidentType] = useUpdateIncidentTypeMutation();
+  const [createIncidentTypes] = useCreateIncidentTypeMutation();
+  const [deleteIncidentTypes] = useDeleteIncidentTypeMutation();
+  const [updateIncidentTypes] = useUpdateIncidentTypeMutation();
   const incidentTypes = useSelector(selectIncidentTypes);
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
@@ -41,123 +40,103 @@ export const IncidentTypesTable: React.FC = () => {
   const [openEdit, setOpenEdit] = useState(false);
   const [newIncidentType, setNewIncidentType] = useState({
     type: "",
-    icon: "",
-    message: "",
   });
   const [selectedIncidentType, setSelectedIncidentType] = useState<{
-    id: number;
+    id: string;
     type: string;
-    icon: string;
-    message: string;
   } | null>(null);
 
   // Fetch roles when component mounts
   useEffect(() => {
     if (incidentTypesData) {
-      dispatch(setIncidentTypes(incidentTypesData)); // Store roles in Redux
+      dispatch(setIncidentType(incidentTypesData?.data.incidentTypes)); // Store roles in Redux
     }
   }, [incidentTypesData, dispatch]);
 
   // Filter roles based on search query
-  const filteredIncidentType = incidentTypes.incidentTypes
-    ? incidentTypes.incidentTypes.filter((incidentType) =>
+  const filteredIncidentType = Array.isArray(incidentTypes)
+    ? incidentTypes.filter((incidentType: any) =>
         incidentType.type?.toLowerCase().includes(search.toLowerCase())
       )
     : [];
 
   // Handle delete
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
+    if (!id) return;
     try {
-      const incidentTypeToDelete = incidentTypes.incidentTypes.find(
-        (incidentType) => incidentType.id === id
-      );
-      if (incidentTypeToDelete) {
-        await deleteIncidentType(incidentTypeToDelete.id.toString()).unwrap(); // Call the delete mutation
-        dispatch(deleteIncidentTypes(incidentTypeToDelete.id)); // Update Redux store
-
-        // Force re-fetch to get the latest data
-        await refetch();
-      }
+      await deleteIncidentTypes(id).unwrap(); // Call the delete mutation
+      refetch();
     } catch (error) {
-      console.error("Error deleting incidnet Type:", error);
+      console.error("Failed to delete incident type:", error);
     }
   };
 
   // Handle export to CSV
   const handleExport = () => {
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      ["ID,Type,icon,message"]
-        .concat(
-          incidentTypes.incidentTypes.map(
-            (incidentType) =>
-              `${incidentType.id},${incidentType.type},${incidentType.icon}, ${incidentType.message}`
-          )
-        )
-        .join("\n");
+    if (!incidentTypes || incidentTypes.length === 0) return;
 
-    const encodedUri = encodeURI(csvContent);
+    const csvHeader = "Incident Type";
+    const csvRows = incidentTypes.map((incidentType) => `${incidentType.type}`);
+
+    const csvContent = [csvHeader, ...csvRows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.href = url;
     link.setAttribute("download", "incidentType.csv");
     document.body.appendChild(link);
     link.click();
   };
 
-  // Handle add new role
   const handleAddIncidentType = async () => {
+    if (!newIncidentType.type.trim()) {
+      alert("The incident type field is required.");
+      return;
+    }
+
     try {
-      const response = await createIncidentType({
+      const incidentTypesData: Partial<IIncidentType> = {
         type: newIncidentType.type,
-        icon: newIncidentType.icon,
-        message: newIncidentType.message,
-      }).unwrap();
+      };
+
+      const response = await createIncidentTypes(incidentTypesData).unwrap();
 
       if (response) {
+        // Option 1: Use refetch for accurate data
         await refetch();
-        dispatch(addIncidentTypes(response)); // Update Redux store with the newly created role
-        setNewIncidentType({ type: "", icon: "", message: "" });
+
+        // Reset Form
+        setNewIncidentType({ type: "" });
         setOpenAdd(false);
       }
     } catch (error) {
-      console.error("Error adding Incident type:", error);
+      console.error("Error adding Incident Type:", error);
+      alert("Failed to add incident type. Please try again.");
     }
   };
 
   // Handle edit role - open dialog
-  const handleEdit = (incidentType: {
-    id: number;
-    type: string;
-    icon: string;
-    message: string;
-  }) => {
-    if (!incidentType) return;
+  const handleEdit = (incidentType: { id: string; type: string }) => {
     setSelectedIncidentType(incidentType); // Ensure selectedRole is set
     setOpenEdit(true);
   };
 
   const handleUpdateIncidentType = async () => {
-    if (
-      !selectedIncidentType ||
-      !selectedIncidentType.type.trim() ||
-      !selectedIncidentType.icon.trim() ||
-      !selectedIncidentType.message.trim()
-    ) {
+    if (!selectedIncidentType || !selectedIncidentType.type.trim()) {
       alert(" fields are required.");
       return;
     }
 
     try {
       // Call the updateRole mutation
-      const updatedIncidentType = await updateIncidentType({
+      const updatedIncidentTypeResponse = await updateIncidentTypes({
         id: selectedIncidentType.id,
         type: selectedIncidentType.type,
-        icon: selectedIncidentType.icon,
-        message: selectedIncidentType.message,
       }).unwrap();
 
       // Update Redux store with the updated role
-      dispatch(updateIncidentTypes(updatedIncidentType));
+      dispatch(updateIncidentType(updatedIncidentTypeResponse));
 
       // Force re-fetch to get the latest data
       await refetch();
@@ -171,10 +150,8 @@ export const IncidentTypesTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    // { field: "id", headerName: "ID", flex: 1 },
     { field: "type", headerName: "Type", flex: 1 },
     { field: "icon", headerName: "Icon", flex: 1 },
-    // { field: "message", headerName: "Description", flex: 3 },
 
     {
       field: "actions",
@@ -182,10 +159,8 @@ export const IncidentTypesTable: React.FC = () => {
       flex: 1,
       renderCell: (params) => {
         const row = params.row as {
-          id: number;
+          id: string;
           type: string;
-          icon: string;
-          message: string;
         };
         return (
           <div>
@@ -268,30 +243,6 @@ export const IncidentTypesTable: React.FC = () => {
               setNewIncidentType({ ...newIncidentType, type: e.target.value })
             }
           />
-          <TextField
-            margin="dense"
-            label="icon"
-            fullWidth
-            variant="outlined"
-            value={newIncidentType.icon}
-            onChange={(e) =>
-              setNewIncidentType({ ...newIncidentType, icon: e.target.value })
-            }
-          />
-
-          <TextField
-            margin="dense"
-            label="Description"
-            fullWidth
-            variant="outlined"
-            value={newIncidentType.message}
-            onChange={(e) =>
-              setNewIncidentType({
-                ...newIncidentType,
-                message: e.target.value,
-              })
-            }
-          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenAdd(false)} color="secondary">
@@ -316,37 +267,7 @@ export const IncidentTypesTable: React.FC = () => {
             value={selectedIncidentType?.type || ""}
             onChange={(e) =>
               setSelectedIncidentType((prev) =>
-                prev
-                  ? { ...prev, type: e.target.value }
-                  : { id: 0, type: e.target.value, icon: "", message: "" }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Icon"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentType?.icon || ""}
-            onChange={(e) =>
-              setSelectedIncidentType((prev) =>
-                prev
-                  ? { ...prev, icon: e.target.value }
-                  : { id: 0, type: "", icon: e.target.value, message: "" }
-              )
-            }
-          />
-          <TextField
-            margin="dense"
-            label="Description"
-            fullWidth
-            variant="outlined"
-            value={selectedIncidentType?.message || ""}
-            onChange={(e) =>
-              setSelectedIncidentType((prev) =>
-                prev
-                  ? { ...prev, message: e.target.value }
-                  : { id: 0, type: "", icon: "", message: e.target.value }
+                prev ? { ...prev, type: e.target.value } : null
               )
             }
           />

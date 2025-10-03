@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 export interface ICampus {
-  id: number;
+  id: string;
   campus: string;
 }
 
@@ -35,7 +35,7 @@ export const campusSlice = createSlice({
       }
     },
 
-    deleteCampus: (state, action: PayloadAction<number>) => {
+    deleteCampus: (state, action: PayloadAction<string>) => {
       state.campus = state.campus.filter(
         (campus) => campus.id !== action.payload
       );

@@ -31,6 +31,7 @@ import {
   setFormSubmitted,
   setIncidentFiles,
   IIncidentReport,
+  setIncidentReportState,
 } from "../../../../store/features/incidentReportSlice";
 import {
   selectIncidentStatus,
@@ -50,12 +51,17 @@ import { useFetchIncidentStatusesQuery } from "../../../../store/services/incide
 import { useFetchBuildingsQuery } from "../../../../store/services/buildingsAPI";
 import { useFetchCampusesQuery } from "../../../../store/services/campusAPI";
 import { useFetchIncidentTypesQuery } from "../../../../store/services/incidentTypesAPI";
-import { useUpdateIncidentReportMutation } from "../../../../store/services/incidentReportAPI";
+import {
+  useUpdateIncidentReportMutation,
+  useFetchIncidentReportQuery,
+  useCreateIncidentReportMutation,
+} from "../../../../store/services/incidentReportAPI";
 
 import axios from "axios";
 import { buildApiUrl } from "../../../../store/config/api";
 import { RootState } from "../../../../store/store";
 import { useNavigate } from "react-router-dom";
+import UBLogoWhite from "../../../images/UBLogoWhite.png";
 
 export const IncidentReportForm: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -64,15 +70,17 @@ export const IncidentReportForm: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.auth.token);
+
+  const { data: incidentReportData } = useFetchIncidentReportQuery({});
   const { data: incidentStatusData } = useFetchIncidentStatusesQuery();
   const { data: buildingsData } = useFetchBuildingsQuery();
   const { data: campusData } = useFetchCampusesQuery();
   const { data: incidentTypesData } = useFetchIncidentTypesQuery();
+  const [updateIncidentReport] = useUpdateIncidentReportMutation();
+  const [createIncidentReport] = useCreateIncidentReportMutation();
 
   const incidentReports = useSelector(selectIncidentReports);
   const id = incidentReports.id;
-
-  const [updateIncidentReport] = useUpdateIncidentReportMutation();
 
   const incidentStatus = useSelector(selectIncidentStatus);
   const campus = useSelector(selectCampus);
@@ -115,7 +123,7 @@ export const IncidentReportForm: React.FC = () => {
   // Submit form and upload files
   const handleSubmit = async () => {
     try {
-      // 1. First upload the files if there are any
+      // 1. Upload files if there are any
       if (selectedFiles.length > 0) {
         const formData = new FormData();
         formData.append("incidentReportId", id);
@@ -134,14 +142,25 @@ export const IncidentReportForm: React.FC = () => {
           }
         );
 
-        // Update Redux with uploaded files response
         dispatch(setIncidentFiles(uploadResponse.data));
       }
 
-      // 2. Then update incident report in DB
-      await updateIncidentReport({ ...incidentReports, id }).unwrap();
+      // // 3. Then update/create incident report in DB
+      // await createIncidentReport({
+      //   ...incidentReports,
+      //   formSubmitted: true,
+      // }).unwrap();
 
-      // 3. Navigate away
+      // 2. Update the incident report (not create a new one)
+      await updateIncidentReport({
+        ...incidentReports,
+        formSubmitted: true,
+        id: incidentReports.id, // Firestore document id
+      }).unwrap();
+
+      dispatch(setFormSubmitted(true));
+
+      // 4. Navigate away
       navigate(`/forms`);
     } catch (error) {
       console.error("Failed to submit incident report:", error);
@@ -162,7 +181,7 @@ export const IncidentReportForm: React.FC = () => {
       <Box
         sx={{
           width: "100%",
-          height: "80px",
+          height: "100px",
           bgcolor: "#6C3777;", // Purple
           display: "flex",
           justifyContent: "center",
@@ -171,6 +190,12 @@ export const IncidentReportForm: React.FC = () => {
           boxShadow: "0px 4px 10px rgba(0,0,0,0.2)",
         }}
       >
+        <img
+          src={UBLogoWhite}
+          alt="UB Logo"
+          style={{ height: "120%", marginRight: "10px" }}
+        />
+
         <Typography variant="h4" sx={{ fontWeight: "bold" }}>
           Incident Report Form
         </Typography>

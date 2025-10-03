@@ -37,13 +37,12 @@ export const buildingsAPI = baseAPI.injectEndpoints({
         id: string;
         name: string;
         location: string;
-        campus: string;
       }
     >({
-      query: ({ id, name, location, campus }) => ({
+      query: ({ id, name, location }) => ({
         url: `/publicSafety/buildings/${id}`,
         method: "PUT",
-        body: { name, location, campus },
+        body: { name, location },
       }),
     }),
     deleteBuildings: builder.mutation<void, string>({

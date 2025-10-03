@@ -10,6 +10,8 @@ import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
 import { UsersTable } from "./common/crudTables/usersTable";
 import { IncidentReportTable } from "./common/crudTables/incidentReportsTable";
 import { BuildingsTable } from "./common/crudTables/buildingsTable";
+import  CampusesTable  from "./common/crudTables/campusesTable";
+import IncidentTypesTable from "./common/crudTables/incidentTypesTable";
 import UBMessengerListAnonymous from "./components/UBMessenger/UBMessengerList/UBMessengerListAnonymous";
 import WhatsappWeb from "./pages/WhatsappWeb/WhatsappWeb";
 import NotFound from "./pages/NotFound/NotFound";
@@ -55,10 +57,13 @@ const App: React.FC = () => {
                 />
                 <Route path="/buildings" element={<BuildingsTable />} />
                 <Route path="/users" element={<UsersTable />} />
+                <Route path="/incidentTypes" element={<IncidentTypesTable />} />
                 <Route
                   path="/incidentReports"
                   element={<IncidentReportTable />}
                 />
+
+                <Route path= "/campuses" element = {<CampusesTable />} />
                 <Route
                   path="/forms/incidentReportForm/:caseNumber"
                   element={<IncidentReportForm />}

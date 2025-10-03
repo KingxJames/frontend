@@ -5,7 +5,6 @@ export interface IBuilding {
   id: string;
   name: string;
   location: string;
-  campus: string;
   created_at: string;
   updated_at: string;
 }

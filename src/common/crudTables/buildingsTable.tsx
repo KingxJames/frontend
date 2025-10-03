@@ -42,13 +42,11 @@ export const BuildingsTable: React.FC = () => {
   const [newBuilding, setNewBuilding] = useState({
     name: "",
     location: "",
-    campus: "",
   });
   const [selectedBuilding, setSelectedBuilding] = useState<{
     id: string;
     name: string;
     location: string;
-    campus: string;
   } | null>(null);
 
   useEffect(() => {
@@ -77,9 +75,9 @@ export const BuildingsTable: React.FC = () => {
   const handleExport = () => {
     if (!buildings || buildings.length === 0) return;
 
-    const csvHeader = "Building,Building Location,Campus";
+    const csvHeader = "Building,Building Location";
     const csvRows = buildings.map(
-      (building) => `${building.name},${building.location},${building.campus}`
+      (building) => `${building.name},${building.location},${building}`
     );
 
     const csvContent = [csvHeader, ...csvRows].join("\n");
@@ -95,7 +93,7 @@ export const BuildingsTable: React.FC = () => {
   };
 
   const handleAddBuilding = async () => {
-    if (!newBuilding.name || !newBuilding.location || !newBuilding.campus) {
+    if (!newBuilding.name || !newBuilding.location) {
       alert("All fields are required.");
       return;
     }
@@ -104,7 +102,6 @@ export const BuildingsTable: React.FC = () => {
       const buildingData: Partial<IBuilding> = {
         name: newBuilding.name,
         location: newBuilding.location,
-        campus: newBuilding.campus,
       };
 
       const response = await createBuildings(buildingData).unwrap();
@@ -113,11 +110,8 @@ export const BuildingsTable: React.FC = () => {
         // Option 1: Use refetch for accurate data
         await refetch();
 
-        // Option 2: Optimistic update for instant UI
-        // dispatch(addBuilding(response));
-
         // Reset form
-        setNewBuilding({ name: "", location: "", campus: "" });
+        setNewBuilding({ name: "", location: "" });
         setOpenAdd(false);
       }
     } catch (error) {
@@ -130,7 +124,6 @@ export const BuildingsTable: React.FC = () => {
     id: string;
     name: string;
     location: string;
-    campus: string;
   }) => {
     setSelectedBuilding(building);
     setOpenEdit(true);
@@ -140,8 +133,7 @@ export const BuildingsTable: React.FC = () => {
     if (
       !selectedBuilding ||
       !selectedBuilding.name ||
-      !selectedBuilding.location ||
-      !selectedBuilding.campus
+      !selectedBuilding.location
     ) {
       alert("All fields are required.");
       return;
@@ -149,9 +141,11 @@ export const BuildingsTable: React.FC = () => {
 
     try {
       // API call to update building
-      const updatedBuildingResponse = await updateBuildings(
-        selectedBuilding
-      ).unwrap();
+      const updatedBuildingResponse = await updateBuildings({
+        id: selectedBuilding.id,
+        name: selectedBuilding.name,
+        location: selectedBuilding.location,
+      }).unwrap();
 
       // Option 1: Optimistic update (instant UI)
       dispatch(updateBuilding(updatedBuildingResponse));
@@ -170,7 +164,6 @@ export const BuildingsTable: React.FC = () => {
   const columns: GridColDef[] = [
     { field: "name", headerName: "Building", flex: 1 },
     { field: "location", headerName: "Building Location", flex: 2 },
-    { field: "campus", headerName: "Campus", flex: 2 },
     {
       field: "actions",
       headerName: "Actions",
@@ -180,7 +173,6 @@ export const BuildingsTable: React.FC = () => {
           id: string;
           name: string;
           location: string;
-          campus: string;
         };
         return (
           <div>
@@ -278,27 +270,6 @@ export const BuildingsTable: React.FC = () => {
               <MenuItem value="Punta Gorda">Punta Gorda</MenuItem>
             </Select>
           </FormControl>
-
-          <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-            <InputLabel>Campus</InputLabel>
-            <Select
-              value={newBuilding.campus}
-              label="Campus"
-              onChange={(e) =>
-                setNewBuilding({ ...newBuilding, campus: e.target.value })
-              }
-            >
-              <MenuItem value="Belmopan Campus">Belmopan Campus</MenuItem>
-              <MenuItem value="Belize City Campus (Education Campus)">
-                Belize City Campus (Education Campus)
-              </MenuItem>
-              <MenuItem value="Belize City Campus (Business Campus)">
-                Belize City Campus (Business Campus)
-              </MenuItem>
-              <MenuItem value="Central Campus">Central Form Campus</MenuItem>
-              <MenuItem value="Punta Gorda Campus">Punta Gorda Campus</MenuItem>
-            </Select>
-          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenAdd(false)} color="secondary">
@@ -329,37 +300,18 @@ export const BuildingsTable: React.FC = () => {
           <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
             <InputLabel>Building Location</InputLabel>
             <Select
-              value={newBuilding.location}
+              value={selectedBuilding?.location || ""}
               label="Building Location"
               onChange={(e) =>
-                setNewBuilding({ ...newBuilding, location: e.target.value })
+                setSelectedBuilding((prev) =>
+                  prev ? { ...prev, location: e.target.value } : null
+                )
               }
             >
               <MenuItem value="Belmopan">Belmopan</MenuItem>
               <MenuItem value="Belize City">Belize City</MenuItem>
               <MenuItem value="Central Farm">Central Farm</MenuItem>
               <MenuItem value="Punta Gorda">Punta Gorda</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl margin="dense" fullWidth variant="outlined">
-            <InputLabel>Campus</InputLabel>
-            <Select
-              value={newBuilding.campus}
-              label="Campus"
-              onChange={(e) =>
-                setNewBuilding({ ...newBuilding, campus: e.target.value })
-              }
-            >
-              <MenuItem value="Belmopan Campus">Belmopan Campus</MenuItem>
-              <MenuItem value="Belize City Campus (Education Campus)">
-                Belize City Campus (Education Campus)
-              </MenuItem>
-              <MenuItem value="Belize City Campus (Business Campus)">
-                Belize City Campus (Business Campus)
-              </MenuItem>
-              <MenuItem value="Central Campus">Central Form Campus</MenuItem>
-              <MenuItem value="Punta Gorda Campus">Punta Gorda Campus</MenuItem>
             </Select>
           </FormControl>
         </DialogContent>
