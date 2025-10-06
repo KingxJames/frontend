@@ -305,7 +305,7 @@ export const IncidentReportForm: React.FC = () => {
                   value={incidentReports.incidentType}
                   onChange={(e) => dispatch(setIncidentType(e.target.value))}
                 >
-                  {incidentTypes?.data?.incidentType.map(
+                  {incidentTypes?.data?.incidentTypes.map(
                     (type: IIncidentType) => (
                       <MenuItem key={type.id} value={type.type}>
                         {type.type}
