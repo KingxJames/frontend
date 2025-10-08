@@ -88,6 +88,16 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    generateIncidentReportPdf: builder.mutation({
+      query: (id: string) => ({
+        url: `/publicSafety/generateIncidentReportPdf/${id}`,
+        method: "GET",
+        responseHandler: (response: Response) => response.blob(),
+        headers: {
+          Accept: "application/pdf",
+        },
+      }),
+    }),
     // incidnetReportTotal: builder.query<IIncidentReport, void>({
     //   query: () => ({
     //     url: "/publicSafety/incidentReportTotal",
@@ -105,6 +115,7 @@ export const {
   useCreateIncidentReportMutation,
   useUpdateIncidentReportMutation,
   useDeleteIncidentReportMutation,
+  useGenerateIncidentReportPdfMutation,
   // useIncidnetReportTotalQuery,
   // useUploadIncidentFileMutation,
 } = incidentReportAPI;

@@ -2,8 +2,10 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 export interface IIncidentFile {
-  incidentPicture: string;
-  displayURL?: string;
+  previewURL: string;
+  url?: string;
+  generated_name?: string;
+  incidentPicture: string; //original file name
 }
 
 export interface IIncidentReport {
@@ -143,6 +145,12 @@ export const selectUploadedBy = (state: RootState) =>
 export const selectCampus = (state: RootState) => state.incidentReports.campus;
 export const selectDate = (state: RootState) => state.incidentReports.date;
 export const selectTime = (state: RootState) => state.incidentReports.time;
+export const selectReportedBy = (state: RootState) =>
+  state.incidentReports.reportedBy;
+export const selectContact = (state: RootState) =>
+  state.incidentReports.contact;
+export const selectWitnesses = (state: RootState) =>
+  state.incidentReports.witnesses;
 export const selectFormSubmitted = (state: RootState) =>
   state.incidentReports.formSubmitted;
 

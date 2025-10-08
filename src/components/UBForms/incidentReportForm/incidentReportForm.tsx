@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import UBSidebar from "../../UBSidebar/UBSidebar";
 import {
   Box,
   Button,
   TextField,
   Typography,
   Grid,
-  Paper,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
+  IconButton,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { useDispatch, useSelector } from "react-redux";
-
 import {
   selectIncidentReports,
   setDate,
@@ -30,8 +30,6 @@ import {
   setWitnesses,
   setFormSubmitted,
   setIncidentFiles,
-  IIncidentReport,
-  setIncidentReportState,
 } from "../../../../store/features/incidentReportSlice";
 import {
   selectIncidentStatus,
@@ -46,7 +44,6 @@ import {
   selectIncidentTypes,
   IIncidentType,
 } from "../../../../store/features/incidentTypeSlice";
-
 import { useFetchIncidentStatusesQuery } from "../../../../store/services/incidentStatusAPI";
 import { useFetchBuildingsQuery } from "../../../../store/services/buildingsAPI";
 import { useFetchCampusesQuery } from "../../../../store/services/campusAPI";
@@ -56,7 +53,6 @@ import {
   useFetchIncidentReportQuery,
   useCreateIncidentReportMutation,
 } from "../../../../store/services/incidentReportAPI";
-
 import axios from "axios";
 import { buildApiUrl } from "../../../../store/config/api";
 import { RootState } from "../../../../store/store";
@@ -64,13 +60,12 @@ import { useNavigate } from "react-router-dom";
 import UBLogoWhite from "../../../images/UBLogoWhite.png";
 
 export const IncidentReportForm: React.FC = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.auth.token);
-
   const { data: incidentReportData } = useFetchIncidentReportQuery({});
   const { data: incidentStatusData } = useFetchIncidentStatusesQuery();
   const { data: buildingsData } = useFetchBuildingsQuery();
@@ -78,6 +73,7 @@ export const IncidentReportForm: React.FC = () => {
   const { data: incidentTypesData } = useFetchIncidentTypesQuery();
   const [updateIncidentReport] = useUpdateIncidentReportMutation();
   const [createIncidentReport] = useCreateIncidentReportMutation();
+  // const [generateIncidentReportPdf] = useGenerateIncidentReportPdfMutation();
 
   const incidentReports = useSelector(selectIncidentReports);
   const id = incidentReports.id;
@@ -102,9 +98,8 @@ export const IncidentReportForm: React.FC = () => {
   if (incidentTypes.length <= 1) {
     return null;
   }
-
   // Handle file selection
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
     setSelectedFiles(files);
 
@@ -115,7 +110,8 @@ export const IncidentReportForm: React.FC = () => {
     // Automatically save in Redux state
     const incidentFiles = files.map((file) => ({
       incidentPicture: file.name,
-      // Optionally, you can add displayURL: URL.createObjectURL(file)
+      previewURL: URL.createObjectURL(file),
+      generated_name: file.name,
     }));
     dispatch(setIncidentFiles(incidentFiles));
   };
@@ -142,7 +138,7 @@ export const IncidentReportForm: React.FC = () => {
           }
         );
 
-        dispatch(setIncidentFiles(uploadResponse.data));
+        dispatch(setIncidentFiles(uploadResponse.data.files));
       }
 
       // // 3. Then update/create incident report in DB
@@ -171,56 +167,78 @@ export const IncidentReportForm: React.FC = () => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: "column",
         width: "100%",
         height: "100vh",
         bgcolor: "#f9f9f9",
       }}
     >
-      {/* Header */}
-      <Box
-        sx={{
-          width: "100%",
-          height: "100px",
-          bgcolor: "#6C3777;", // Purple
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          color: "#fff",
-          boxShadow: "0px 4px 10px rgba(0,0,0,0.2)",
-        }}
-      >
-        <img
-          src={UBLogoWhite}
-          alt="UB Logo"
-          style={{ height: "120%", marginRight: "10px" }}
-        />
+      {/* Sidebar */}
 
-        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-          Incident Report Form
-        </Typography>
-      </Box>
+      <UBSidebar open={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      {/* Form Body */}
-      <Box
-        sx={{
-          flex: 1,
-          p: 4,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          overflowY: "auto",
-        }}
-      >
-        <Paper
-          elevation={3}
+      {/* Main Content */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        {/* Header */}
+        <Box
           sx={{
             width: "100%",
-            maxWidth: "900px",
+            height: "100px",
+            background: "linear-gradient(90deg, #6C3777 0%, #8E44AD 100%)", // purple gradient
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "#fff",
+            boxShadow: "0px 6px 15px rgba(0,0,0,0.3)",
+            position: "relative",
+            top: 0,
+            left: 0,
+            zIndex: 1000,
+            borderBottom: "4px solid #ffd900ad", // gold accent line
+          }}
+        >
+          {/* Add a logo if you want */}
+          <Box
+            sx={{
+              height: "60px",
+              mr: 2,
+              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.4))",
+            }}
+          />
+          {/* Back Button */}
+          <IconButton
+            onClick={() => navigate(-1)}
+            sx={{
+              position: "absolute",
+              left: "20px",
+              color: "#fff",
+              "&:hover": {
+                bgcolor: "rgba(255,255,255,0.1)",
+              },
+            }}
+          >
+            <ArrowBackIosNewIcon />
+          </IconButton>
+
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: "bold",
+              color: "#fff",
+              textShadow: "2px 2px 8px rgba(0,0,0,0.5)", // glowing text effect
+              textTransform: "uppercase",
+            }}
+          >
+            Incident Report Form
+          </Typography>
+        </Box>
+
+        {/* Form Body */}
+        <Box
+          sx={{
+            flex: 1,
             p: 4,
-            borderRadius: "12px",
-            backgroundColor: "#fff",
-            border: "2px solid #C5A645", // Gold border
+            pt: "50px", // push content below header
+            overflowY: "auto",
           }}
         >
           {/* Section: Details */}
@@ -278,7 +296,6 @@ export const IncidentReportForm: React.FC = () => {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              {/* <TextField label="Campus" fullWidth /> */}
               <FormControl fullWidth>
                 <InputLabel id="building-location-label">Campus</InputLabel>
                 <Select
@@ -465,15 +482,14 @@ export const IncidentReportForm: React.FC = () => {
                   bgcolor: "#6d54a3ff",
                 },
               }}
-              onClick={handleSubmit} // ⬅️ now triggers upload + DB update
+              onClick={handleSubmit}
             >
               Submit Report
             </Button>
           </Box>
-        </Paper>
+        </Box>
       </Box>
     </Box>
   );
 };
-
 export default IncidentReportForm;

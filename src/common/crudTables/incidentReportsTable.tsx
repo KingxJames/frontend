@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { UBSidebar } from "../../components/UBSidebar/UBSidebar";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Grid from "@mui/material/Grid";
 import {
@@ -12,39 +13,26 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useSelector, useDispatch } from "react-redux";
 import {
   useFetchIncidentReportQuery,
-  useCreateIncidentReportMutation,
-  useDeleteIncidentReportMutation,
-  useUpdateIncidentReportMutation,
+  useGenerateIncidentReportPdfMutation,
 } from "../../../store/services/incidentReportAPI";
-// import { useFetchBuildingsQuery } from "../../../store/services/buildingsAPI";
 import {
   setIncidentReportState,
-  // updateIncidentReport,
-  // deleteIncidentReport,
   selectIncidentReports,
   IIncidentReport,
   IIncidentFile,
 } from "../../../store/features/incidentReportSlice";
-import { set } from "react-hook-form";
 
 export const IncidentReportTable: React.FC = () => {
   const dispatch = useDispatch();
   const [files, setFiles] = useState<File[]>([]); // Store multiple file objects
   const incidentReports = useSelector(selectIncidentReports);
-  const { data: incidentReportData, isLoading } = useFetchIncidentReportQuery(
-    {}
-  );
-  const [deleteIncidentReports] = useDeleteIncidentReportMutation();
+  const { data: incidentReportData } = useFetchIncidentReportQuery({});
+  const [generateIncidentReportPdf] = useGenerateIncidentReportPdfMutation();
 
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
@@ -93,48 +81,47 @@ export const IncidentReportTable: React.FC = () => {
 
   console.log(incidentReportData);
 
-  // console.log(dispatch(setIncidentReportState(incidentReportData?.data)));
-
-  // const filteredIncidentReports = Array.isArray(incidentReports)
-  //   ? incidentReports.filter(
-  //       (incidentReport) =>
-  //         incidentReport.report?.toLowerCase().includes(search.toLowerCase()) ||
-  //         incidentReport.caseNumber
-  //           ?.toLowerCase()
-  //           .includes(search.toLowerCase())
-  //     )
-  //   : [];
-
   const filteredIncidentReports = (incidentReportData?.data || []).filter(
     (report) =>
       report.description?.toLowerCase().includes(search.toLowerCase()) ||
       report.caseNumber?.toLowerCase().includes(search.toLowerCase())
   );
 
+  //handle download report pdf
+  const handleDownloadReportPDF = async (id: string) => {
+    try {
+      const response = await generateIncidentReportPdf(id);
+      console.log("sdfgsdf", response);
+      const blob = response.data;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `incident_report_${id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Failed to download report PDF:", error);
+    }
+  };
+
   const handlePreview = (incidentReport: IIncidentReport) => {
     setSelectedIncidentReport(incidentReport); // store the report to preview
     setOpenPreview(true); // open the dialog
   };
 
-  const handleDownload = (incidentReport: IIncidentReport) => {
-    console.log(incidentReport);
-  };
+  // const handleDownloadReportPDF = (incidentReport: IIncidentReport) => {
+  //   console.log(incidentReport);
+  // };
 
   const columns: GridColDef[] = [
     { field: "caseNumber", headerName: "Case Number", flex: 1 },
     { field: "incidentType", headerName: "Incident Type", flex: 1 },
-    // { field: "buildingName", headerName: "Building Name", flex: 1 },
-    // { field: "campus", headerName: "Campus", flex: 1 },
     { field: "incidentReportStatus", headerName: "Incident Status", flex: 1 },
     { field: "description", headerName: "Incident Report", flex: 1 },
     { field: "action", headerName: "Action Taken", flex: 1 },
-    // { field: "incidentFiles", headerName: "Incident Files", flex: 1 },
     { field: "uploadedBy", headerName: "Uploaded By", flex: 1 },
-    // { field: "date", headerName: "Date", flex: 1 },
-    // { field: "time", headerName: "Time", flex: 1 },
     { field: "reportedBy", headerName: "Reported By", flex: 1 },
-    // { field: "contact", headerName: "Contact", flex: 1 },
-    // { field: "witnesses", headerName: "Witnesses", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",
@@ -162,7 +149,10 @@ export const IncidentReportTable: React.FC = () => {
             <IconButton onClick={() => handlePreview(row)} color="primary">
               <RemoveRedEyeIcon />
             </IconButton>
-            <IconButton onClick={() => handleDownload(row)} color="secondary">
+            <IconButton
+              onClick={() => handleDownloadReportPDF(row.id)}
+              color="secondary"
+            >
               <DownloadIcon />
             </IconButton>
           </Box>
@@ -279,17 +269,19 @@ export const IncidentReportTable: React.FC = () => {
                   />
                 </Grid>
 
-                {/* upload files - Fix this*/}
-                {/* <Grid item xs={12}>
+                {/* Action Taken */}
+                <Grid item xs={12}>
                   <TextField
-                    label="Uploaded Files"
+                    label="Action Taken"
                     fullWidth
                     multiline
                     rows={3}
-                    value={selectedIncidentReport.incidentFiles?.length ?? 0}
+                    value={selectedIncidentReport.action}
                     InputProps={{ readOnly: true }}
                   />
-                </Grid> */}
+                </Grid>
+
+              
 
                 <Box sx={{ width: "100%", pl: 2 }}>
                   <Typography
@@ -321,18 +313,6 @@ export const IncidentReportTable: React.FC = () => {
                     )}
                   </Grid>
                 </Box>
-
-                {/* Action Taken */}
-                <Grid item xs={12}>
-                  <TextField
-                    label="Action Taken"
-                    fullWidth
-                    multiline
-                    rows={3}
-                    value={selectedIncidentReport.action}
-                    InputProps={{ readOnly: true }}
-                  />
-                </Grid>
 
                 <Box sx={{ width: "100%", pl: 2 }}>
                   <Typography
