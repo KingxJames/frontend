@@ -45,6 +45,29 @@ const messagesPersistConfig = {
   whitelist: ["messages", "sharedImages"], // Only persist the messages array
 };
 
+const incidentReportPersistConfig = {
+  key: "incidentReports",
+  storage, // Uses localStorage for incidentReports
+  whitelist: [
+    "id",
+    "caseNumber",
+    "date",
+    "time",
+    "buildingName",
+    "campus",
+    "incidentType",
+    "incidentReportStatus",
+    "description",
+    "action",
+    "contact",
+    "uploadedBy",
+    "reportedBy",
+    "witnesses",
+    "formSubmitted",
+    "incidentFiles",
+  ], // Only persist the incidentReports array
+};
+
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   messages: persistReducer(messagesPersistConfig, messagesReducer),
@@ -55,7 +78,10 @@ const rootReducer = combineReducers({
   messageCategories: messageCategoryReducer,
   users: usersReducer,
   departmentMembers: departmentMemberReducer,
-  incidentReports: incidentReportReducer,
+  incidentReports: persistReducer(
+    incidentReportPersistConfig,
+    incidentReportReducer
+  ),
   incidentStatus: incidentStatusReducer,
   incidentTypes: incidentTypesReducer,
   menu: menuReducer,

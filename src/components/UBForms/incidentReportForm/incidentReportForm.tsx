@@ -57,6 +57,7 @@ import axios from "axios";
 import { buildApiUrl } from "../../../../store/config/api";
 import { RootState } from "../../../../store/store";
 import { useNavigate } from "react-router-dom";
+import  { useAutosaveIncidentReport } from "../../../hooks/useAutoSaveIncidentReport";
 import UBLogoWhite from "../../../images/UBLogoWhite.png";
 
 export const IncidentReportForm: React.FC = () => {
@@ -66,18 +67,19 @@ export const IncidentReportForm: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.auth.token);
-  const { data: incidentReportData } = useFetchIncidentReportQuery({});
+  const { data: incidentReportData, isLoading } = useFetchIncidentReportQuery({});
+  console.log(incidentReportData);
   const { data: incidentStatusData } = useFetchIncidentStatusesQuery();
   const { data: buildingsData } = useFetchBuildingsQuery();
   const { data: campusData } = useFetchCampusesQuery();
   const { data: incidentTypesData } = useFetchIncidentTypesQuery();
   const [updateIncidentReport] = useUpdateIncidentReportMutation();
   const [createIncidentReport] = useCreateIncidentReportMutation();
-  // const [generateIncidentReportPdf] = useGenerateIncidentReportPdfMutation();
+
 
   const incidentReports = useSelector(selectIncidentReports);
   const id = incidentReports.id;
-
+  useAutosaveIncidentReport();
   const incidentStatus = useSelector(selectIncidentStatus);
   const campus = useSelector(selectCampus);
   const buildings = useSelector(selectBuildings);
@@ -140,12 +142,6 @@ export const IncidentReportForm: React.FC = () => {
 
         dispatch(setIncidentFiles(uploadResponse.data.files));
       }
-
-      // // 3. Then update/create incident report in DB
-      // await createIncidentReport({
-      //   ...incidentReports,
-      //   formSubmitted: true,
-      // }).unwrap();
 
       // 2. Update the incident report (not create a new one)
       await updateIncidentReport({
