@@ -17,6 +17,7 @@ import WhatsappWeb from "./pages/WhatsappWeb/WhatsappWeb";
 import NotFound from "./pages/NotFound/NotFound";
 import { FormNames } from "./pages/Forms/FormNames";
 import { IncidentReportForm } from "./components/UBForms/incidentReportForm/incidentReportForm";
+import { Reports } from "./pages/Reports/Reports";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -51,10 +52,12 @@ const App: React.FC = () => {
                 <Route path="/Settings" element={<Settings />} />
                 <Route path="/Messages" element={<WhatsappWeb />} />
                 <Route path="/Forms" element={<FormNames />} />
+                <Route path="/Reports" element={<Reports />} />
                 <Route
                   path="/anonymous"
                   element={<UBMessengerListAnonymous />}
                 />
+
                 <Route path="/buildings" element={<BuildingsTable />} />
                 <Route path="/users" element={<UsersTable />} />
                 <Route path="/incidentTypes" element={<IncidentTypesTable />} />
@@ -62,6 +65,7 @@ const App: React.FC = () => {
                   path="/incidentReports"
                   element={<IncidentReportTable />}
                 />
+
 
                 <Route path= "/campuses" element = {<CampusesTable />} />
                 <Route

@@ -57,25 +57,24 @@ import axios from "axios";
 import { buildApiUrl } from "../../../../store/config/api";
 import { RootState } from "../../../../store/store";
 import { useNavigate } from "react-router-dom";
-import  { useAutosaveIncidentReport } from "../../../hooks/useAutoSaveIncidentReport";
+import { useAutosaveIncidentReport } from "../../../hooks/useAutoSaveIncidentReport";
 import UBLogoWhite from "../../../images/UBLogoWhite.png";
 
 export const IncidentReportForm: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.auth.token);
-  const { data: incidentReportData, isLoading } = useFetchIncidentReportQuery({});
-  console.log(incidentReportData);
+  const { data: incidentReportData } = useFetchIncidentReportQuery({});
   const { data: incidentStatusData } = useFetchIncidentStatusesQuery();
   const { data: buildingsData } = useFetchBuildingsQuery();
   const { data: campusData } = useFetchCampusesQuery();
   const { data: incidentTypesData } = useFetchIncidentTypesQuery();
   const [updateIncidentReport] = useUpdateIncidentReportMutation();
   const [createIncidentReport] = useCreateIncidentReportMutation();
-
 
   const incidentReports = useSelector(selectIncidentReports);
   const id = incidentReports.id;
@@ -100,6 +99,43 @@ export const IncidentReportForm: React.FC = () => {
   if (incidentTypes.length <= 1) {
     return null;
   }
+
+  const validateForm = () => {
+    const requiredFields = [
+      "action",
+      "description",
+      "caseNumber",
+      "incidentReportStatus",
+      "incidentType",
+      "buildingName",
+      "uploadedBy",
+      "date",
+      "time",
+    ];
+
+    const newErrors: { [key: string]: boolean } = {};
+    const missingFields: string[] = [];
+
+    requiredFields.forEach((field) => {
+      if (!incidentReports[field as keyof typeof incidentReports]) {
+        newErrors[field] = true;
+        missingFields.push(field);
+      }
+    });
+
+    setErrors(newErrors);
+
+    if (missingFields.length > 0) {
+      alert(
+        `Please fill in the following required field${
+          missingFields.length > 1 ? "s" : ""
+        }: ${missingFields.join(", ")}`
+      );
+      return false;
+    }
+    return true;
+  };
+
   // Handle file selection
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
@@ -110,9 +146,9 @@ export const IncidentReportForm: React.FC = () => {
     setPreviews(previewUrls);
 
     // Automatically save in Redux state
-    const incidentFiles = files.map((file) => ({
+    const incidentFiles = files.map((file: any) => ({
       incidentPicture: file.name,
-      previewURL: URL.createObjectURL(file),
+      previewURL: file.url,
       generated_name: file.name,
     }));
     dispatch(setIncidentFiles(incidentFiles));
@@ -120,6 +156,7 @@ export const IncidentReportForm: React.FC = () => {
 
   // Submit form and upload files
   const handleSubmit = async () => {
+    if (!validateForm()) return;
     try {
       // 1. Upload files if there are any
       if (selectedFiles.length > 0) {
@@ -259,6 +296,8 @@ export const IncidentReportForm: React.FC = () => {
                 InputLabelProps={{ shrink: true }}
                 onChange={(e) => dispatch(setDate(e.target.value))}
                 value={incidentReports.date}
+                error={!!errors["date"]}
+                helperText={errors["date"] ? "Date is required" : ""}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -269,6 +308,8 @@ export const IncidentReportForm: React.FC = () => {
                 InputLabelProps={{ shrink: true }}
                 value={incidentReports.time}
                 onChange={(e) => dispatch(setTime(e.target.value))}
+                error={!!errors["time"]}
+                helperText={errors["time"] ? "Time is required" : ""}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -288,6 +329,11 @@ export const IncidentReportForm: React.FC = () => {
                     </MenuItem>
                   ))}
                 </Select>
+                {errors["buildingName"] && (
+                  <Typography color="error" variant="caption">
+                    Building name is required
+                  </Typography>
+                )}
               </FormControl>
             </Grid>
 
@@ -306,6 +352,11 @@ export const IncidentReportForm: React.FC = () => {
                     </MenuItem>
                   ))}
                 </Select>
+                {errors["campus"] && (
+                  <Typography color="error" variant="caption">
+                    Campus is required
+                  </Typography>
+                )}
               </FormControl>
             </Grid>
 
@@ -326,6 +377,11 @@ export const IncidentReportForm: React.FC = () => {
                     )
                   )}
                 </Select>
+                {errors["incidentType"] && (
+                  <Typography color="error" variant="caption">
+                    Incident type is required
+                  </Typography>
+                )}
               </FormControl>
             </Grid>
 
@@ -348,6 +404,11 @@ export const IncidentReportForm: React.FC = () => {
                     </MenuItem>
                   ))}
                 </Select>
+                {errors["incidentReportStatus"] && (
+                  <Typography color="error" variant="caption">
+                    Incident status is required
+                  </Typography>
+                )}
               </FormControl>
             </Grid>
             <Grid item xs={12}>
@@ -359,6 +420,8 @@ export const IncidentReportForm: React.FC = () => {
                 value={incidentReports.description}
                 onChange={(e) => dispatch(setDescription(e.target.value))}
                 fullWidth
+                error={!!errors["description"]}
+                helperText={errors["description"] ? "Description is required" : ""}
               />
             </Grid>
 
@@ -370,6 +433,8 @@ export const IncidentReportForm: React.FC = () => {
                 value={incidentReports.action}
                 onChange={(e) => dispatch(setAction(e.target.value))}
                 fullWidth
+                error={!!errors["action"]}
+                helperText={errors["action"] ? "Action is required" : ""}
               ></TextField>
             </Grid>
 

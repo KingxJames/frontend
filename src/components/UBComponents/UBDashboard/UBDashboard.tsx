@@ -1,57 +1,56 @@
 import React from "react";
+import { Box } from "@mui/material";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import AssessmentIcon from "@mui/icons-material/Assessment";
+import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
+
 import UBCardDataStats from "../../../common/UBCardDataStats/UBCardDataStats.tsx";
 import UBVisitorsAnalyticsChart from "../../../common/UBVisitorsAnalyticsChart/UBVisitorsAnalyticsChart";
 // import UBChats from "../../../common/UBChats/UBChats";
-import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
-import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
-import AssessmentIcon from "@mui/icons-material/Assessment";
+import UBChatList from "../../../common/UBChatList/UBChatList.tsx";
+
 import {
   useFetchUsersTotalQuery,
   useFetchReportTotalQuery,
 } from "../../../../store/services/dashboardAPI";
+import { useIncidentReportTotalQuery } from "../../../../store/services/incidentReportAPI";
 import { useSelector } from "react-redux";
 import { selectDashboard } from "../../../../store/features/dashboardSlice";
-import { Box } from "@mui/material";
-import UBChatList from "../../../common/UBChatList/UBChatList.tsx";
 
-export const UBDashboard: React.FC = () => {
-  // Fetch the totals using hooks
+const UBDashboard: React.FC = () => {
+  // Fetch data using RTK Query hooks
   const { data: usersTotalData } = useFetchUsersTotalQuery();
+  const { data: incidentReportTotalData } = useIncidentReportTotalQuery();
 
+  // Select fallback dashboard data from Redux
   const dashboardData = useSelector(selectDashboard);
+
+  // Define dashboard cards
   const stats = [
     {
       title: "Total Users",
-      total: usersTotalData?.total || dashboardData.total.usersTotal || 0,
+      total: usersTotalData?.total ?? dashboardData.total.usersTotal ?? 0,
       icon: <RemoveRedEyeIcon />,
     },
+    {
+      title: "Total Incident Reports",
+      total: incidentReportTotalData?.data?.total ?? 0,
+      icon: <AssessmentIcon />,
+    },
+   
+    //will add total anonymous chats here
+    //total emergency chats here
   ];
 
   return (
-    <Box sx={{ p: "2%" }}>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
+    <Box sx={{ p: 3, width: "100%" }}>
+      {/* Dashboard Stats */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:gap-6">
         {stats.map((stat, index) => (
           <UBCardDataStats key={index} title={stat.title} total={stat.total}>
             {stat.icon}
           </UBCardDataStats>
         ))}
-      </div>
-
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
-        <div className="col-span-12 md:col-span-7">
-          <UBVisitorsAnalyticsChart />
-        </div>
-        <div
-          className="col-span-12 md:col-span-5 rounded-sm border border-stroke bg-white pt-3.5 shadow-default dark:border-strokedark dark:bg-boxdark"
-          style={{
-            border: "2px solid rgba(255, 196, 3, 0.5)",
-            borderRadius: "20px",
-          }}
-        >
-          <h1 style={{ fontSize: "30px", padding: "2% 0 2% 4%" }}>Chat</h1>
-          {/* chat list here */}
-          <UBChatList />
-        </div>
       </div>
     </Box>
   );

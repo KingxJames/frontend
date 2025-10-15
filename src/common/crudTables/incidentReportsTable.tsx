@@ -162,7 +162,7 @@ export const IncidentReportTable: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ padding: "3%", height: "100%", width: "100%" }}>
+    <Box sx={{ padding: "3%", height: "80vh", width: "100%" }}>
       <DataGrid
         rows={filteredIncidentReports}
         columns={columns}

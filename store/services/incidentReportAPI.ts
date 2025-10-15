@@ -103,13 +103,13 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
         method: "GET",
       }),
     }),
-    // incidnetReportTotal: builder.query<IIncidentReport, void>({
-    //   query: () => ({
-    //     url: "/publicSafety/incidentReportTotal",
-    //     method: "GET",
-    //   }),
-    //   transformResponse: (response: { data: IIncidentReport }) => response.data,
-    // }),
+    incidentReportTotal: builder.query<{ total: number }, void>({
+      query: () => ({
+        url: "/publicSafety/incidentReportTotal",
+        method: "GET",
+      }),
+    }),
+    // uploadIncidentFile: builder.mutation({
   }),
 });
 
@@ -122,6 +122,6 @@ export const {
   useDeleteIncidentReportMutation,
   useGenerateIncidentReportPdfMutation,
   useGetUnsubmittedIncidentReportQuery,
-  // useIncidnetReportTotalQuery,
+  useIncidentReportTotalQuery,
   // useUploadIncidentFileMutation,
 } = incidentReportAPI;

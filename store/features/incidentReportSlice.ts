@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 export interface IIncidentFile {
-  previewURL: string;
+  // previewURL: string;
   url?: string;
   generated_name?: string;
   incidentPicture: string; //original file name

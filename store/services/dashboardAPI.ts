@@ -56,38 +56,6 @@ export const dashboardAPI = baseAPI.injectEndpoints({
       },
     }),
 
-    // fetchIncidentFilesTotal: builder.query<{ total: number }, void>({
-    //   query: () => ({
-    //     url: "/publicSafety/incidentFileTotal",
-    //     method: "GET",
-    //   }),
-    //   async onQueryStarted(_, { dispatch, queryFulfilled }) {
-    //     try {
-    //       const { data } = await queryFulfilled;
-    //       // console.log("Fetched Incident Files:", JSON.stringify(data)); // Log for debugging
-    //       dispatch(setTotalState({ incidentFilesTotal: data.total }));
-    //     } catch (e) {
-    //       console.error(e);
-    //     }
-    //   },
-    // }),
-
-    // fetchMessageTotal: builder.query<{ total: number }, void>({
-    //   query: () => ({
-    //     url: "/publicSafety/totalMessages",
-    //     method: "GET",
-    //   }),
-    //   async onQueryStarted(_, { dispatch, queryFulfilled }) {
-    //     try {
-    //       const { data } = await queryFulfilled;
-    //       // console.log("Fetched messsage:", JSON.stringify(data)); // Log for debugging
-    //       dispatch(setTotalState({ messageTotal: data.total }));
-    //     } catch (e) {
-    //       console.error(e);
-    //     }
-    //   },
-    // }),
-
     updateDashboard: builder.mutation({
       query: (body: Partial<DashboardInitialState>) => ({
         url: "/users", //this will change
