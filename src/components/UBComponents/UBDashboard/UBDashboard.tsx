@@ -17,7 +17,7 @@ import { useIncidentReportTotalQuery } from "../../../../store/services/incident
 import { useSelector } from "react-redux";
 import { selectDashboard } from "../../../../store/features/dashboardSlice";
 
-const UBDashboard: React.FC = () => {
+export const UBDashboard: React.FC = () => {
   // Fetch data using RTK Query hooks
   const { data: usersTotalData } = useFetchUsersTotalQuery();
   const { data: incidentReportTotalData } = useIncidentReportTotalQuery();

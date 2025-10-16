@@ -46,13 +46,48 @@ export const FormNames: React.FC = () => {
     }
   };
 
+  const handleClickShiftReport = (title: string) => {
+    if (title === "End of Shift Report Patrol") {
+      navigate("/endOfShiftReportPatrol");
+      return;
+    } else if (title === "End of Shift Report Supervisor") {
+      navigate("/endOfShiftReportSupervisor");
+      return;
+    } else {
+      navigate("/forms");
+      console.log("No form found");
+    }
+  };
+
   return (
-    <Box>
-      <UBFormCard
-        title="Incident Report Form"
-        image={warning}
-        onClick={handleClick}
-      />
+    <Box
+      sx={{
+        // padding: "3%",
+        background: "linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)",
+        height: "92.5vh",
+      }}
+    >
+      <Box sx={{ display: "flex", flexDirection: "row", gap: "2rem" }}>
+        <UBFormCard
+          title="Incident Report Form"
+          image={warning}
+          onClick={handleClick}
+        />
+
+        <UBFormCard
+          title="End of Shift Report Patrol"
+          image={warning}
+          onClick={() => handleClickShiftReport("End of Shift Report Patrol")}
+        />
+
+        <UBFormCard
+          title="End of Shift Report Supervisor"
+          image={warning}
+          onClick={() =>
+            handleClickShiftReport("End of Shift Report Supervisor")
+          }
+        />
+      </Box>
     </Box>
   );
 };
