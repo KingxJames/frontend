@@ -20,6 +20,7 @@ import { IncidentReportForm } from "./components/UBForms/incidentReportForm/inci
 import { Reports } from "./pages/Reports/Reports";
 import { EndOfShiftReportPatrol } from "../src/components/UBForms/endOfShiftReportPatrol/endOfShiftReportPatrol";
 import { EndOfShiftReportSupervisor } from "../src/components/UBForms/endOfshiftReportSupervisor/endOfShiftReportSupervisor";
+import { EndOfShiftReportPatrolTable } from "../src/common/crudTables/endOfShoftreportPatrolTable";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -72,17 +73,21 @@ const App: React.FC = () => {
                   path="/incidentReports"
                   element={<IncidentReportTable />}
                 />
+                <Route
+                  path="/endOfShiftReportPatrolTable"
+                  element={<EndOfShiftReportPatrolTable />}
+                  />
                 {/* ----------- end of crud tables ----------- */}
 
                 {/* ----------- report forms ----------- */}
 
                 <Route
-                  path="/endOfShiftReportPatrol"
+                  path="/forms/endOfShiftReportPatrol/:id"
                   element={<EndOfShiftReportPatrol />}
                 />
 
                 <Route
-                  path="/endOfShiftReportSupervisor"
+                  path="/forms/endOfShiftReportSupervisor/:id"
                   element={<EndOfShiftReportSupervisor />}
                 />
 

@@ -11,6 +11,8 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const hiddenHeaderRoutes = [
     "/messages",
     "/forms/incidentReportForm/:caseNumber",
+    "/forms/endOfShiftReportPatrol/:id",
+    "/forms/endOfShiftReportSupervisor/:id",
   ];
   const hiddenSidebarRoutes = ["/forms/incidentReportForm/:caseNumber"];
 

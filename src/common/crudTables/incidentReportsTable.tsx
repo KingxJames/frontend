@@ -110,10 +110,6 @@ export const IncidentReportTable: React.FC = () => {
     setOpenPreview(true); // open the dialog
   };
 
-  // const handleDownloadReportPDF = (incidentReport: IIncidentReport) => {
-  //   console.log(incidentReport);
-  // };
-
   const columns: GridColDef[] = [
     { field: "caseNumber", headerName: "Case Number", flex: 1 },
     { field: "incidentType", headerName: "Incident Type", flex: 1 },
@@ -280,8 +276,6 @@ export const IncidentReportTable: React.FC = () => {
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
-
-              
 
                 <Box sx={{ width: "100%", pl: 2 }}>
                   <Typography

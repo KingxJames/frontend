@@ -9,8 +9,8 @@ export const Reports: React.FC = () => {
   const handleShowTable = (text: string) => {
     const routes: Record<string, string> = {
       "Incident Reports": "/incidentReports",
-      "End of Shift Report (Patrol Officer)": "/endOfShiftReportPatrol",
-      "End of Shift Report (Shift Supervisor)": "/endOfShiftReportSupervisor",
+      "End of Shift Report (Patrol Officer)": "/endOfShiftReportPatrolTable",
+      "End of Shift Report (Shift Supervisor)": "/endOfShiftReportSupervisorTable",
     };
 
     if (routes[text]) navigate(routes[text]);

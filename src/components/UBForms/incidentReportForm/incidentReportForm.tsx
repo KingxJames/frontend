@@ -91,7 +91,7 @@ export const IncidentReportForm: React.FC = () => {
   if (buildings.length <= 1) {
     return null;
   }
-
+  
   if (campus.length <= 1) {
     return null;
   }

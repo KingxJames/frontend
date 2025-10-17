@@ -116,12 +116,10 @@ export const incidentReportAPI = baseAPI.injectEndpoints({
 export const {
   useInitializeIncidentReportMutation,
   useFetchIncidentReportQuery,
-  // useFetchIncidentReportByIdQuery,
   useCreateIncidentReportMutation,
   useUpdateIncidentReportMutation,
   useDeleteIncidentReportMutation,
   useGenerateIncidentReportPdfMutation,
   useGetUnsubmittedIncidentReportQuery,
   useIncidentReportTotalQuery,
-  // useUploadIncidentFileMutation,
 } = incidentReportAPI;

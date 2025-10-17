@@ -8,30 +8,30 @@ import {
   useCreateIncidentReportMutation,
   useGetUnsubmittedIncidentReportQuery,
 } from "../../../store/services/incidentReportAPI";
+import {
+  useInitializeEndOfShiftReportPatrolMutation,
+  useGetUnsubmittedEndOfShiftReportPatrolQuery,
+} from "../../../store/services/endOfShiftReportPatrolAPI";
 import { create } from "@mui/material/styles/createTransitions";
 
 export const FormNames: React.FC = () => {
   const navigate = useNavigate();
   const [initializeIncidentReport] = useInitializeIncidentReportMutation();
-  const { data: unsubmittedIncidentReports, refetch } =
+  const [initializeEndOfShiftReportPatrol] =
+    useInitializeEndOfShiftReportPatrolMutation();
+
+  const { data: unsubmittedIncidentReports, refetch: refetchIncidentReports } =
     useGetUnsubmittedIncidentReportQuery({});
-  const [createIncidentReport] = useCreateIncidentReportMutation();
 
-  // const handleClick = async () => {
-  //   try {
-  //     const response = await initializeIncidentReport({}).unwrap();
-
-  //     // Navigate with ID if form needs to load data
-  //     navigate(`incidentReportForm/${response.caseNumber}`);
-  //   } catch (error) {
-  //     console.error("Failed to initialize incident report:", error);
-  //   }
-  // };
+  const {
+    data: unsubmittedEndOfShiftReportPatrols,
+    refetch: refetchPatrolReports,
+  } = useGetUnsubmittedEndOfShiftReportPatrolQuery({});
 
   const handleClick = async () => {
     try {
       // Always refetch to make sure data is fresh
-      const { data } = await refetch();
+      const { data } = await refetchIncidentReports();
 
       if (data?.success && data.data) {
         // ✅ Found an unsubmitted form → navigate to it
@@ -46,16 +46,24 @@ export const FormNames: React.FC = () => {
     }
   };
 
-  const handleClickShiftReport = (title: string) => {
-    if (title === "End of Shift Report Patrol") {
-      navigate("/endOfShiftReportPatrol");
-      return;
-    } else if (title === "End of Shift Report Supervisor") {
-      navigate("/endOfShiftReportSupervisor");
-      return;
-    } else {
-      navigate("/forms");
-      console.log("No form found");
+  const handleClickShiftReportPatrol = async () => {
+    try {
+      // Always refetch to make sure data is fresh
+      const { data } = await refetchPatrolReports();
+
+      if (data?.success && data.data) {
+        // ✅ Found an unsubmitted form → navigate to it
+        navigate(`/forms/endOfShiftReportPatrol/${data.data.id}`);
+        console.log("asd", data.data);
+        return;
+      } else {
+        // 🆕 No unsubmitted form → initialize new
+        const response = await initializeEndOfShiftReportPatrol({}).unwrap();
+        navigate(`/forms/endOfShiftReportPatrol/${response.id}`);
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to handle incident report form:", error);
     }
   };
 
@@ -77,16 +85,16 @@ export const FormNames: React.FC = () => {
         <UBFormCard
           title="End of Shift Report Patrol"
           image={warning}
-          onClick={() => handleClickShiftReport("End of Shift Report Patrol")}
+          onClick={() => handleClickShiftReportPatrol()}
         />
 
-        <UBFormCard
+        {/* <UBFormCard
           title="End of Shift Report Supervisor"
           image={warning}
           onClick={() =>
             handleClickShiftReport("End of Shift Report Supervisor")
           }
-        />
+        /> */}
       </Box>
     </Box>
   );

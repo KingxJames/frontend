@@ -29,6 +29,7 @@ import recipientReducer from "./features/recipientSlice";
 import subMenuReducer from "./features/subMenusSlice";
 import userCampusesReducer from "./features/userCampusSlice";
 import userStatusesReducer from "./features/userStatusSlice";
+import EndOfShiftReportPatrolReducer from "../store/features/endOfShiftReportPatrolSlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
@@ -68,6 +69,12 @@ const incidentReportPersistConfig = {
   ], // Only persist the incidentReports array
 };
 
+export const endOfShiftReportPatrolPersistConfig = {
+  key: "endOfShiftReportPatrol",
+  storage, // Uses localStorage for endOfShiftReportPatrol
+  whitelist: ["id", "date", "time", "campus", "report", "uploadedBy"], // Only persist the endOfShiftReportPatrol array
+};
+
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   messages: persistReducer(messagesPersistConfig, messagesReducer),
@@ -81,6 +88,10 @@ const rootReducer = combineReducers({
   incidentReports: persistReducer(
     incidentReportPersistConfig,
     incidentReportReducer
+  ),
+  endOfShiftReportPatrol: persistReducer(
+    endOfShiftReportPatrolPersistConfig,
+    EndOfShiftReportPatrolReducer
   ),
   incidentStatus: incidentStatusReducer,
   incidentTypes: incidentTypesReducer,
