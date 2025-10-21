@@ -35,7 +35,7 @@ import { useFetchCampusesQuery } from "../../../../store/services/campusAPI";
 import { buildApiUrl } from "../../../../store/config/api";
 import { RootState } from "../../../../store/store";
 import { useNavigate } from "react-router-dom";
-import { useAutosaveEndOfReportPatrol } from "../../../hooks/useAutoSaveEndOfReportPatrol";
+import { useAutosaveEndOfReportPatrol } from "../../../hooks/useAutoSave";
 
 export const EndOfShiftReportPatrol: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
@@ -45,13 +45,15 @@ export const EndOfShiftReportPatrol: React.FC = () => {
   const { data: endOfShiftReportPatrolData } =
     useFetchEndOfShiftReportPatrolQuery({});
   const { data: campusData } = useFetchCampusesQuery();
-
   const [createEndOfShiftReportPatrol] =
     useCreateEndOfShiftReportPatrolMutation();
   const [updateEndOfShiftReportPatrol] =
     useUpdateEndOfShiftReportPatrolMutation();
 
   const endOfShiftReportPatrols = useSelector(selectEndOfShiftReportPatrol);
+  console.log("endOfShiftReportPatrols", endOfShiftReportPatrols);
+  console.log("End of Shift Report Patrol ID:", endOfShiftReportPatrols.id);
+  // console.log("End of Shift Report Patrol Form Submitted:", endOfShiftReportPatrols.uploadedBy);
   useAutosaveEndOfReportPatrol();
   const campus = useSelector(selectCampus);
 
@@ -155,7 +157,7 @@ export const EndOfShiftReportPatrol: React.FC = () => {
             textTransform: "uppercase",
           }}
         >
-          End of Shift Report{" "}
+          End of Shift Report - Patrol Officer
         </Typography>
       </Box>
 
@@ -199,6 +201,7 @@ export const EndOfShiftReportPatrol: React.FC = () => {
               label="Time"
               type="time"
               fullWidth
+              InputLabelProps={{ shrink: true }}
               value={endOfShiftReportPatrols.time}
               onChange={(e) => dispatch(setTime(e.target.value))}
               error={!!errors["time"]}

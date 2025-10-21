@@ -15,54 +15,58 @@ import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useDispatch } from "react-redux";
 import {
-  useFetchEndOfShiftReportPatrolQuery,
-  useGenerateEndOfShiftReportPatrolPdfMutation,
-} from "../../../store/services/endOfShiftReportPatrolAPI";
-import { setEndOfShiftReportPatrol } from "../../../store/features/endOfShiftReportPatrolSlice";
+  useFetchEndOfShiftReportSupervisorQuery,
+  useGenerateEndOfShiftReportSupervisorPdfMutation,
+} from "../../../store/services/endOfShiftReportSupervisorAPI";
+import { setEndOfShiftReportSupervisor } from "../../../store/features/endOfShiftReportSupervisorSlice";
 
-export const EndOfShiftReportPatrolTable: React.FC = () => {
+export const EndOfShiftReportSupervisorTable: React.FC = () => {
   const dispatch = useDispatch();
-  const { data: endOfShiftReportPatrolData } =
-    useFetchEndOfShiftReportPatrolQuery({});
-  const [generateEndOfShiftReportPatrolPdf] =
-    useGenerateEndOfShiftReportPatrolPdfMutation();
+  const { data: endOfShiftReportSupervisorData } =
+    useFetchEndOfShiftReportSupervisorQuery({});
+  const [generateEndOfShiftReportSupervisorPdf] =
+    useGenerateEndOfShiftReportSupervisorPdfMutation();
 
-  const paginationModel = { page: 0, pageSize: 5 };
+  const paginationModel = { page: 0, pageSize: 10 };
   const [search, setSearch] = useState("");
   const [openPreview, setOpenPreview] = useState(false);
 
-  const [selectedEndOfShiftReportPatrol, setSelectedEndOfShiftReportPatrol] =
-    useState<{
-      id: string;
-      date: string;
-      time: string;
-      campus: string;
-      report: string;
-      uploadedBy: string;
-    } | null>(null);
+  const [
+    selectedEndOfShiftReportSupervisor,
+    setSelectedEndOfShiftReportSupervisor,
+  ] = useState<{
+    id: string;
+    date: string;
+    time: string;
+    campus: string;
+    report: string;
+    uploadedBy: string;
+  } | null>(null);
 
   useEffect(() => {
-    if (endOfShiftReportPatrolData) {
-      dispatch(setEndOfShiftReportPatrol(endOfShiftReportPatrolData?.data));
+    if (endOfShiftReportSupervisorData) {
+      dispatch(
+        setEndOfShiftReportSupervisor(endOfShiftReportSupervisorData?.data)
+      );
     }
-  }, [endOfShiftReportPatrolData, dispatch]);
+  }, [endOfShiftReportSupervisorData, dispatch]);
 
-  console.log(endOfShiftReportPatrolData);
+  console.log(endOfShiftReportSupervisorData);
 
-  const filteredEndOfShiftReportPatrols = (
-    endOfShiftReportPatrolData?.data || []
+  const filteredEndOfShiftReportSupervisors = (
+    endOfShiftReportSupervisorData?.data || []
   ).filter((report) => report.id?.toLowerCase().includes(search.toLowerCase()));
 
   //handle download report pdf
   const handleDownloadReportPDF = async (id: string) => {
     try {
-      const response = await generateEndOfShiftReportPatrolPdf(id);
+      const response = await generateEndOfShiftReportSupervisorPdf(id);
       console.log("sdfgsdf", response);
       const blob = response.data;
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `endOfShiftReportPatrol_${id}.pdf`);
+      link.setAttribute("download", `endOfShiftReportSupervisor_${id}.pdf`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -71,8 +75,8 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
     }
   };
 
-  const handlePreview = (endOfShiftReportPatrol: any) => {
-    setSelectedEndOfShiftReportPatrol(endOfShiftReportPatrol); // store the report to preview
+  const handlePreview = (endOfShiftReportSupervisor: any) => {
+    setSelectedEndOfShiftReportSupervisor(endOfShiftReportSupervisor); // store the report to preview
     setOpenPreview(true); // open the dialog
   };
 
@@ -116,7 +120,7 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
   return (
     <Box sx={{ padding: "3%", height: "80vh", width: "100%" }}>
       <DataGrid
-        rows={filteredEndOfShiftReportPatrols}
+        rows={filteredEndOfShiftReportSupervisors}
         columns={columns}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[10, 15, 20]}
@@ -143,10 +147,10 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
             margin: "auto",
           }}
         >
-          End of Shift Report Patrol Preview{" "}
+          End of Shift Report Supervisor Preview{" "}
         </DialogTitle>
         <DialogContent>
-          {selectedEndOfShiftReportPatrol && (
+          {selectedEndOfShiftReportSupervisor && (
             <Box sx={{ flexGrow: 1, mt: 2, mb: 2 }}>
               <Grid container spacing={2} sx={{ p: "2%" }}>
                 {/* Date */}
@@ -154,7 +158,7 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
                   <TextField
                     label="Date"
                     fullWidth
-                    value={selectedEndOfShiftReportPatrol.date}
+                    value={selectedEndOfShiftReportSupervisor.date}
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
@@ -163,7 +167,7 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
                   <TextField
                     label="Time"
                     fullWidth
-                    value={selectedEndOfShiftReportPatrol.time}
+                    value={selectedEndOfShiftReportSupervisor.time}
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
@@ -172,7 +176,7 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
                   <TextField
                     label="Campus"
                     fullWidth
-                    value={selectedEndOfShiftReportPatrol.campus}
+                    value={selectedEndOfShiftReportSupervisor.campus}
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
@@ -180,7 +184,7 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
                   <TextField
                     label="Uploaded By"
                     fullWidth
-                    value={selectedEndOfShiftReportPatrol.uploadedBy}
+                    value={selectedEndOfShiftReportSupervisor.uploadedBy}
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
@@ -191,7 +195,7 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
                     fullWidth
                     multiline
                     rows={4}
-                    value={selectedEndOfShiftReportPatrol.report}
+                    value={selectedEndOfShiftReportSupervisor.report}
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
@@ -213,3 +217,5 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
     </Box>
   );
 };
+
+export default EndOfShiftReportSupervisorTable;

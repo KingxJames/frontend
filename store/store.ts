@@ -17,19 +17,14 @@ import dashboardReducer from "./features/dashboardSlice";
 import messagesReducer from "./features/UBWhatsappSlice/messageSlice";
 import buildingsReducer from "./features/buildingSlice";
 import campusesReducer from "./features/campusSlice";
-import departmentsReducers from "./features/departmentSlice";
 import messageCategoryReducer from "./features/messageCategoriesSlice";
-import departmentMemberReducer from "./features/departmentMemberSlice";
 import incidentStatusReducer from "./features/incidentStatusSlice";
 import incidentReportReducer from "./features/incidentReportSlice";
 import incidentTypesReducer from "./features/incidentTypeSlice";
 import menuReducer from "./features/menuSlice";
 import usersReducer from "./features/userSlice";
-import recipientReducer from "./features/recipientSlice";
-import subMenuReducer from "./features/subMenusSlice";
-import userCampusesReducer from "./features/userCampusSlice";
-import userStatusesReducer from "./features/userStatusSlice";
 import EndOfShiftReportPatrolReducer from "../store/features/endOfShiftReportPatrolSlice";
+import EndOfShiftReportSupervisorReduer from "../store/features/endOfShiftReportSupervisorSlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
@@ -75,16 +70,20 @@ export const endOfShiftReportPatrolPersistConfig = {
   whitelist: ["id", "date", "time", "campus", "report", "uploadedBy"], // Only persist the endOfShiftReportPatrol array
 };
 
+export const endOfShiftReportSupervisorPersistConfig = {
+  key: "endOfShiftReportSupervisor",
+  storage, // Uses localStorage for endOfShiftReportSupervisor
+  whitelist: ["id", "date", "time", "campus", "report", "uploadedBy"], // Only persist the endOfShiftReportSupervisor array
+};
+
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   messages: persistReducer(messagesPersistConfig, messagesReducer),
   dashboard: dashboardReducer,
   buildings: buildingsReducer,
   campus: campusesReducer,
-  departments: departmentsReducers,
   messageCategories: messageCategoryReducer,
   users: usersReducer,
-  departmentMembers: departmentMemberReducer,
   incidentReports: persistReducer(
     incidentReportPersistConfig,
     incidentReportReducer
@@ -93,13 +92,14 @@ const rootReducer = combineReducers({
     endOfShiftReportPatrolPersistConfig,
     EndOfShiftReportPatrolReducer
   ),
+
+  endOfShiftReportSupervisor: persistReducer(
+    endOfShiftReportSupervisorPersistConfig,
+    EndOfShiftReportSupervisorReduer
+  ),
   incidentStatus: incidentStatusReducer,
   incidentTypes: incidentTypesReducer,
   menu: menuReducer,
-  recipients: recipientReducer,
-  subMenus: subMenuReducer,
-  userCampuses: userCampusesReducer,
-  userStatuses: userStatusesReducer,
   [baseAPI.reducerPath]: baseAPI.reducer,
 });
 

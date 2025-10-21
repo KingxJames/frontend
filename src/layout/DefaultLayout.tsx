@@ -7,39 +7,34 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  // Define routes where UBHeader should be hidden
+  // Define base routes where header/sidebar should be hidden
   const hiddenHeaderRoutes = [
     "/messages",
-    "/forms/incidentReportForm/:caseNumber",
-    "/forms/endOfShiftReportPatrol/:id",
-    "/forms/endOfShiftReportSupervisor/:id",
+    "/forms/incidentReportForm/",
+    "/forms/endOfShiftReportPatrol/",
+    "/forms/endOfShiftReportSupervisor/",
   ];
-  const hiddenSidebarRoutes = ["/forms/incidentReportForm/:caseNumber"];
 
-  // Check if current route is in the hidden list
-  const hideHeader =
-    hiddenHeaderRoutes.some((route) =>
-      location.pathname.startsWith("/forms/incidentReportForm/")
-    ) || hiddenHeaderRoutes.includes(location.pathname);
+  const hiddenSidebarRoutes = ["/forms/incidentReportForm/"];
 
-  const hideSidebar =
-    hiddenSidebarRoutes.some((route) =>
-      location.pathname.startsWith("/forms/incidentReportForm/")
-    ) || hiddenSidebarRoutes.includes(location.pathname);
+  // Helper: check if current path starts with any of these routes
+  const checkHide = (routes: string[]) =>
+    routes.some((route) => location.pathname.startsWith(route));
+
+  const hideHeader = checkHide(hiddenHeaderRoutes);
+  const hideSidebar = checkHide(hiddenSidebarRoutes);
 
   return (
     <div className="dark:bg-boxdark-2 dark:text-bodydark">
-      {/* <!-- ===== Page Wrapper Start ===== --> */}
       <div className="flex h-screen overflow-hidden">
-        {/* <!-- ===== UBSidebar Start ===== --> */}
+        {/* Sidebar */}
         {!hideSidebar && (
           <UBSidebar open={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         )}
-        {/* <!-- ===== UBSidebar End ===== --> */}
 
-        {/* <!-- ===== Content Area Start ===== --> */}
+        {/* Content */}
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
-          {/* Conditionally render UBHeader */}
+          {/* Header */}
           {!hideHeader && (
             <UBHeader
               sidebarOpen={sidebarOpen}
@@ -47,15 +42,12 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             />
           )}
 
-          {/* <!-- ===== Main Content Start ===== --> */}
+          {/* Main */}
           <main>
-            <div className="">{children}</div>
+            <div>{children}</div>
           </main>
-          {/* <!-- ===== Main Content End ===== --> */}
         </div>
-        {/* <!-- ===== Content Area End ===== --> */}
       </div>
-      {/* <!-- ===== Page Wrapper End ===== --> */}
     </div>
   );
 };

@@ -78,6 +78,7 @@ export const IncidentReportForm: React.FC = () => {
 
   const incidentReports = useSelector(selectIncidentReports);
   const id = incidentReports.id;
+  console.log("Incident Report ID:", id);
   useAutosaveIncidentReport();
   const incidentStatus = useSelector(selectIncidentStatus);
   const campus = useSelector(selectCampus);

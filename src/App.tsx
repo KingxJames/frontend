@@ -7,7 +7,6 @@ import { Login } from "./pages/Login/Login";
 import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Settings } from "./pages/Settings/Settings";
 import UBPrivateRoute from "./components/UBPrivateRoute/UBPrivateRoute";
-import { UsersTable } from "./common/crudTables/usersTable";
 import { IncidentReportTable } from "./common/crudTables/incidentReportsTable";
 import { BuildingsTable } from "./common/crudTables/buildingsTable";
 import CampusesTable from "./common/crudTables/campusesTable";
@@ -20,7 +19,8 @@ import { IncidentReportForm } from "./components/UBForms/incidentReportForm/inci
 import { Reports } from "./pages/Reports/Reports";
 import { EndOfShiftReportPatrol } from "../src/components/UBForms/endOfShiftReportPatrol/endOfShiftReportPatrol";
 import { EndOfShiftReportSupervisor } from "../src/components/UBForms/endOfshiftReportSupervisor/endOfShiftReportSupervisor";
-import { EndOfShiftReportPatrolTable } from "../src/common/crudTables/endOfShoftreportPatrolTable";
+import { EndOfShiftReportPatrolTable } from "./common/crudTables/endOfShiftReportPatrolTable";
+import { EndOfShiftReportSupervisorTable } from "./common/crudTables/endOfShiftReportSupervisorTable";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -66,7 +66,7 @@ const App: React.FC = () => {
 
                 {/* ----------- crud tables ----------- */}
                 <Route path="/buildings" element={<BuildingsTable />} />
-                <Route path="/users" element={<UsersTable />} />
+                {/* <Route path="/users" element={<UsersTable />} /> */}
                 <Route path="/incidentTypes" element={<IncidentTypesTable />} />
                 <Route path="/campuses" element={<CampusesTable />} />
                 <Route
@@ -76,11 +76,14 @@ const App: React.FC = () => {
                 <Route
                   path="/endOfShiftReportPatrolTable"
                   element={<EndOfShiftReportPatrolTable />}
-                  />
+                />
+                <Route
+                  path="/endOfShiftReportSupervisorTable"
+                  element={<EndOfShiftReportSupervisorTable />}
+                />
                 {/* ----------- end of crud tables ----------- */}
 
                 {/* ----------- report forms ----------- */}
-
                 <Route
                   path="/forms/endOfShiftReportPatrol/:id"
                   element={<EndOfShiftReportPatrol />}

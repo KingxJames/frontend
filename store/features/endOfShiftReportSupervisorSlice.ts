@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
-export interface EndOfShiftReportPatrolInitialState {
+export interface EndOfShiftReportSupervisorInitialState {
   id: string;
   date: string;
   time: string;
@@ -11,7 +11,7 @@ export interface EndOfShiftReportPatrolInitialState {
   formSubmitted: boolean;
 }
 
-const initialState: EndOfShiftReportPatrolInitialState = {
+const initialState: EndOfShiftReportSupervisorInitialState = {
   id: "",
   date: "",
   time: "",
@@ -21,19 +21,16 @@ const initialState: EndOfShiftReportPatrolInitialState = {
   formSubmitted: false,
 };
 
-export const endOfShiftReportPatrolSlice = createSlice({
-  name: "endOfShiftReportPatrol",
+export const endOfShiftReportSupervisorSlice = createSlice({
+  name: "endOfShiftReportSupervisor",
   initialState,
   reducers: {
-    setEndOfShiftReportPatrol: (
+    setEndOfShiftReportSupervisor: (
       state,
-      action: PayloadAction<EndOfShiftReportPatrolInitialState>
+      action: PayloadAction<EndOfShiftReportSupervisorInitialState>
     ) => {
       Object.assign(state, action.payload);
     },
-    // setId: (state, action: PayloadAction<string>) => {
-    //   state.id = action.payload;
-    // },
     setDate: (state, action: PayloadAction<string>) => {
       state.date = action.payload;
     },
@@ -62,24 +59,24 @@ export const {
   setCampus,
   setReport,
   setUploadedBy,
-  setEndOfShiftReportPatrol,
+  setEndOfShiftReportSupervisor,
   setFormSubmitted,
-} = endOfShiftReportPatrolSlice.actions;
+} = endOfShiftReportSupervisorSlice.actions;
 
-export const selectEndOfShiftReportPatrol = (state: RootState) =>
-  state.endOfShiftReportPatrol;
-// export const selectId = (state: RootState) => state.endOfShiftReportPatrol.id;
+
+export const selectEndOfShiftReportSupervisor = (state: RootState) =>
+  state.endOfShiftReportSupervisor;
 export const selectDate = (state: RootState) =>
-  state.endOfShiftReportPatrol.date;
+  state.endOfShiftReportSupervisor.date;
 export const selectTime = (state: RootState) =>
-  state.endOfShiftReportPatrol.time;
+  state.endOfShiftReportSupervisor.time;
 export const selectCampus = (state: RootState) =>
-  state.endOfShiftReportPatrol.campus;
+  state.endOfShiftReportSupervisor.campus;
 export const selectReport = (state: RootState) =>
-  state.endOfShiftReportPatrol.report;
+  state.endOfShiftReportSupervisor.report;
 export const selectUploadedBy = (state: RootState) =>
-  state.endOfShiftReportPatrol.uploadedBy;
+  state.endOfShiftReportSupervisor.uploadedBy;
 export const selectFormSubmitted = (state: RootState) =>
-  state.endOfShiftReportPatrol.formSubmitted;
+  state.endOfShiftReportSupervisor.formSubmitted;
 
-export default endOfShiftReportPatrolSlice.reducer;
+export default endOfShiftReportSupervisorSlice.reducer;
