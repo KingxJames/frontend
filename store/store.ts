@@ -25,6 +25,7 @@ import menuReducer from "./features/menuSlice";
 import usersReducer from "./features/userSlice";
 import EndOfShiftReportPatrolReducer from "../store/features/endOfShiftReportPatrolSlice";
 import EndOfShiftReportSupervisorReduer from "../store/features/endOfShiftReportSupervisorSlice";
+import lostAndFoundTrackingReducer from "../store/features/lostAndFoundTrackingSlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
@@ -64,6 +65,32 @@ const incidentReportPersistConfig = {
   ], // Only persist the incidentReports array
 };
 
+const lostAndFoundTrackingPersistConfig = {
+  key: "lostAndFoundTracking",
+  storage, // Uses localStorage for lostAndFoundTracking
+  whitelist: [
+    "id",
+    "facilityName",
+    "time",
+    "todaysdate",
+    "locationFound",
+    "roomNo",
+    "foundBy",
+    "supervisorWhoReceivedItem",
+    "dateReturnedToOwner",
+    "timeReturnedToOwner",
+    "owner",
+    "ownerDOB",
+    "ownerAddress",
+    "ownerIDNumber",
+    "ownerTelephone",
+    "remarks",
+    "returnedToOwnerSignature",
+    "ownerAcknowledgementSignature",
+    "formSubmitted",
+  ], // Only persist the lostAndFoundTracking array
+};
+
 export const endOfShiftReportPatrolPersistConfig = {
   key: "endOfShiftReportPatrol",
   storage, // Uses localStorage for endOfShiftReportPatrol
@@ -96,6 +123,11 @@ const rootReducer = combineReducers({
   endOfShiftReportSupervisor: persistReducer(
     endOfShiftReportSupervisorPersistConfig,
     EndOfShiftReportSupervisorReduer
+  ),
+
+  lostAndFoundTracking: persistReducer(
+    lostAndFoundTrackingPersistConfig,
+    lostAndFoundTrackingReducer
   ),
   incidentStatus: incidentStatusReducer,
   incidentTypes: incidentTypesReducer,

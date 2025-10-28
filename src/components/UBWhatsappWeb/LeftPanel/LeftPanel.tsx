@@ -28,7 +28,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
 
   // RTK Query hooks
   const { data: users, isLoading, isError } = useFetchUserQuery();
-  // const { data: messages } = useFetchMessagesQuery();
+  const { data: messages } = useFetchMessagesQuery();
 
   // Update Redux store when users are fetched
   useEffect(() => {
@@ -38,9 +38,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
   }, [users, dispatch]);
 
   // Get users from Redux store
-  const allUsers = useSelector(
-    (state: RootState) => selectUsers(state).users || []
-  );
+  const allUsers = useSelector((state: RootState) => selectUsers(state).users || []);
 
   // Handle tab change
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -61,7 +59,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
   // Filter users based on active tab and search query
   const filteredUsers = React.useMemo(() => {
     if (!allUsers) return [];
-
+    
     return allUsers.filter((user: any) => {
       // Filter by tab
       const tabMatch =
@@ -184,7 +182,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
                     ? "rgba(255, 0, 0, 0.2)"
                     : user.messageCategoryId === 2 // Anonymous
                     ? "rgba(89, 175, 197, 0.2)"
-                    : selectedChat === user.id
+                    : selectedChat === user.id.toString()
                     ? "rgba(224, 218, 218, 0.75)"
                     : "transparent",
                 transition: "background-color 0.3s",
@@ -198,7 +196,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onSelectChat }) => {
                   name: user.name || user.username,
                   lastText: user.lastMessage || "No messages yet",
                   lastSeen: user.lastSeen || "Online",
-                  selected: selectedChat === user.id,
+                  selected: selectedChat === user.id.toString(),
                   messageCategoryId: user.messageCategoryId || 0,
                 }}
               />
