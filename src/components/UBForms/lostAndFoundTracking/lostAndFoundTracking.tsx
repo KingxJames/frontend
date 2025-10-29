@@ -20,7 +20,7 @@ import {
   setLostAndFoundTrackingState,
   setFacilityName,
   setTime,
-  setTodaysdate,
+  setTodaysDate,
   setSerialNumber,
   setLocationFound,
   setItemDescription,
@@ -73,6 +73,16 @@ export const LostAndFoundTracking: React.FC = () => {
   console.log("Lost and Found Tracking ID:", lostAndFoundTrackings.id);
   useAutosaveLostAndFoundTracking();
   const campus = useSelector(selectCampus);
+
+    // Load saved signatures (from Redux or DB) on mount
+  useEffect(() => {
+    if (lostAndFoundTrackings.returnedToOwnerSignature && returnedSigRef.current) {
+      returnedSigRef.current.fromDataURL(lostAndFoundTrackings.returnedToOwnerSignature);
+    }
+    if (lostAndFoundTrackings.ownerAcknowledgementSignature && ownerSigRef.current) {
+      ownerSigRef.current.fromDataURL(lostAndFoundTrackings.ownerAcknowledgementSignature);
+    }
+  }, [lostAndFoundTrackings]);
 
   const clearReturnedSignature = () => returnedSigRef.current.clear();
   const clearOwnerSignature = () => ownerSigRef.current.clear();
@@ -261,12 +271,9 @@ export const LostAndFoundTracking: React.FC = () => {
               type="date"
               fullWidth
               InputLabelProps={{ shrink: true }}
-              value={lostAndFoundTrackings.todaysdate}
-              onChange={(e) => dispatch(setTodaysdate(e.target.value))}
-              error={!!errors["todaysdate"]}
-              helperText={
-                errors["todaysdate"] ? "Today's date is required" : ""
-              }
+              value={lostAndFoundTrackings.todaysDate}
+              onChange={(e) => dispatch(setTodaysDate(e.target.value))}
+              InputProps={{ readOnly: true }}
             />
           </Grid>
           <Grid item xs={12} md={6}>

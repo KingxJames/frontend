@@ -22,6 +22,7 @@ import { EndOfShiftReportSupervisor } from "../src/components/UBForms/endOfshift
 import { LostAndFoundTracking } from "../src/components/UBForms/lostAndFoundTracking/lostAndFoundTracking";
 import { EndOfShiftReportPatrolTable } from "./common/crudTables/endOfShiftReportPatrolTable";
 import { EndOfShiftReportSupervisorTable } from "./common/crudTables/endOfShiftReportSupervisorTable";
+import { LostAndFoundTrackingTable } from "./common/crudTables/lostAndFoundTrackingTable";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -81,6 +82,11 @@ const App: React.FC = () => {
                 <Route
                   path="/endOfShiftReportSupervisorTable"
                   element={<EndOfShiftReportSupervisorTable />}
+                />
+
+                <Route
+                  path="/lostAndFoundTrackingFormTable"
+                  element={<LostAndFoundTrackingTable />}
                 />
                 {/* ----------- end of crud tables ----------- */}
 

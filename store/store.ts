@@ -72,8 +72,10 @@ const lostAndFoundTrackingPersistConfig = {
     "id",
     "facilityName",
     "time",
-    "todaysdate",
+    "todaysDate",
     "locationFound",
+    "serialNumber",
+    "itemDescription",
     "roomNo",
     "foundBy",
     "supervisorWhoReceivedItem",
@@ -87,6 +89,7 @@ const lostAndFoundTrackingPersistConfig = {
     "remarks",
     "returnedToOwnerSignature",
     "ownerAcknowledgementSignature",
+    "uploadedBy",
     "formSubmitted",
   ], // Only persist the lostAndFoundTracking array
 };

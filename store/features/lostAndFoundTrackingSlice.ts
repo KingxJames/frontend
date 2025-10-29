@@ -15,7 +15,7 @@ export interface lostAndFoundTrackingInitialState {
   id: string;
   facilityName: string;
   time: string;
-  todaysdate: string;
+  todaysDate: string;
   serialNumber: string;
   locationFound: string;
   itemDescription: string;
@@ -32,6 +32,7 @@ export interface lostAndFoundTrackingInitialState {
   remarks: string;
   returnedToOwnerSignature: string;
   ownerAcknowledgementSignature: string;
+  uploadedBy: string;
   formSubmitted: boolean;
 }
 
@@ -39,7 +40,7 @@ const initialState: lostAndFoundTrackingInitialState = {
   id: "",
   facilityName: "",
   time: "",
-  todaysdate: "",
+  todaysDate: "",
   serialNumber: "",
   locationFound: "",
   itemDescription: "",
@@ -56,6 +57,7 @@ const initialState: lostAndFoundTrackingInitialState = {
   remarks: "",
   returnedToOwnerSignature: "",
   ownerAcknowledgementSignature: "",
+  uploadedBy: "",
   formSubmitted: false,
 };
 
@@ -78,8 +80,8 @@ export const lostAndFoundTrackingSlice = createSlice({
     setSerialNumber: (state, action: PayloadAction<string>) => {
       state.serialNumber = action.payload;
     },
-    setTodaysdate: (state, action: PayloadAction<string>) => {
-      state.todaysdate = action.payload;
+    setTodaysDate: (state, action: PayloadAction<string>) => {
+      state.todaysDate = action.payload;
     },
     setItemDescription: (state, action: PayloadAction<string>) => {
       state.itemDescription = action.payload;
@@ -129,6 +131,9 @@ export const lostAndFoundTrackingSlice = createSlice({
     ) => {
       state.ownerAcknowledgementSignature = action.payload;
     },
+    setUploadedBy: (state, action: PayloadAction<string>) => {
+      state.uploadedBy = action.payload;
+    },
     setFormSubmitted: (state, action: PayloadAction<boolean>) => {
       state.formSubmitted = action.payload;
     },
@@ -139,7 +144,7 @@ export const {
   setLostAndFoundTrackingState,
   setFacilityName,
   setTime,
-  setTodaysdate,
+  setTodaysDate,
   setSerialNumber,
   setLocationFound,
   setRoomNo,
@@ -156,6 +161,7 @@ export const {
   setRemarks,
   setReturnedToOwnerSignature,
   setOwnerAcknowledgementSignature,
+  setUploadedBy,
   setFormSubmitted,
 } = lostAndFoundTrackingSlice.actions;
 
@@ -165,7 +171,7 @@ export const selectFacilityName = (state: RootState) =>
   state.lostAndFoundTracking.facilityName;
 export const selectTime = (state: RootState) => state.lostAndFoundTracking.time;
 export const selectTodaysdate = (state: RootState) =>
-  state.lostAndFoundTracking.todaysdate;
+  state.lostAndFoundTracking.todaysDate;
 export const selectLocationFound = (state: RootState) =>
   state.lostAndFoundTracking.locationFound;
 export const selectRoomNo = (state: RootState) =>
@@ -196,6 +202,8 @@ export const selectReturnedToOwnerSignature = (state: RootState) =>
   state.lostAndFoundTracking.returnedToOwnerSignature;
 export const selectOwnerAcknowledgementSignature = (state: RootState) =>
   state.lostAndFoundTracking.ownerAcknowledgementSignature;
+export const selectUploadedBy = (state: RootState) =>
+  state.lostAndFoundTracking.uploadedBy;
 export const selectFormSubmitted = (state: RootState) =>
   state.lostAndFoundTracking.formSubmitted;
 

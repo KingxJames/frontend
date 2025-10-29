@@ -11,6 +11,8 @@ export const Reports: React.FC = () => {
       "Incident Reports": "/incidentReports",
       "End of Shift Report (Patrol Officer)": "/endOfShiftReportPatrolTable",
       "End of Shift Report (Shift Supervisor)": "/endOfShiftReportSupervisorTable",
+      "Lost and Found Tracking Form": "/lostAndFoundTrackingFormTable",
+
     };
 
     if (routes[text]) navigate(routes[text]);
@@ -20,6 +22,7 @@ export const Reports: React.FC = () => {
     "Incident Reports",
     "End of Shift Report (Patrol Officer)",
     "End of Shift Report (Shift Supervisor)",
+    "Lost and Found Tracking Form",
   ];
 
   return (
