@@ -16,7 +16,10 @@ import {
   useInitializeEndOfShiftReportSupervisorMutation,
   useGetUnsubmittedEndOfShiftReportSupervisorQuery,
 } from "../../../store/services/endOfShiftReportSupervisorAPI";
-import { create } from "@mui/material/styles/createTransitions";
+import {
+  useInitializeLostAndFoundTrackingMutation,
+  useGetUnsubmittedLostAndFoundTrackingQuery,
+} from "../../../store/services/lostAndFoundTrackingAPI";
 
 export const FormNames: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +28,8 @@ export const FormNames: React.FC = () => {
     useInitializeEndOfShiftReportPatrolMutation();
   const [initializeEndOfShiftReportSupervisor] =
     useInitializeEndOfShiftReportSupervisorMutation();
+  const [initializeLostAndFoundTracking] =
+    useInitializeLostAndFoundTrackingMutation();
 
   const { data: unsubmittedIncidentReports, refetch: refetchIncidentReports } =
     useGetUnsubmittedIncidentReportQuery({});
@@ -38,6 +43,11 @@ export const FormNames: React.FC = () => {
     data: unsubmittedEndOfShiftReportSupervisors,
     refetch: refetchSupervisorReports,
   } = useGetUnsubmittedEndOfShiftReportSupervisorQuery({});
+
+  const {
+    data: unsubmittedLostAndFoundTrackings,
+    refetch: refetchLostAndFoundTrackings,
+  } = useGetUnsubmittedLostAndFoundTrackingQuery({});
 
   const handleClick = async () => {
     try {
@@ -101,6 +111,27 @@ export const FormNames: React.FC = () => {
     }
   };
 
+  const handleClickLostAndFoundTracking = async () => {
+    try {
+      // Always refetch to make sure data is fresh
+      const { data } = await refetchLostAndFoundTrackings();
+
+      if (data?.success && data.data) {
+        // ✅ Found an unsubmitted form → navigate to it
+        navigate(`/forms/lostAndFoundTracking/${data.data.id}`);
+        console.log("asd", data.data);
+        return;
+      } else {
+        // 🆕 No unsubmitted form → initialize new
+        const response = await initializeLostAndFoundTracking({}).unwrap();
+        navigate(`/forms/lostAndFoundTracking/${response.id}`);
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to handle incident report form:", error);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -126,6 +157,12 @@ export const FormNames: React.FC = () => {
           title="End of Shift Report Supervisor"
           image={warning}
           onClick={() => handleClickShiftReportSupervisor()}
+        />
+
+        <UBFormCard
+          title="Lost and Found Tracking"
+          image={warning}
+          onClick={() => handleClickLostAndFoundTracking()}
         />
       </Box>
     </Box>

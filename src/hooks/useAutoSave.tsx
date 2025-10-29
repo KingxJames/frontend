@@ -2,8 +2,10 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useUpdateEndOfShiftReportPatrolMutation } from "../../store/services/endOfShiftReportPatrolAPI";
 import { useUpdateEndOfShiftReportSupervisorMutation } from "../../store/services/endOfShiftReportSupervisorAPI";
+import { useUpdateLostAndFoundTrackingMutation } from "../../store/services/lostAndFoundTrackingAPI";
 import { selectEndOfShiftReportPatrol } from "../../store/features/endOfShiftReportPatrolSlice";
 import { selectEndOfShiftReportSupervisor } from "../../store/features/endOfShiftReportSupervisorSlice";
+import { selectLostAndFoundTracking } from "../../store/features/lostAndFoundTrackingSlice";
 import { debounce } from "lodash";
 
 export const useAutosaveEndOfReportPatrol = () => {
@@ -60,4 +62,31 @@ export const useAutosaveEndOfReportSupervisor = () => {
 
     return () => debouncedSave.cancel(); // cleanup
   }, [endOfShiftReportSupervisor, updateEndOfShiftReportSupervisor]);
+};
+
+//--------------------------------------------------------------------------------
+
+export const useAutosaveLostAndFoundTracking = () => {
+  const lostAndFoundTracking = useSelector(selectLostAndFoundTracking);
+  const [updateLostAndFoundTracking] = useUpdateLostAndFoundTrackingMutation();
+
+  useEffect(() => {
+    if (!lostAndFoundTracking.id) return; // Only save if ID exists
+
+    const debouncedSave = debounce(async (data) => {
+      try {
+        await updateLostAndFoundTracking({
+          ...data,
+          id: data.id,
+        }).unwrap();
+        console.log("✅ Autosaved successfully");
+      } catch (error) {
+        console.error("❌ Autosave failed:", error);
+      }
+    }, 800); // wait 800ms after typing stops
+
+    debouncedSave(lostAndFoundTracking);
+
+    return () => debouncedSave.cancel(); // cleanup
+  }, [lostAndFoundTracking, updateLostAndFoundTracking]);
 };

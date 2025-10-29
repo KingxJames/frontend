@@ -16,7 +16,9 @@ export interface lostAndFoundTrackingInitialState {
   facilityName: string;
   time: string;
   todaysdate: string;
+  serialNumber: string;
   locationFound: string;
+  itemDescription: string;
   roomNo: string;
   foundBy: string;
   supervisorWhoReceivedItem: string;
@@ -38,7 +40,9 @@ const initialState: lostAndFoundTrackingInitialState = {
   facilityName: "",
   time: "",
   todaysdate: "",
+  serialNumber: "",
   locationFound: "",
+  itemDescription: "",
   roomNo: "",
   foundBy: "",
   supervisorWhoReceivedItem: "",
@@ -71,8 +75,14 @@ export const lostAndFoundTrackingSlice = createSlice({
     setTime: (state, action: PayloadAction<string>) => {
       state.time = action.payload;
     },
+    setSerialNumber: (state, action: PayloadAction<string>) => {
+      state.serialNumber = action.payload;
+    },
     setTodaysdate: (state, action: PayloadAction<string>) => {
       state.todaysdate = action.payload;
+    },
+    setItemDescription: (state, action: PayloadAction<string>) => {
+      state.itemDescription = action.payload;
     },
     setLocationFound: (state, action: PayloadAction<string>) => {
       state.locationFound = action.payload;
@@ -130,8 +140,10 @@ export const {
   setFacilityName,
   setTime,
   setTodaysdate,
+  setSerialNumber,
   setLocationFound,
   setRoomNo,
+  setItemDescription,
   setFoundBy,
   setSupervisorWhoReceivedItem,
   setDateReturnedToOwner,
@@ -160,6 +172,8 @@ export const selectRoomNo = (state: RootState) =>
   state.lostAndFoundTracking.roomNo;
 export const selectFoundBy = (state: RootState) =>
   state.lostAndFoundTracking.foundBy;
+export const selectItemDescription = (state: RootState) =>
+  state.lostAndFoundTracking.itemDescription;
 export const selectSupervisorWhoReceivedItem = (state: RootState) =>
   state.lostAndFoundTracking.supervisorWhoReceivedItem;
 export const selectDateReturnedToOwner = (state: RootState) =>
