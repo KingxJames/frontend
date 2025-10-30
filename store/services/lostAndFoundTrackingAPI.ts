@@ -87,16 +87,17 @@ export const lostAndFoundTrackingAPI = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
     }),
-    generateLostAndFoundTrackingPdf: builder.mutation({
+    generateLostAndFoundTrackingPdf: builder.mutation<Blob, string>({
       query: (id: string) => ({
-        url: `/publicSafety/generateLostAndFoundTrackingPdf/${id}`,
+        url: `/publicSafety/generateLostAndFoundPdf/${id}`,
         method: "GET",
-        responseHandler: (response: Response) => response.blob(),
+        responseHandler: (response) => response.blob(),
         headers: {
           Accept: "application/pdf",
         },
       }),
     }),
+
     getUnsubmittedLostAndFoundTracking: builder.query({
       query: (): { url: string; method: string } => ({
         url: "/publicSafety/unsubmittedLostAndFoundTracking",

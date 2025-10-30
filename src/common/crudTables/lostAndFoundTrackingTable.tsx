@@ -71,22 +71,27 @@ export const LostAndFoundTrackingTable: React.FC = () => {
   ).filter((report) => report.id?.toLowerCase().includes(search.toLowerCase()));
 
   //handle download report pdf
-  const handleDownloadReportPDF = async (id: string) => {
-    try {
-      const response = await generateLostAndFoundTrackingPdf(id);
-      console.log("sdfgsdf", response);
-      const blob = response.data;
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `lost_and_found_tracking_${id}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Failed to download report PDF:", error);
+ const handleDownloadReportPDF = async (id: string) => {
+  try {
+    const blob = await generateLostAndFoundTrackingPdf(id).unwrap();
+
+    if (!(blob instanceof Blob)) {
+      throw new Error("Response is not a Blob");
     }
-  };
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `lost_and_found_tracking_${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Failed to download report PDF:", error);
+  }
+};
+
 
   const handlePreview = (lostAndFoundTracking: any) => {
     setSelectedLostAndFoundTracking(lostAndFoundTracking); // store the report to preview
