@@ -42,6 +42,7 @@ export const LostAndFoundTrackingTable: React.FC = () => {
       locationFound: "";
       roomNo: "";
       foundBy: "";
+      itemDescription: "";
       supervisorWhoReceivedItem: "";
       dateReturnedToOwner: "";
       timeReturnedToOwner: "";
@@ -93,40 +94,15 @@ export const LostAndFoundTrackingTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
     { field: "facilityName", headerName: "Facility Name", flex: 1 },
-    { field: "time", headerName: "Time", flex: 1 },
     { field: "todaysDate", headerName: "Today's Date", flex: 1 },
-    { field: "serialNumber", headerName: "Serial Number", flex: 1 },
+    { field: "itemDescription", headerName: "Item Description", flex: 1 },
     { field: "locationFound", headerName: "Location Found", flex: 1 },
-    { field: "roomNo", headerName: "Room No", flex: 1 },
     { field: "foundBy", headerName: "Found By", flex: 1 },
-    {
-      field: "supervisorWhoReceivedItem",
-      headerName: "Supervisor Who Received Item",
-      flex: 1,
-    },
-    {
-      field: "dateReturnedToOwner",
-      headerName: "Date Returned to Owner",
-      flex: 1,
-    },
-    {
-      field: "timeReturnedToOwner",
-      headerName: "Time Returned to Owner",
-      flex: 1,
-    },
     { field: "owner", headerName: "Owner", flex: 1 },
-    { field: "ownerDOB", headerName: "Owner DOB", flex: 1 },
-    { field: "ownerAddress", headerName: "Owner Address", flex: 1 },
-    { field: "ownerIDNumber", headerName: "Owner ID Number", flex: 1 },
     { field: "ownerTelephone", headerName: "Owner Telephone", flex: 1 },
+    { field: "dateReturnedToOwner", headerName: "Date Returned", flex: 1 },
     { field: "remarks", headerName: "Remarks", flex: 1 },
-    {
-      field: "returnedToOwnerSignature",
-      headerName: "Returned to Owner Signature",
-      flex: 1,
-    },
     {
       field: "ownerAcknowledgementSignature",
       headerName: "Owner Acknowledgement Signature",
@@ -147,6 +123,7 @@ export const LostAndFoundTrackingTable: React.FC = () => {
           roomNo: string;
           foundBy: string;
           supervisorWhoReceivedItem: string;
+          itemDescription: string;
           dateReturnedToOwner: string;
           timeReturnedToOwner: string;
           owner: string;
@@ -206,18 +183,18 @@ export const LostAndFoundTrackingTable: React.FC = () => {
             margin: "auto",
           }}
         >
-          Lost and Found Tracking Preview - {selectedLostAndFoundTracking?.id}
+          Lost and Found Tracking Preview
         </DialogTitle>
         <DialogContent>
           {selectedLostAndFoundTracking && (
             <Box sx={{ flexGrow: 1, mt: 2, mb: 2 }}>
               <Grid container spacing={2} sx={{ p: "2%" }}>
-                {/* Date */}
+                {/* Facility Name */}
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Date"
+                    label="Facility Name"
                     fullWidth
-                    value={selectedLostAndFoundTracking.todaysDate}
+                    value={selectedLostAndFoundTracking.facilityName}
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
@@ -230,15 +207,17 @@ export const LostAndFoundTrackingTable: React.FC = () => {
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
-                {/* Facility Name */}
+
+                {/* Date */}
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Facility Name"
+                    label="Today'sDate"
                     fullWidth
-                    value={selectedLostAndFoundTracking.facilityName}
+                    value={selectedLostAndFoundTracking.todaysDate}
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
+
                 {/* Serial Number */}
                 <Grid item xs={12} md={6}>
                   <TextField
@@ -286,6 +265,19 @@ export const LostAndFoundTrackingTable: React.FC = () => {
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
+
+                {/* item description */}
+                <Grid item xs={12}>
+                  <TextField
+                    label="Item Description"
+                    multiline
+                    rows={4}
+                    fullWidth
+                    value={selectedLostAndFoundTracking.itemDescription}
+                    InputProps={{ readOnly: true }}
+                  />
+                </Grid>
+
                 {/* Date Returned to Owner */}
                 <Grid item xs={12} md={6}>
                   <TextField
@@ -350,8 +342,10 @@ export const LostAndFoundTrackingTable: React.FC = () => {
                   />
                 </Grid>
                 {/* Remarks */}
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                   <TextField
+                    multiline
+                    rows={4}
                     label="Remarks"
                     fullWidth
                     value={selectedLostAndFoundTracking.remarks}
