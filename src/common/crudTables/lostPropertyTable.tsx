@@ -313,13 +313,27 @@ export const LostPropertyTable: React.FC = () => {
                 {/* Date Reportted */}
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Date Reportted"
+                    label="Date Reported"
                     fullWidth
                     value={selectedLostProperty.dateReported}
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
 
+                <Typography
+                  variant="h6"
+                  sx={{
+                    mt: 4,
+                    mb: 4,
+                    width: "100%",
+                    color: "#5E4B8B",
+                    fontWeight: "bold",
+                    borderBottom: "2px solid #C5A645",
+                    pb: 1,
+                  }}
+                >
+                  Disposition of Recovered Item To Owner
+                </Typography>
                 {/* Date Returned to Owner */}
                 <Grid item xs={12} md={6}>
                   <TextField

@@ -484,7 +484,7 @@ export const LostPropertyReportForm: React.FC = () => {
               pb: 1,
             }}
           >
-            Disposition of PropertyReturn Of Recovered Item To Owner
+            Disposition Return Of Recovered Item To Owner
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
