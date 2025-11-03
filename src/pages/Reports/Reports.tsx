@@ -10,9 +10,10 @@ export const Reports: React.FC = () => {
     const routes: Record<string, string> = {
       "Incident Reports": "/incidentReports",
       "End of Shift Report (Patrol Officer)": "/endOfShiftReportPatrolTable",
-      "End of Shift Report (Shift Supervisor)": "/endOfShiftReportSupervisorTable",
+      "End of Shift Report (Shift Supervisor)":
+        "/endOfShiftReportSupervisorTable",
       "Lost and Found Tracking Form": "/lostAndFoundTrackingFormTable",
-
+      "Lost Property Report Form": "/lostPropertyTable",
     };
 
     if (routes[text]) navigate(routes[text]);
@@ -23,6 +24,7 @@ export const Reports: React.FC = () => {
     "End of Shift Report (Patrol Officer)",
     "End of Shift Report (Shift Supervisor)",
     "Lost and Found Tracking Form",
+    "Lost Property Report Form",
   ];
 
   return (

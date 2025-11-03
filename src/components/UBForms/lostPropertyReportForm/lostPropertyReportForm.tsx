@@ -30,11 +30,11 @@ import {
   setComplainantEmail,
   setDateLost,
   setTimeLost,
-  setComlainantAffiliation,
+  setComplainantAffiliation,
   setAdditionalDescription,
   setOwner,
   setOwnerSignature,
-  setDateReportted,
+  setDateReported,
   setDateReturnedToOwner,
   setTimeReturnedToOwner,
   setOwnerName,
@@ -49,7 +49,6 @@ import {
   setUploadedBy,
   setFormSubmitted,
 } from "../../../../store/features/lostPropertySlice";
-import { selectCampus, ICampus } from "../../../../store/features/campusSlice";
 import {
   useUpdateLostPropertyMutation,
   useFetchLostPropertyQuery,
@@ -86,7 +85,7 @@ export const LostPropertyReportForm: React.FC = () => {
       returnedSigRef.current.fromDataURL(lostProperty.returnedToOwnerSignature);
     }
     if (lostProperty.signatureDPS && signatureDPSRef.current) {
-      ownerSigRef.current.fromDataURL(lostProperty.signatureDPS);
+      signatureDPSRef.current.fromDataURL(lostProperty.signatureDPS);
     }
     if (lostProperty.ownerSignature && ownerSigRef.current) {
       ownerSigRef.current.fromDataURL(lostProperty.ownerSignature);
@@ -130,11 +129,11 @@ export const LostPropertyReportForm: React.FC = () => {
       "complainantEmail",
       "dateLost",
       "timeLost",
-      "comlainantAffiliation",
+      "complainantAffiliation",
       "additionalDescription",
       "owner",
       "ownerSignature",
-      "dateReportted",
+      "dateReported",
       "dateReturnedToOwner",
       "timeReturnedToOwner",
       "ownerName",
@@ -147,7 +146,6 @@ export const LostPropertyReportForm: React.FC = () => {
       "signatureDPS",
       "returnedToOwnerSignature",
       "uploadedBy",
-      "formSubmitted",
     ];
 
     const newErrors: { [key: string]: boolean } = {};
@@ -347,9 +345,9 @@ export const LostPropertyReportForm: React.FC = () => {
               </FormLabel>
               <RadioGroup
                 row
-                value={lostProperty.comlainantAffiliation}
+                value={lostProperty.complainantAffiliation}
                 onChange={(e) =>
-                  dispatch(setComlainantAffiliation(e.target.value))
+                  dispatch(setComplainantAffiliation(e.target.value))
                 }
               >
                 <FormControlLabel
@@ -378,7 +376,7 @@ export const LostPropertyReportForm: React.FC = () => {
                   label="Other"
                 />
               </RadioGroup>
-              {errors["comlainantAffiliation"] && (
+              {errors["complainantAffiliation"] && (
                 <Typography color="error" variant="caption">
                   Comlainant affiliation is required
                 </Typography>
@@ -465,148 +463,173 @@ export const LostPropertyReportForm: React.FC = () => {
               type="date"
               fullWidth
               InputLabelProps={{ shrink: true }}
-              value={lostProperty.dateReportted}
-              onChange={(e) => dispatch(setDateReportted(e.target.value))}
-              error={!!errors["dateReportted"]}
+              value={lostProperty.dateReported}
+              onChange={(e) => dispatch(setDateReported(e.target.value))}
+              error={!!errors["dateReported"]}
               helperText={
-                errors["dateReportted"] ? "Date reported is required" : ""
+                errors["dateReported"] ? "Date reported is required" : ""
               }
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Date Returned to Owner"
-              type="date"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={lostProperty.dateReturnedToOwner}
-              onChange={(e) => dispatch(setDateReturnedToOwner(e.target.value))}
-              error={!!errors["dateReturnedToOwner"]}
-              helperText={
-                errors["dateReturnedToOwner"] ? "Date returned is required" : ""
-              }
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Time Returned to Owner"
-              type="time"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={lostProperty.timeReturnedToOwner}
-              onChange={(e) => dispatch(setTimeReturnedToOwner(e.target.value))}
-              error={!!errors["timeReturnedToOwner"]}
-              helperText={
-                errors["timeReturnedToOwner"] ? "Time returned is required" : ""
-              }
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Owner Name"
-              fullWidth
-              value={lostProperty.ownerName}
-              onChange={(e) => dispatch(setOwnerName(e.target.value))}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Owner DOB"
-              type="date"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={lostProperty.ownerDOB}
-              onChange={(e) => dispatch(setOwnerDOB(e.target.value))}
-              error={!!errors["ownerDOB"]}
-              helperText={errors["ownerDOB"] ? "Owner DOB is required" : ""}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Owner Address"
-              fullWidth
-              value={lostProperty.ownerAddress}
-              onChange={(e) => dispatch(setOwnerAddress(e.target.value))}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Owner ID Number"
-              fullWidth
-              value={lostProperty.ownerID}
-              onChange={(e) => dispatch(setOwnerID(e.target.value))}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Owner Email"
-              fullWidth
-              value={lostProperty.ownerEmail}
-              onChange={(e) => dispatch(setOwnerEmail(e.target.value))}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Owner Telephone"
-              fullWidth
-              value={lostProperty.ownerTelephone}
-              onChange={(e) => dispatch(setOwnerTelephone(e.target.value))}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="Remarks"
-              type="text"
-              multiline
-              rows={4}
-              fullWidth
-              value={lostProperty.remarks}
-              onChange={(e) => dispatch(setRemarks(e.target.value))}
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <label>Signature DPS</label>
-            <SignatureCanvas
-              ref={signatureDPSRef}
-              penColor="black"
-              canvasProps={{
-                width: 400,
-                height: 150,
-                className: "sigCanvas",
-                style: { border: "1px solid #ccc", borderRadius: "8px" },
-              }}
-            />
-            <div style={{ marginTop: 8 }}>
-              <Button size="small" onClick={clearSignatureDPS}>
-                Clear
-              </Button>
-              <Button size="small" onClick={saveSignatureDPS}>
-                Save
-              </Button>
-            </div>
-          </Grid>
+          <Typography
+            variant="h6"
+            sx={{
+              mt: 4,
+              mb: 4,
+              width: "100%",
+              color: "#5E4B8B",
+              fontWeight: "bold",
+              borderBottom: "2px solid #C5A645",
+              pb: 1,
+            }}
+          >
+            Disposition of PropertyReturn Of Recovered Item To Owner
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Date Returned to Owner"
+                type="date"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                value={lostProperty.dateReturnedToOwner}
+                onChange={(e) =>
+                  dispatch(setDateReturnedToOwner(e.target.value))
+                }
+                error={!!errors["dateReturnedToOwner"]}
+                helperText={
+                  errors["dateReturnedToOwner"]
+                    ? "Date returned is required"
+                    : ""
+                }
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Time Returned to Owner"
+                type="time"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                value={lostProperty.timeReturnedToOwner}
+                onChange={(e) =>
+                  dispatch(setTimeReturnedToOwner(e.target.value))
+                }
+                error={!!errors["timeReturnedToOwner"]}
+                helperText={
+                  errors["timeReturnedToOwner"]
+                    ? "Time returned is required"
+                    : ""
+                }
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Owner Name"
+                fullWidth
+                value={lostProperty.ownerName}
+                onChange={(e) => dispatch(setOwnerName(e.target.value))}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Owner DOB"
+                type="date"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                value={lostProperty.ownerDOB}
+                onChange={(e) => dispatch(setOwnerDOB(e.target.value))}
+                error={!!errors["ownerDOB"]}
+                helperText={errors["ownerDOB"] ? "Owner DOB is required" : ""}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Owner Address"
+                fullWidth
+                value={lostProperty.ownerAddress}
+                onChange={(e) => dispatch(setOwnerAddress(e.target.value))}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Owner ID Number"
+                fullWidth
+                value={lostProperty.ownerID}
+                onChange={(e) => dispatch(setOwnerID(e.target.value))}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Owner Email"
+                fullWidth
+                value={lostProperty.ownerEmail}
+                onChange={(e) => dispatch(setOwnerEmail(e.target.value))}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Owner Telephone"
+                fullWidth
+                value={lostProperty.ownerTelephone}
+                onChange={(e) => dispatch(setOwnerTelephone(e.target.value))}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Remarks"
+                type="text"
+                multiline
+                rows={4}
+                fullWidth
+                value={lostProperty.remarks}
+                onChange={(e) => dispatch(setRemarks(e.target.value))}
+              />
+            </Grid>
 
-          <Grid item xs={12} md={6}>
-            <label>Owner Signature</label>
-            <SignatureCanvas
-              ref={returnedSigRef}
-              penColor="black"
-              canvasProps={{
-                width: 400,
-                height: 150,
-                className: "sigCanvas",
-                style: { border: "1px solid #ccc", borderRadius: "8px" },
-              }}
-            />
-            <div style={{ marginTop: 8 }}>
-              <Button size="small" onClick={clearReturnedToOwnerSignature}>
-                Clear
-              </Button>
-              <Button size="small" onClick={saveReturnedToOwnerSignature}>
-                Save
-              </Button>
-            </div>
+            <Grid item xs={12} md={6}>
+              <label>Signature DPS</label>
+              <SignatureCanvas
+                ref={signatureDPSRef}
+                penColor="black"
+                canvasProps={{
+                  width: 400,
+                  height: 150,
+                  className: "sigCanvas",
+                  style: { border: "1px solid #ccc", borderRadius: "8px" },
+                }}
+              />
+              <div style={{ marginTop: 8 }}>
+                <Button size="small" onClick={clearSignatureDPS}>
+                  Clear
+                </Button>
+                <Button size="small" onClick={saveSignatureDPS}>
+                  Save
+                </Button>
+              </div>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <label>Owner Signature</label>
+              <SignatureCanvas
+                ref={returnedSigRef}
+                penColor="black"
+                canvasProps={{
+                  width: 400,
+                  height: 150,
+                  className: "sigCanvas",
+                  style: { border: "1px solid #ccc", borderRadius: "8px" },
+                }}
+              />
+              <div style={{ marginTop: 8 }}>
+                <Button size="small" onClick={clearReturnedToOwnerSignature}>
+                  Clear
+                </Button>
+                <Button size="small" onClick={saveReturnedToOwnerSignature}>
+                  Save
+                </Button>
+              </div>
+            </Grid>
           </Grid>
         </Grid>
         {/* Actions */}
@@ -617,7 +640,6 @@ export const LostPropertyReportForm: React.FC = () => {
             mt: 4,
           }}
         >
-          {" "}
           <Button
             variant="contained"
             sx={{

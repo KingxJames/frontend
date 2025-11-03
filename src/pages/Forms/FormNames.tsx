@@ -142,7 +142,7 @@ export const FormNames: React.FC = () => {
 
   const handleLostPropertyReportForm = async () => {
     try {
-      //aLWATS REFETCG TO MAKE SURE DATA IS FRESH
+      // Always refetch to make sure data is fresh
       const { data } = await refetchLostProperty();
 
       if (data?.success && data.data) {

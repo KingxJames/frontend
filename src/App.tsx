@@ -24,6 +24,7 @@ import { LostPropertyReportForm } from "../src/components/UBForms/lostPropertyRe
 import { EndOfShiftReportPatrolTable } from "./common/crudTables/endOfShiftReportPatrolTable";
 import { EndOfShiftReportSupervisorTable } from "./common/crudTables/endOfShiftReportSupervisorTable";
 import { LostAndFoundTrackingTable } from "./common/crudTables/lostAndFoundTrackingTable";
+import { LostPropertyTable } from "./common/crudTables/lostPropertyTable";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -88,6 +89,11 @@ const App: React.FC = () => {
                 <Route
                   path="/lostAndFoundTrackingFormTable"
                   element={<LostAndFoundTrackingTable />}
+                />
+
+                <Route
+                  path="/lostPropertyTable"
+                  element={<LostPropertyTable />}
                 />
                 {/* ----------- end of crud tables ----------- */}
 

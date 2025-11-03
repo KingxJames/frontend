@@ -17,11 +17,11 @@ export interface lostPropertyInitialState {
   complainantEmail: string;
   dateLost: string;
   timeLost: string;
-  comlainantAffiliation: string;
+  complainantAffiliation: string;
   additionalDescription: string;
   owner: string;
   ownerSignature: string;
-  dateReportted: string;
+  dateReported: string;
   dateReturnedToOwner: string;
   timeReturnedToOwner: string;
   ownerName: string;
@@ -47,11 +47,11 @@ const initialState: lostPropertyInitialState = {
   complainantEmail: "",
   dateLost: "",
   timeLost: "",
-  comlainantAffiliation: "",
+  complainantAffiliation: "",
   additionalDescription: "",
   owner: "",
   ownerSignature: "",
-  dateReportted: "",
+  dateReported: "",
   dateReturnedToOwner: "",
   timeReturnedToOwner: "",
   ownerName: "",
@@ -101,8 +101,8 @@ export const lostPropertySlice = createSlice({
     setTimeLost: (state, action: PayloadAction<string>) => {
       state.timeLost = action.payload;
     },
-    setComlainantAffiliation: (state, action: PayloadAction<string>) => {
-      state.comlainantAffiliation = action.payload;
+    setComplainantAffiliation: (state, action: PayloadAction<string>) => {
+      state.complainantAffiliation = action.payload;
     },
     setAdditionalDescription: (state, action: PayloadAction<string>) => {
       state.additionalDescription = action.payload;
@@ -113,8 +113,8 @@ export const lostPropertySlice = createSlice({
     setOwnerSignature: (state, action: PayloadAction<string>) => {
       state.ownerSignature = action.payload;
     },
-    setDateReportted: (state, action: PayloadAction<string>) => {
-      state.dateReportted = action.payload;
+    setDateReported: (state, action: PayloadAction<string>) => {
+      state.dateReported = action.payload;
     },
     setDateReturnedToOwner: (state, action: PayloadAction<string>) => {
       state.dateReturnedToOwner = action.payload;
@@ -168,11 +168,11 @@ export const {
   setComplainantEmail,
   setDateLost,
   setTimeLost,
-  setComlainantAffiliation,
+  setComplainantAffiliation,
   setAdditionalDescription,
   setOwner,
   setOwnerSignature,
-  setDateReportted,
+  setDateReported,
   setDateReturnedToOwner,
   setTimeReturnedToOwner,
   setOwnerName,
@@ -203,15 +203,15 @@ export const selectComplainantEmail = (state: RootState) =>
   state.lostProperty.complainantEmail;
 export const selectDateLost = (state: RootState) => state.lostProperty.dateLost;
 export const selectTimeLost = (state: RootState) => state.lostProperty.timeLost;
-export const selectComlainantAffiliation = (state: RootState) =>
-  state.lostProperty.comlainantAffiliation;
+export const selectComplainantAffiliation = (state: RootState) =>
+  state.lostProperty.complainantAffiliation;
 export const selectAdditionalDescription = (state: RootState) =>
   state.lostProperty.additionalDescription;
 export const selectOwner = (state: RootState) => state.lostProperty.owner;
 export const selectOwnerSignature = (state: RootState) =>
   state.lostProperty.ownerSignature;
-export const selectDateReportted = (state: RootState) =>
-  state.lostProperty.dateReportted;
+export const selectDateReported = (state: RootState) =>
+  state.lostProperty.dateReported;
 export const selectDateReturnedToOwner = (state: RootState) =>
   state.lostProperty.dateReturnedToOwner;
 export const selectTimeReturnedToOwner = (state: RootState) =>
