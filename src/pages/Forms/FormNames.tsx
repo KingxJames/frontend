@@ -1,6 +1,6 @@
 import React from "react";
 import UBFormCard from "../../components/UBForms/UBFormCard/UBFormCard";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Grid } from "@mui/material";
 import warning from "../../images/incident/warning.png";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,6 +20,10 @@ import {
   useInitializeLostAndFoundTrackingMutation,
   useGetUnsubmittedLostAndFoundTrackingQuery,
 } from "../../../store/services/lostAndFoundTrackingAPI";
+import {
+  useInitializeLostPropertyMutation,
+  useGetUnsubmittedLostPropertyQuery,
+} from "../../../store/services/lostPropertyAPI";
 
 export const FormNames: React.FC = () => {
   const navigate = useNavigate();
@@ -30,6 +34,7 @@ export const FormNames: React.FC = () => {
     useInitializeEndOfShiftReportSupervisorMutation();
   const [initializeLostAndFoundTracking] =
     useInitializeLostAndFoundTrackingMutation();
+  const [initializeLostProperty] = useInitializeLostPropertyMutation();
 
   const { data: unsubmittedIncidentReports, refetch: refetchIncidentReports } =
     useGetUnsubmittedIncidentReportQuery({});
@@ -48,6 +53,9 @@ export const FormNames: React.FC = () => {
     data: unsubmittedLostAndFoundTrackings,
     refetch: refetchLostAndFoundTrackings,
   } = useGetUnsubmittedLostAndFoundTrackingQuery({});
+
+  const { data: unsubmittedLostProperty, refetch: refetchLostProperty } =
+    useGetUnsubmittedLostPropertyQuery({});
 
   const handleClick = async () => {
     try {
@@ -132,39 +140,76 @@ export const FormNames: React.FC = () => {
     }
   };
 
+  const handleLostPropertyReportForm = async () => {
+    try {
+      //aLWATS REFETCG TO MAKE SURE DATA IS FRESH
+      const { data } = await refetchLostProperty();
+
+      if (data?.success && data.data) {
+        // ✅ Found an unsubmitted form → navigate to it
+        navigate(`/forms/lostPropertyReportForm/${data.data.id}`);
+        console.log("asd", data.data);
+        return;
+      } else {
+        // 🆕 No unsubmitted form → initialize new
+        const response = await initializeLostProperty({}).unwrap();
+        navigate(`/forms/lostPropertyReportForm/${response.id}`);
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to handle incident report form:", error);
+    }
+  };
+
   return (
     <Box
       sx={{
-        // padding: "3%",
         background: "linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)",
         height: "92.5vh",
+        padding: "3%",
       }}
     >
-      <Box sx={{ display: "flex", flexDirection: "row", gap: "2rem" }}>
-        <UBFormCard
-          title="Incident Report Form"
-          image={warning}
-          onClick={handleClick}
-        />
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6} md={4}>
+          <UBFormCard
+            title="Incident Report Form"
+            image={warning}
+            onClick={handleClick}
+          />
+        </Grid>
 
-        <UBFormCard
-          title="End of Shift Report Patrol"
-          image={warning}
-          onClick={() => handleClickShiftReportPatrol()}
-        />
+        <Grid item xs={12} sm={6} md={4}>
+          <UBFormCard
+            title="End of Shift Report Patrol"
+            image={warning}
+            onClick={() => handleClickShiftReportPatrol()}
+          />
+        </Grid>
 
-        <UBFormCard
-          title="End of Shift Report Supervisor"
-          image={warning}
-          onClick={() => handleClickShiftReportSupervisor()}
-        />
+        <Grid item xs={12} sm={6} md={4}>
+          <UBFormCard
+            title="End of Shift Report Supervisor"
+            image={warning}
+            onClick={() => handleClickShiftReportSupervisor()}
+          />
+        </Grid>
 
-        <UBFormCard
-          title="Lost and Found Tracking"
-          image={warning}
-          onClick={() => handleClickLostAndFoundTracking()}
-        />
-      </Box>
+        <Grid item xs={12} sm={6} md={4}>
+          <UBFormCard
+            title="Lost and Found Tracking Form"
+            image={warning}
+            onClick={() => handleClickLostAndFoundTracking()}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <UBFormCard
+            title="Lost Property Report Form"
+            image={warning}
+            onClick={() => handleLostPropertyReportForm()}
+          />
+        </Grid>
+      </Grid>
     </Box>
   );
 };

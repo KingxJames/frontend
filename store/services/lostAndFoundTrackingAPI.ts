@@ -91,7 +91,7 @@ export const lostAndFoundTrackingAPI = baseAPI.injectEndpoints({
       query: (id: string) => ({
         url: `/publicSafety/generateLostAndFoundPdf/${id}`,
         method: "GET",
-        responseHandler: (response) => response.blob(),
+        responseHandler: (response: Response) => response.blob(),
         headers: {
           Accept: "application/pdf",
         },

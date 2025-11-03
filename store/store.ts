@@ -26,6 +26,7 @@ import usersReducer from "./features/userSlice";
 import EndOfShiftReportPatrolReducer from "../store/features/endOfShiftReportPatrolSlice";
 import EndOfShiftReportSupervisorReduer from "../store/features/endOfShiftReportSupervisorSlice";
 import lostAndFoundTrackingReducer from "../store/features/lostAndFoundTrackingSlice";
+import lostPropertyReducer from "../store/features/lostPropertySlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
@@ -106,6 +107,40 @@ export const endOfShiftReportSupervisorPersistConfig = {
   whitelist: ["id", "date", "time", "campus", "report", "uploadedBy"], // Only persist the endOfShiftReportSupervisor array
 };
 
+export const lostPropertyPersistConfig = {
+  key: "lostProperty",
+  storage, // Uses localStorage for lostProperty
+  whitelist: [
+    "id",
+    "complainantName",
+    "complainantAddress",
+    "complainantDOB",
+    "complainantTelephone",
+    "complainantID",
+    "complainantEmail",
+    "dateLost",
+    "timeLost",
+    "comlainantAffiliation",
+    "additionalDescription",
+    "owner",
+    "ownerSignature",
+    "dateReportted",
+    "dateReturnedToOwner",
+    "timeReturnedToOwner",
+    "ownerName",
+    "ownerAddress",
+    "ownerDOB",
+    "ownerID",
+    "ownerEmail",
+    "ownerTelephone",
+    "remarks",
+    "signatureDPS",
+    "returnedToOwnerSignature",
+    "uploadedBy",
+    "formSubmitted",
+  ], // Only persist the lostProperty array
+};
+
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   messages: persistReducer(messagesPersistConfig, messagesReducer),
@@ -132,6 +167,9 @@ const rootReducer = combineReducers({
     lostAndFoundTrackingPersistConfig,
     lostAndFoundTrackingReducer
   ),
+
+  lostProperty: persistReducer(lostPropertyPersistConfig, lostPropertyReducer),
+
   incidentStatus: incidentStatusReducer,
   incidentTypes: incidentTypesReducer,
   menu: menuReducer,

@@ -20,6 +20,7 @@ import { Reports } from "./pages/Reports/Reports";
 import { EndOfShiftReportPatrol } from "../src/components/UBForms/endOfShiftReportPatrol/endOfShiftReportPatrol";
 import { EndOfShiftReportSupervisor } from "../src/components/UBForms/endOfshiftReportSupervisor/endOfShiftReportSupervisor";
 import { LostAndFoundTracking } from "../src/components/UBForms/lostAndFoundTracking/lostAndFoundTracking";
+import { LostPropertyReportForm } from "../src/components/UBForms/lostPropertyReportForm/lostPropertyReportForm";
 import { EndOfShiftReportPatrolTable } from "./common/crudTables/endOfShiftReportPatrolTable";
 import { EndOfShiftReportSupervisorTable } from "./common/crudTables/endOfShiftReportSupervisorTable";
 import { LostAndFoundTrackingTable } from "./common/crudTables/lostAndFoundTrackingTable";
@@ -109,6 +110,11 @@ const App: React.FC = () => {
                 <Route
                   path="/forms/lostAndFoundTracking/:id"
                   element={<LostAndFoundTracking />}
+                />
+
+                <Route
+                  path="/forms/lostPropertyReportForm/:id"
+                  element={<LostPropertyReportForm />}
                 />
                 {/* ----------- end of report forms ----------- */}
               </Routes>
