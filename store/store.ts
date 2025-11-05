@@ -27,6 +27,7 @@ import EndOfShiftReportPatrolReducer from "../store/features/endOfShiftReportPat
 import EndOfShiftReportSupervisorReduer from "../store/features/endOfShiftReportSupervisorSlice";
 import lostAndFoundTrackingReducer from "../store/features/lostAndFoundTrackingSlice";
 import lostPropertyReducer from "../store/features/lostPropertySlice";
+import impoundedReportReducer from "../store/features/impoundedReportSlice";
 import { baseAPI } from "./services/baseAPI";
 import { authAPI } from "./services/authAPI";
 import { chatAPI } from "./services/chatAPI";
@@ -141,6 +142,50 @@ export const lostPropertyPersistConfig = {
   ], // Only persist the lostProperty array
 };
 
+const impoundedReportPersistConfig = {
+  key: "impoundedReport",
+  storage, // Uses localStorage for impoundedReport
+  whitelist: [
+    "id",
+    "name",
+    "studentID",
+    "phoneNumber",
+    "address",
+    "todayDate",
+    "brand",
+    "model",
+    "color",
+    "style",
+    "serialNumber",
+    "purchaseDate",
+    "purchasePrice",
+    "locationOfBikeStolen",
+    "whatTimeBikeStolen",
+    "bicycleRack",
+    "whenWasBikeWasStolen",
+    "dateReturnedToOwner",
+    "ownerName",
+    "ownerAddress",
+    "ownerDOB",
+    "ownerIDNumber",
+    "ownerTelephone",
+    "remarks",
+    "ownerSignature",
+    "signaturePSD",
+    "dateReturnedToOwner2",
+    "ownerName2",
+    "ownerAddress2",
+    "ownerDOB2",
+    "ownerIDNumber2",
+    "ownerTelephone2",
+    "remarks2",
+    "ownerSignature2",
+    "signaturePSD2",
+    "uploadedBy",
+    "formSubmitted",
+  ], // Only persist the impoundedReport array
+};
+
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   messages: persistReducer(messagesPersistConfig, messagesReducer),
@@ -170,6 +215,10 @@ const rootReducer = combineReducers({
 
   lostProperty: persistReducer(lostPropertyPersistConfig, lostPropertyReducer),
 
+  impoundedReport: persistReducer(
+    impoundedReportPersistConfig,
+    impoundedReportReducer
+  ),
   incidentStatus: incidentStatusReducer,
   incidentTypes: incidentTypesReducer,
   menu: menuReducer,

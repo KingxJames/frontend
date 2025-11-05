@@ -15,6 +15,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     "/forms/endOfShiftReportSupervisor/",
     "/forms/lostAndFoundTracking/",
     "/forms/lostPropertyReportForm/",
+    "/forms/impoundedReportForm/",
   ];
 
   const hiddenSidebarRoutes = ["/forms/incidentReportForm/"];

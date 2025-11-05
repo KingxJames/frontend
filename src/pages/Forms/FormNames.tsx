@@ -5,7 +5,6 @@ import warning from "../../images/incident/warning.png";
 import { useNavigate } from "react-router-dom";
 import {
   useInitializeIncidentReportMutation,
-  useCreateIncidentReportMutation,
   useGetUnsubmittedIncidentReportQuery,
 } from "../../../store/services/incidentReportAPI";
 import {
@@ -25,6 +24,11 @@ import {
   useGetUnsubmittedLostPropertyQuery,
 } from "../../../store/services/lostPropertyAPI";
 
+import {
+  useInitializeImpoundedReportMutation,
+  useGetUnsubmittedImpoundedReportQuery,
+} from "../../../store/services/impoundedReportAPI";
+
 export const FormNames: React.FC = () => {
   const navigate = useNavigate();
   const [initializeIncidentReport] = useInitializeIncidentReportMutation();
@@ -35,6 +39,7 @@ export const FormNames: React.FC = () => {
   const [initializeLostAndFoundTracking] =
     useInitializeLostAndFoundTrackingMutation();
   const [initializeLostProperty] = useInitializeLostPropertyMutation();
+  const [initializeImpoundedReport] = useInitializeImpoundedReportMutation();
 
   const { data: unsubmittedIncidentReports, refetch: refetchIncidentReports } =
     useGetUnsubmittedIncidentReportQuery({});
@@ -56,6 +61,11 @@ export const FormNames: React.FC = () => {
 
   const { data: unsubmittedLostProperty, refetch: refetchLostProperty } =
     useGetUnsubmittedLostPropertyQuery({});
+
+  const {
+    data: unsubmittedImpoundedReports,
+    refetch: refetchImpoundedReports,
+  } = useGetUnsubmittedImpoundedReportQuery({});
 
   const handleClick = async () => {
     try {
@@ -161,6 +171,27 @@ export const FormNames: React.FC = () => {
     }
   };
 
+  const handleClickImpoundedReport = async () => {
+    try {
+      // Always refetch to make sure data is fresh
+      const { data } = await refetchImpoundedReports();
+
+      if (data?.success && data.data) {
+        // ✅ Found an unsubmitted form → navigate to it
+        navigate(`/forms/impoundedReportForm/${data.data.id}`);
+        console.log("asd", data.data);
+        return;
+      } else {
+        // 🆕 No unsubmitted form → initialize new
+        const response = await initializeImpoundedReport({}).unwrap();
+        navigate(`/forms/impoundedReportForm/${response.id}`);
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to handle incident report form:", error);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -207,6 +238,14 @@ export const FormNames: React.FC = () => {
             title="Lost Property Report Form"
             image={warning}
             onClick={() => handleLostPropertyReportForm()}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <UBFormCard
+            title="Bicycle Lost / Impounded Report Tracking Form"
+            image={warning}
+            onClick={() => handleClickImpoundedReport()}
           />
         </Grid>
       </Grid>

@@ -8,6 +8,8 @@ import { selectEndOfShiftReportSupervisor } from "../../store/features/endOfShif
 import { selectLostAndFoundTracking } from "../../store/features/lostAndFoundTrackingSlice";
 import { useUpdateLostPropertyMutation } from "../../store/services/lostPropertyAPI";
 import { selectLostProperty } from "../../store/features/lostPropertySlice";
+import { useUpdateImpoundedReportMutation } from "../../store/services/impoundedReportAPI";
+import { selectImpoundedReport } from "../../store/features/impoundedReportSlice";
 import { debounce } from "lodash";
 
 export const useAutosaveEndOfReportPatrol = () => {
@@ -116,4 +118,31 @@ export const useAutosaveLostProperty = () => {
 
     return () => debouncedSave.cancel(); // cleanup
   }, [lostProperty, updateLostProperty]);
+};
+
+//--------------------------------------------------------------------------------
+
+export const useAutosaveImpoundedReport = () => {
+  const impoundedReport = useSelector(selectImpoundedReport);
+  const [updateImpoundedReport] = useUpdateImpoundedReportMutation();
+
+  useEffect(() => {
+    if (!impoundedReport.id) return; // Only save if ID exists
+
+    const debouncedSave = debounce(async (data) => {
+      try {
+        await updateImpoundedReport({
+          ...data,
+          id: data.id,
+        }).unwrap();
+        console.log("✅ Autosaved successfully");
+      } catch (error) {
+        console.error("❌ Autosave failed:", error);
+      }
+    }, 800); // wait 800ms after typing stops
+
+    debouncedSave(impoundedReport);
+
+    return () => debouncedSave.cancel(); // cleanup
+  }, [impoundedReport, updateImpoundedReport]);
 };
