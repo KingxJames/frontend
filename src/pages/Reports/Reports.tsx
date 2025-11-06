@@ -14,6 +14,8 @@ export const Reports: React.FC = () => {
         "/endOfShiftReportSupervisorTable",
       "Lost and Found Tracking Form": "/lostAndFoundTrackingFormTable",
       "Lost Property Report Form": "/lostPropertyTable",
+      "Bicycle Lost / Impounded Report Tracking Form":
+        "/impoundedReportTrackingFormTable",
     };
 
     if (routes[text]) navigate(routes[text]);
@@ -25,6 +27,7 @@ export const Reports: React.FC = () => {
     "End of Shift Report (Shift Supervisor)",
     "Lost and Found Tracking Form",
     "Lost Property Report Form",
+    "Bicycle Lost / Impounded Report Tracking Form",
   ];
 
   return (

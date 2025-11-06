@@ -26,6 +26,7 @@ import { EndOfShiftReportPatrolTable } from "./common/crudTables/endOfShiftRepor
 import { EndOfShiftReportSupervisorTable } from "./common/crudTables/endOfShiftReportSupervisorTable";
 import { LostAndFoundTrackingTable } from "./common/crudTables/lostAndFoundTrackingTable";
 import { LostPropertyTable } from "./common/crudTables/lostPropertyTable";
+import { ImpoundedReportTable } from "./common/crudTables/impoundedReportTable";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -96,6 +97,12 @@ const App: React.FC = () => {
                   path="/lostPropertyTable"
                   element={<LostPropertyTable />}
                 />
+
+                <Route
+                  path="/impoundedReportTrackingFormTable"
+                  element={<ImpoundedReportTable />}
+                />
+
                 {/* ----------- end of crud tables ----------- */}
 
                 {/* ----------- report forms ----------- */}

@@ -89,9 +89,9 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
   const navigate = useNavigate();
   const signatureRef = useRef<any>(null);
   const ownerSigRef = useRef<any>(null);
-  const signatureDPSRef = useRef<any>(null);
+  const signaturePSDRef = useRef<any>(null);
   const ownerSigRef1 = useRef<any>(null);
-  const signatureDPSRef1 = useRef<any>(null);
+  const signaturePSDRef1 = useRef<any>(null);
 
   const token = useSelector((state: RootState) => state.auth.token);
   const { data: impoundedReportData } = useFetchImpoundedReportQuery({});
@@ -110,15 +110,15 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
     if (impoundedReport.ownerSignature && ownerSigRef.current) {
       ownerSigRef.current.fromDataURL(impoundedReport.ownerSignature);
     }
-    if (impoundedReport.signaturePSD && signatureDPSRef.current) {
-      signatureDPSRef.current.fromDataURL(impoundedReport.signaturePSD);
+    if (impoundedReport.signaturePSD && signaturePSDRef.current) {
+      signaturePSDRef.current.fromDataURL(impoundedReport.signaturePSD);
     }
     if (impoundedReport.ownerSignature2 && ownerSigRef1.current) {
       ownerSigRef1.current.fromDataURL(impoundedReport.ownerSignature2);
     }
 
-    if (impoundedReport.signaturePSD2 && signatureDPSRef1.current) {
-      signatureDPSRef1.current.fromDataURL(impoundedReport.signaturePSD2);
+    if (impoundedReport.signaturePSD2 && signaturePSDRef1.current) {
+      signaturePSDRef1.current.fromDataURL(impoundedReport.signaturePSD2);
     }
   }, [impoundedReport]);
 
@@ -130,16 +130,16 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
     ownerSigRef.current.clear();
   };
 
-  const clearSignatureDPS = () => {
-    signatureDPSRef.current.clear();
+  const clearSignaturePSD = () => {
+    signaturePSDRef.current.clear();
   };
 
   const clearOwnerSignature1 = () => {
     ownerSigRef1.current.clear();
   };
 
-  const clearSignatureDPS1 = () => {
-    signatureDPSRef1.current.clear();
+  const clearSignaturePSD1 = () => {
+    signaturePSDRef1.current.clear();
   };
 
   const saveSignature = () => {
@@ -152,8 +152,8 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
     dispatch(setOwnerSignature(dataURL));
   };
 
-  const saveSignatureDPS = () => {
-    const dataURL = signatureDPSRef.current.toDataURL();
+  const saveSignaturePSD = () => {
+    const dataURL = signaturePSDRef.current.toDataURL();
     dispatch(setSignaturePSD(dataURL));
   };
 
@@ -162,8 +162,8 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
     dispatch(setOwnerSignature2(dataURL));
   };
 
-  const saveSignatureDPS1 = () => {
-    const dataURL = signatureDPSRef1.current.toDataURL();
+  const saveSignaturePSD1 = () => {
+    const dataURL = signaturePSDRef1.current.toDataURL();
     dispatch(setSignaturePSD2(dataURL));
   };
 
@@ -185,6 +185,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
       "whatTimeBikeStolen",
       "bicycleRack",
       "whenWasBikeWasStolen",
+      "signature",
       "dateReturnedToOwner",
       "ownerName",
       "ownerAddress",
@@ -466,22 +467,41 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <TextField
-              label="Was Your Bicycle Lock To The Rack?"
-              fullWidth
-              value={impoundedReport.bicycleRack}
-              onChange={(e) => dispatch(setBicycleRack(e.target.value))}
-            />
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">
+                Was Your Bicycle Locked To The Rack?
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={impoundedReport.bicycleRack}
+                onChange={(e) => dispatch(setBicycleRack(e.target.value))}
+                label="Was Your Bicycle Locked To The Rack?"
+              >
+                <MenuItem value={"Yes"}>Yes</MenuItem>
+                <MenuItem value={"No"}>No</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              label="When Was Bike Was Stolen?"
-              fullWidth
-              value={impoundedReport.whenWasBikeWasStolen}
-              onChange={(e) =>
-                dispatch(setWhenWasBikeWasStolen(e.target.value))
-              }
-            />
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">
+                When Was Bike Stolen?
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={impoundedReport.whenWasBikeWasStolen}
+                onChange={(e) =>
+                  dispatch(setWhenWasBikeWasStolen(e.target.value))
+                }
+                label="When Was Bike Stolen?"
+              >
+                <MenuItem value={"Morning"}>Morning</MenuItem>
+                <MenuItem value={"Afternoon"}>Afternoon</MenuItem>
+                <MenuItem value={"Evening"}>Evening</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
 
           <Grid item xs={12} md={6}>
@@ -629,7 +649,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
           <Grid item xs={12} md={6}>
             <label>Signature of PSD Rep</label>
             <SignatureCanvas
-              ref={signatureRef}
+              ref={signaturePSDRef}
               penColor="black"
               canvasProps={{
                 width: 400,
@@ -639,10 +659,10 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
               }}
             />
             <div style={{ marginTop: 8 }}>
-              <Button size="small" onClick={clearSignature}>
+              <Button size="small" onClick={clearSignaturePSD}>
                 Clear
               </Button>
-              <Button size="small" onClick={saveSignature}>
+              <Button size="small" onClick={saveSignaturePSD}>
                 Save
               </Button>
             </div>
@@ -681,7 +701,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              label="Tracking Brand"
+              label="Brand"
               fullWidth
               value={impoundedReport.trackingBrand}
               onChange={(e) => dispatch(setTrackingBrand(e.target.value))}
@@ -689,7 +709,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              label="Tracking Model"
+              label="Model"
               fullWidth
               value={impoundedReport.trackingModel}
               onChange={(e) => dispatch(setTrackingModel(e.target.value))}
@@ -697,7 +717,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              label="Tracking Color"
+              label="Color"
               fullWidth
               value={impoundedReport.trackingColor}
               onChange={(e) => dispatch(setTrackingColor(e.target.value))}
@@ -705,7 +725,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              label="Tracking Style"
+              label="Style"
               fullWidth
               value={impoundedReport.trackingStyle}
               onChange={(e) => dispatch(setTrackingStyle(e.target.value))}
@@ -713,7 +733,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              label="Tracking Serial Number"
+              label="Serial Number"
               fullWidth
               value={impoundedReport.trackingSerialNumber}
               onChange={(e) =>
@@ -733,7 +753,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              label="Tracking Form Remarks"
+              label="Remarks"
               fullWidth
               value={impoundedReport.trackingFormRemarks}
               onChange={(e) => dispatch(setTrackingFormRemarks(e.target.value))}
@@ -841,10 +861,10 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
               }}
             />
             <div style={{ marginTop: 8 }}>
-              <Button size="small" onClick={clearSignatureDPS}>
+              <Button size="small" onClick={clearOwnerSignature1}>
                 Clear
               </Button>
-              <Button size="small" onClick={saveSignatureDPS}>
+              <Button size="small" onClick={saveOwnerSignature1}>
                 Save
               </Button>
             </div>
@@ -852,7 +872,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
           <Grid item xs={12} md={6}>
             <label>Signature DPS</label>
             <SignatureCanvas
-              ref={signatureDPSRef1}
+              ref={signaturePSDRef1}
               penColor="black"
               canvasProps={{
                 width: 400,
@@ -862,10 +882,10 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
               }}
             />
             <div style={{ marginTop: 8 }}>
-              <Button size="small" onClick={clearSignatureDPS1}>
+              <Button size="small" onClick={clearSignaturePSD1}>
                 Clear
               </Button>
-              <Button size="small" onClick={saveSignatureDPS1}>
+              <Button size="small" onClick={saveSignaturePSD1}>
                 Save
               </Button>
             </div>
