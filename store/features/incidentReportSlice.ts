@@ -3,9 +3,9 @@ import { RootState } from "../store";
 
 export interface IIncidentFile {
   // previewURL: string;
-  url?: string;
-  generated_name?: string;
-  incidentPicture: string; //original file name
+  url: string; //original file name
+  generated_name: string;
+  original_name: string;
 }
 
 export interface IIncidentReport {

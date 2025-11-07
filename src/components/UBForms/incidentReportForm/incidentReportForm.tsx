@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UBSidebar from "../../UBSidebar/UBSidebar";
 import {
   Box,
@@ -30,6 +30,7 @@ import {
   setWitnesses,
   setFormSubmitted,
   setIncidentFiles,
+  IIncidentFile,
 } from "../../../../store/features/incidentReportSlice";
 import {
   selectIncidentStatus,
@@ -78,7 +79,6 @@ export const IncidentReportForm: React.FC = () => {
 
   const incidentReports = useSelector(selectIncidentReports);
   const id = incidentReports.id;
-  console.log("Incident Report ID:", id);
   useAutosaveIncidentReport();
   const incidentStatus = useSelector(selectIncidentStatus);
   const campus = useSelector(selectCampus);
@@ -92,7 +92,7 @@ export const IncidentReportForm: React.FC = () => {
   if (buildings.length <= 1) {
     return null;
   }
-  
+
   if (campus.length <= 1) {
     return null;
   }
@@ -137,22 +137,42 @@ export const IncidentReportForm: React.FC = () => {
     return true;
   };
 
+
+
   // Handle file selection
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
+
+    const formData = new FormData();
+    files.forEach((file) => formData.append("file[]", file));
     setSelectedFiles(files);
 
     // Generate preview URLs
     const previewUrls = files.map((file) => URL.createObjectURL(file));
     setPreviews(previewUrls);
 
-    // Automatically save in Redux state
-    const incidentFiles = files.map((file: any) => ({
-      incidentPicture: file.name,
-      previewURL: file.url,
-      generated_name: file.name,
-    }));
-    dispatch(setIncidentFiles(incidentFiles));
+    const response = await fetch(
+      buildApiUrl(`/publicSafety/uploadIncidentReportPhoto/${id}`),
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+
+    const result = await response.json();
+    if (result.success) {
+      console.log("Uploaded files:", result.data);
+      dispatch(setIncidentFiles(result.data)); // save DB info in Redux
+    }
+
+    // Merge DB URLs into previews for persistence
+    const uploadedUrls = result.data.map((file: any) => buildApiUrl(file.url));
+    setPreviews((prev) => [...prev, ...uploadedUrls]);
+
+    console.log("response", response);
   };
 
   // Submit form and upload files
@@ -422,7 +442,9 @@ export const IncidentReportForm: React.FC = () => {
                 onChange={(e) => dispatch(setDescription(e.target.value))}
                 fullWidth
                 error={!!errors["description"]}
-                helperText={errors["description"] ? "Description is required" : ""}
+                helperText={
+                  errors["description"] ? "Description is required" : ""
+                }
               />
             </Grid>
 
@@ -467,17 +489,25 @@ export const IncidentReportForm: React.FC = () => {
 
             {/* Preview Section */}
             <Grid item xs={12}>
-              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                {previews.map((src, index) => (
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  flexWrap: "wrap",
+                  border: "1px solid red",
+                }}
+              >
+                {incidentReports.incidentFiles?.map((file, index) => (
                   <img
                     key={index}
-                    src={src}
-                    alt={`preview-${index}`}
+                    src={buildApiUrl(`${file.url}`)}
+                    alt={buildApiUrl(`${file.url}`)}
                     style={{
-                      width: "150px",
+                      width: "500px",
                       height: "150px",
                       objectFit: "cover",
                       borderRadius: "8px",
+                      border: "1px solid red",
                     }}
                   />
                 ))}
