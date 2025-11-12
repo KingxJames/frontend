@@ -1,11 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
+export interface IEndOfShiftReportPatrolFile {
+  url: string;
+  generated_name: string;
+  original_name: string;
+  displayURL: string;
+}
+
 export interface EndOfShiftReportPatrolInitialState {
   id: string;
   date: string;
   time: string;
   campus: string;
+  endOfShiftReportPatrolFiles: IEndOfShiftReportPatrolFile[];
   report: string;
   uploadedBy: string; //patrol officer
   formSubmitted: boolean;
@@ -16,6 +24,7 @@ const initialState: EndOfShiftReportPatrolInitialState = {
   date: "",
   time: "",
   campus: "",
+  endOfShiftReportPatrolFiles: [],
   report: "",
   uploadedBy: "",
   formSubmitted: false,
@@ -44,6 +53,13 @@ export const endOfShiftReportPatrolSlice = createSlice({
       state.campus = action.payload;
     },
 
+    setEndOfShiftReportPatrolFiles: (
+      state,
+      action: PayloadAction<IEndOfShiftReportPatrolFile[]>
+    ) => {
+      state.endOfShiftReportPatrolFiles = action.payload;
+    },
+
     setReport: (state, action: PayloadAction<string>) => {
       state.report = action.payload;
     },
@@ -61,6 +77,7 @@ export const {
   setTime,
   setCampus,
   setReport,
+  setEndOfShiftReportPatrolFiles,
   setUploadedBy,
   setEndOfShiftReportPatrol,
   setFormSubmitted,
@@ -75,6 +92,8 @@ export const selectTime = (state: RootState) =>
   state.endOfShiftReportPatrol.time;
 export const selectCampus = (state: RootState) =>
   state.endOfShiftReportPatrol.campus;
+export const selectEndOfShiftReportPatrolFiles = (state: RootState) =>
+  state.endOfShiftReportPatrol.endOfShiftReportPatrolFiles;
 export const selectReport = (state: RootState) =>
   state.endOfShiftReportPatrol.report;
 export const selectUploadedBy = (state: RootState) =>

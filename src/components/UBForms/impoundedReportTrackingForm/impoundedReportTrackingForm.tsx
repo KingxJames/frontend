@@ -22,6 +22,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectImpoundedReport,
   setImpoundedReportState,
+  IImpoundedReportFile,
+  setImpoundedReportFiles,
   setName,
   setStudentID,
   setPhoneNumber,
@@ -76,7 +78,6 @@ import {
   useCreateImpoundedReportMutation,
 } from "../../../../store/services/impoundedReportAPI";
 import { useFetchCampusesQuery } from "../../../../store/services/campusAPI";
-import axios from "axios";
 import { buildApiUrl } from "../../../../store/config/api";
 import { RootState } from "../../../../store/store";
 import { Form, useNavigate } from "react-router-dom";
@@ -92,14 +93,14 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
   const signaturePSDRef = useRef<any>(null);
   const ownerSigRef1 = useRef<any>(null);
   const signaturePSDRef1 = useRef<any>(null);
-
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const token = useSelector((state: RootState) => state.auth.token);
   const { data: impoundedReportData } = useFetchImpoundedReportQuery({});
   const [createImpoundedReport] = useCreateImpoundedReportMutation();
   const [updateImpoundedReport] = useUpdateImpoundedReportMutation();
-
   const impoundedReport = useSelector(selectImpoundedReport);
-  console.log("Impounded Report ID:", impoundedReport.id);
+  const id = impoundedReport.id;
   useAutosaveImpoundedReport();
 
   // Load saved signatures (from Redux or DB) on mount
@@ -166,6 +167,36 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
     const dataURL = signaturePSDRef1.current.toDataURL();
     dispatch(setSignaturePSD2(dataURL));
   };
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      if (!impoundedReport.impoundedReportFiles?.length) return;
+
+      const urls: Record<string, string> = {};
+
+      for (const file of impoundedReport.impoundedReportFiles) {
+        try {
+          const res = await fetch(
+            buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
+            {
+              method: "GET",
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          if (res.ok) {
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            urls[file.generated_name] = blobUrl;
+          }
+        } catch (err) {
+          console.error("Error fetching file:", file.generated_name, err);
+        }
+      }
+      setImageUrls(urls);
+    };
+    fetchImages();
+  }, [impoundedReport, token]);
 
   const validateForm = () => {
     const requiredFields = [
@@ -237,6 +268,67 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
       return false;
     }
     return true;
+  };
+
+  // Handle file selection
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (!files.length) return;
+
+    // Save selected files locally
+    setSelectedFiles(files);
+
+    try {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("file[]", file));
+
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadPublicSafetyPhoto/${id}`),
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+      {
+        console.log(`Bearer ${token}`);
+      }
+      if (!response.ok)
+        throw new Error(`Upload failed: ${response.statusText}`);
+
+      const result = await response.json();
+      console.log("Upload result:", result);
+
+      // Normalize response data
+      const uploadedFiles = Array.isArray(result)
+        ? result
+        : Array.isArray(result.data)
+        ? result.data
+        : [];
+
+      const newImages = uploadedFiles
+        .filter((file: IImpoundedReportFile) => file.generated_name)
+        .map((file: IImpoundedReportFile) => ({
+          url: `app/private/uploads/photos/${file.generated_name}`,
+          generated_name: file.generated_name,
+          // displayURL: buildApiUrl(
+          //   `publicSafety/getFile/photos/${file.generated_name}`
+          // ),
+        }));
+
+      if (newImages.length) {
+        dispatch(
+          setImpoundedReportFiles([
+            ...(impoundedReport.impoundedReportFiles || []),
+            ...newImages,
+          ])
+        );
+      }
+    } catch (error) {
+      console.error("File upload error:", error);
+    }
   };
 
   const handleSubmit = async () => {
@@ -483,6 +575,83 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
               </Select>
             </FormControl>
           </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Button
+              component="label"
+              startIcon={<CloudUploadIcon />}
+              sx={{
+                bgcolor: "#6C3777",
+                color: "#fff",
+                fontWeight: "bold",
+                textTransform: "none",
+                "&:hover": {
+                  bgcolor: "#6d54a3",
+                },
+              }}
+            >
+              Upload Files
+              <input
+                type="file"
+                hidden
+                multiple
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </Button>
+          </Grid>
+
+          {/* Preview Section */}
+          <Grid item xs={12}>
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "10px",
+                backgroundColor: "#fafafa",
+              }}
+            >
+              {impoundedReport.impoundedReportFiles?.map((file, index) => {
+                const blobUrl = imageUrls[file.generated_name];
+
+                return blobUrl ? (
+                  <img
+                    key={index}
+                    src={blobUrl}
+                    alt={file.original_name}
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                      transition: "transform 0.2s ease",
+                    }}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.transform = "scale(1.05)")
+                    }
+                    onMouseOut={(e) =>
+                      (e.currentTarget.style.transform = "scale(1)")
+                    }
+                  />
+                ) : (
+                  <div
+                    key={index}
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      backgroundColor: "#eee",
+                      borderRadius: "8px",
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </Grid>
+
           <Grid item xs={12}>
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">

@@ -6,6 +6,7 @@ export interface IIncidentFile {
   url: string; //original file name
   generated_name: string;
   original_name: string;
+  displayURL: string;
 }
 
 export interface IIncidentReport {

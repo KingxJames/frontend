@@ -17,7 +17,8 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectLostAndFoundTracking,
-  setLostAndFoundTrackingState,
+  ILostAndFoundtrackingFile,
+  setLostAndFoundTrackingFiles,
   setFacilityName,
   setTime,
   setTodaysDate,
@@ -46,7 +47,6 @@ import {
   useCreateLostAndFoundTrackingMutation,
 } from "../../../../store/services/lostAndFoundTrackingAPI";
 import { useFetchCampusesQuery } from "../../../../store/services/campusAPI";
-import axios from "axios";
 import { buildApiUrl } from "../../../../store/config/api";
 import { RootState } from "../../../../store/store";
 import { Form, useNavigate } from "react-router-dom";
@@ -55,6 +55,8 @@ import UBLogoWhite from "../../../images/UBLogoWhite.png";
 
 export const LostAndFoundTracking: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const returnedSigRef = useRef<any>(null);
@@ -70,19 +72,61 @@ export const LostAndFoundTracking: React.FC = () => {
   const [createLostAndFoundTracking] = useCreateLostAndFoundTrackingMutation();
 
   const lostAndFoundTrackings = useSelector(selectLostAndFoundTracking);
-  console.log("Lost and Found Tracking ID:", lostAndFoundTrackings.id);
   useAutosaveLostAndFoundTracking();
   const campus = useSelector(selectCampus);
+  const id = lostAndFoundTrackings.id;
 
-    // Load saved signatures (from Redux or DB) on mount
+  // Load saved signatures (from Redux or DB) on mount
   useEffect(() => {
-    if (lostAndFoundTrackings.returnedToOwnerSignature && returnedSigRef.current) {
-      returnedSigRef.current.fromDataURL(lostAndFoundTrackings.returnedToOwnerSignature);
+    if (
+      lostAndFoundTrackings.returnedToOwnerSignature &&
+      returnedSigRef.current
+    ) {
+      returnedSigRef.current.fromDataURL(
+        lostAndFoundTrackings.returnedToOwnerSignature
+      );
     }
-    if (lostAndFoundTrackings.ownerAcknowledgementSignature && ownerSigRef.current) {
-      ownerSigRef.current.fromDataURL(lostAndFoundTrackings.ownerAcknowledgementSignature);
+    if (
+      lostAndFoundTrackings.ownerAcknowledgementSignature &&
+      ownerSigRef.current
+    ) {
+      ownerSigRef.current.fromDataURL(
+        lostAndFoundTrackings.ownerAcknowledgementSignature
+      );
     }
   }, [lostAndFoundTrackings]);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      if (!lostAndFoundTrackings?.lostAndFoundTrackingFiles?.length) return;
+
+      const urls: Record<string, string> = {};
+
+      for (const file of lostAndFoundTrackings.lostAndFoundTrackingFiles) {
+        try {
+          const res = await fetch(
+            buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
+            {
+              method: "GET",
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          if (res.ok) {
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            urls[file.generated_name] = blobUrl;
+          }
+        } catch (err) {
+          console.error("Error fetching file:", file.generated_name, err);
+        }
+      }
+
+      setImageUrls(urls);
+    };
+
+    fetchImages();
+  }, [lostAndFoundTrackings, token]);
 
   const clearReturnedSignature = () => returnedSigRef.current.clear();
   const clearOwnerSignature = () => ownerSigRef.current.clear();
@@ -139,6 +183,67 @@ export const LostAndFoundTracking: React.FC = () => {
       return false;
     }
     return true;
+  };
+
+  // Handle file selection
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (!files.length) return;
+
+    // Save selected files locally
+    setSelectedFiles(files);
+
+    try {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("file[]", file));
+
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadPublicSafetyPhoto/${id}`),
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+      {
+        console.log(`Bearer ${token}`);
+      }
+      if (!response.ok)
+        throw new Error(`Upload failed: ${response.statusText}`);
+
+      const result = await response.json();
+      console.log("Upload result:", result);
+
+      // Normalize response data
+      const uploadedFiles = Array.isArray(result)
+        ? result
+        : Array.isArray(result.data)
+        ? result.data
+        : [];
+
+      const newImages = uploadedFiles
+        .filter((file: ILostAndFoundtrackingFile) => file.generated_name)
+        .map((file: ILostAndFoundtrackingFile) => ({
+          url: `app/private/uploads/photos/${file.generated_name}`,
+          generated_name: file.generated_name,
+          // displayURL: buildApiUrl(
+          //   `publicSafety/getFile/photos/${file.generated_name}`
+          // ),
+        }));
+
+      if (newImages.length) {
+        dispatch(
+          setLostAndFoundTrackingFiles([
+            ...(lostAndFoundTrackings?.lostAndFoundTrackingFiles || []),
+            ...newImages,
+          ])
+        );
+      }
+    } catch (error) {
+      console.error("File upload error:", error);
+    }
   };
 
   const handleSubmit = async () => {
@@ -323,6 +428,84 @@ export const LostAndFoundTracking: React.FC = () => {
                 dispatch(setSupervisorWhoReceivedItem(e.target.value))
               }
             />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Button
+              component="label"
+              startIcon={<CloudUploadIcon />}
+              sx={{
+                bgcolor: "#6C3777",
+                color: "#fff",
+                fontWeight: "bold",
+                textTransform: "none",
+                "&:hover": {
+                  bgcolor: "#6d54a3",
+                },
+              }}
+            >
+              Upload Files
+              <input
+                type="file"
+                hidden
+                multiple
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </Button>
+          </Grid>
+
+          {/* Preview Section */}
+          <Grid item xs={12}>
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "10px",
+                backgroundColor: "#fafafa",
+              }}
+            >
+              {lostAndFoundTrackings?.lostAndFoundTrackingFiles?.map(
+                (file, index) => {
+                  const blobUrl = imageUrls[file.generated_name];
+
+                  return blobUrl ? (
+                    <img
+                      key={index}
+                      src={blobUrl}
+                      alt={file.original_name}
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        border: "1px solid #ccc",
+                        transition: "transform 0.2s ease",
+                      }}
+                      onMouseOver={(e) =>
+                        (e.currentTarget.style.transform = "scale(1.05)")
+                      }
+                      onMouseOut={(e) =>
+                        (e.currentTarget.style.transform = "scale(1)")
+                      }
+                    />
+                  ) : (
+                    <div
+                      key={index}
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        backgroundColor: "#eee",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  );
+                }
+              )}
+            </div>
           </Grid>
 
           <Grid item xs={12}>

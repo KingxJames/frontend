@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
-export interface LostPropertyFile {}
-
-export interface lostProperty {
-  lostPropertyFiles?: LostPropertyFile[];
+export interface ILostPropertyFile {
+  url: string;
+  generated_name: string;
+  original_name: string;
+  displayURL: string;
 }
 
 export interface lostPropertyInitialState {
@@ -18,6 +19,7 @@ export interface lostPropertyInitialState {
   dateLost: string;
   timeLost: string;
   complainantAffiliation: string;
+  lostPropertyFiles?: ILostPropertyFile[];
   additionalDescription: string;
   owner: string;
   ownerSignature: string;
@@ -48,6 +50,7 @@ const initialState: lostPropertyInitialState = {
   dateLost: "",
   timeLost: "",
   complainantAffiliation: "",
+  lostPropertyFiles: [],
   additionalDescription: "",
   owner: "",
   ownerSignature: "",
@@ -103,6 +106,12 @@ export const lostPropertySlice = createSlice({
     },
     setComplainantAffiliation: (state, action: PayloadAction<string>) => {
       state.complainantAffiliation = action.payload;
+    },
+    setLostPropertyFiles: (
+      state,
+      action: PayloadAction<ILostPropertyFile[]>
+    ) => {
+      state.lostPropertyFiles = action.payload;
     },
     setAdditionalDescription: (state, action: PayloadAction<string>) => {
       state.additionalDescription = action.payload;
@@ -169,6 +178,7 @@ export const {
   setDateLost,
   setTimeLost,
   setComplainantAffiliation,
+  setLostPropertyFiles,
   setAdditionalDescription,
   setOwner,
   setOwnerSignature,
@@ -205,6 +215,8 @@ export const selectDateLost = (state: RootState) => state.lostProperty.dateLost;
 export const selectTimeLost = (state: RootState) => state.lostProperty.timeLost;
 export const selectComplainantAffiliation = (state: RootState) =>
   state.lostProperty.complainantAffiliation;
+export const selectLostPropertyFiles = (state: RootState) =>
+  state.lostProperty.lostPropertyFiles;
 export const selectAdditionalDescription = (state: RootState) =>
   state.lostProperty.additionalDescription;
 export const selectOwner = (state: RootState) => state.lostProperty.owner;

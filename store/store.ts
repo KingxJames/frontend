@@ -80,6 +80,7 @@ const lostAndFoundTrackingPersistConfig = {
     "itemDescription",
     "roomNo",
     "foundBy",
+    "lostAndFoundTrackingFiles",
     "supervisorWhoReceivedItem",
     "dateReturnedToOwner",
     "timeReturnedToOwner",
@@ -99,13 +100,29 @@ const lostAndFoundTrackingPersistConfig = {
 export const endOfShiftReportPatrolPersistConfig = {
   key: "endOfShiftReportPatrol",
   storage, // Uses localStorage for endOfShiftReportPatrol
-  whitelist: ["id", "date", "time", "campus", "report", "uploadedBy"], // Only persist the endOfShiftReportPatrol array
+  whitelist: [
+    "id",
+    "date",
+    "time",
+    "campus",
+    "endOfShiftReportPatrolFiles",
+    "report",
+    "uploadedBy",
+  ], // Only persist the endOfShiftReportPatrol array
 };
 
 export const endOfShiftReportSupervisorPersistConfig = {
   key: "endOfShiftReportSupervisor",
   storage, // Uses localStorage for endOfShiftReportSupervisor
-  whitelist: ["id", "date", "time", "campus", "report", "uploadedBy"], // Only persist the endOfShiftReportSupervisor array
+  whitelist: [
+    "id",
+    "date",
+    "time",
+    "campus",
+    "endOfShiftReportSupervisorFiles",
+    "report",
+    "uploadedBy",
+  ], // Only persist the endOfShiftReportSupervisor array
 };
 
 export const lostPropertyPersistConfig = {
@@ -122,6 +139,7 @@ export const lostPropertyPersistConfig = {
     "dateLost",
     "timeLost",
     "complainantAffiliation",
+    "lostPropertyFiles",
     "additionalDescription",
     "owner",
     "ownerSignature",
@@ -162,6 +180,7 @@ const impoundedReportPersistConfig = {
     "locationOfBikeStolen",
     "whatTimeBikeStolen",
     "bicycleRack",
+    "impoundedReportFiles",
     "whenWasBikeWasStolen",
     "signature",
     "dateOfSignature",

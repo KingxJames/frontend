@@ -1,14 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
-export interface lostAndFoundtrackingFile {
-  url?: string;
-  generated_name?: string;
-  lostAndFoundTrackingPicture: string; //original file name
-}
-
-export interface lostAndFoundTracking {
-  lostAndFoundTrackingFiles?: lostAndFoundtrackingFile[];
+export interface ILostAndFoundtrackingFile {
+  url: string;
+  generated_name: string;
+  original_name: string;
+  displayURL: string;
 }
 
 export interface lostAndFoundTrackingInitialState {
@@ -21,6 +18,7 @@ export interface lostAndFoundTrackingInitialState {
   itemDescription: string;
   roomNo: string;
   foundBy: string;
+  lostAndFoundTrackingFiles?: ILostAndFoundtrackingFile[];
   supervisorWhoReceivedItem: string;
   dateReturnedToOwner: string;
   timeReturnedToOwner: string;
@@ -46,6 +44,7 @@ const initialState: lostAndFoundTrackingInitialState = {
   itemDescription: "",
   roomNo: "",
   foundBy: "",
+  lostAndFoundTrackingFiles: [],
   supervisorWhoReceivedItem: "",
   dateReturnedToOwner: "",
   timeReturnedToOwner: "",
@@ -94,6 +93,12 @@ export const lostAndFoundTrackingSlice = createSlice({
     },
     setFoundBy: (state, action: PayloadAction<string>) => {
       state.foundBy = action.payload;
+    },
+    setLostAndFoundTrackingFiles: (
+      state,
+      action: PayloadAction<ILostAndFoundtrackingFile[]>
+    ) => {
+      state.lostAndFoundTrackingFiles = action.payload;
     },
     setSupervisorWhoReceivedItem: (state, action: PayloadAction<string>) => {
       state.supervisorWhoReceivedItem = action.payload;
@@ -150,6 +155,7 @@ export const {
   setRoomNo,
   setItemDescription,
   setFoundBy,
+  setLostAndFoundTrackingFiles,
   setSupervisorWhoReceivedItem,
   setDateReturnedToOwner,
   setTimeReturnedToOwner,
@@ -180,6 +186,8 @@ export const selectFoundBy = (state: RootState) =>
   state.lostAndFoundTracking.foundBy;
 export const selectItemDescription = (state: RootState) =>
   state.lostAndFoundTracking.itemDescription;
+export const selectLostAndFoundTrackingFiles = (state: RootState) =>
+  state.lostAndFoundTracking.lostAndFoundTrackingFiles;
 export const selectSupervisorWhoReceivedItem = (state: RootState) =>
   state.lostAndFoundTracking.supervisorWhoReceivedItem;
 export const selectDateReturnedToOwner = (state: RootState) =>

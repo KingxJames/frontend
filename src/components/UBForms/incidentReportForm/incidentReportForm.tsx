@@ -54,17 +54,15 @@ import {
   useFetchIncidentReportQuery,
   useCreateIncidentReportMutation,
 } from "../../../../store/services/incidentReportAPI";
-import axios from "axios";
 import { buildApiUrl } from "../../../../store/config/api";
 import { RootState } from "../../../../store/store";
 import { useNavigate } from "react-router-dom";
 import { useAutosaveIncidentReport } from "../../../hooks/useAutoSaveIncidentReport";
-import UBLogoWhite from "../../../images/UBLogoWhite.png";
 
 export const IncidentReportForm: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -85,21 +83,37 @@ export const IncidentReportForm: React.FC = () => {
   const buildings = useSelector(selectBuildings);
   const incidentTypes = useSelector(selectIncidentTypes);
 
-  if (incidentStatus.length <= 1) {
-    return null;
-  }
+  useEffect(() => {
+    const fetchImages = async () => {
+      if (!incidentReports?.incidentFiles?.length) return;
 
-  if (buildings.length <= 1) {
-    return null;
-  }
+      const urls: Record<string, string> = {};
 
-  if (campus.length <= 1) {
-    return null;
-  }
+      for (const file of incidentReports.incidentFiles) {
+        try {
+          const res = await fetch(
+            buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
+            {
+              method: "GET",
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-  if (incidentTypes.length <= 1) {
-    return null;
-  }
+          if (res.ok) {
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            urls[file.generated_name] = blobUrl;
+          }
+        } catch (err) {
+          console.error("Error fetching file:", file.generated_name, err);
+        }
+      }
+
+      setImageUrls(urls);
+    };
+
+    fetchImages();
+  }, [incidentReports, token]);
 
   const validateForm = () => {
     const requiredFields = [
@@ -137,71 +151,72 @@ export const IncidentReportForm: React.FC = () => {
     return true;
   };
 
-
-
   // Handle file selection
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
+    if (!files.length) return;
 
-    const formData = new FormData();
-    files.forEach((file) => formData.append("file[]", file));
+    // Save selected files locally
     setSelectedFiles(files);
 
-    // Generate preview URLs
-    const previewUrls = files.map((file) => URL.createObjectURL(file));
-    setPreviews(previewUrls);
+    try {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("file[]", file));
 
-    const response = await fetch(
-      buildApiUrl(`/publicSafety/uploadIncidentReportPhoto/${id}`),
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadPublicSafetyPhoto/${id}`),
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
       {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
+        console.log(`Bearer ${token}`);
       }
-    );
+      if (!response.ok)
+        throw new Error(`Upload failed: ${response.statusText}`);
 
-    const result = await response.json();
-    if (result.success) {
-      console.log("Uploaded files:", result.data);
-      dispatch(setIncidentFiles(result.data)); // save DB info in Redux
+      const result = await response.json();
+      console.log("Upload result:", result);
+
+      // Normalize response data
+      const uploadedFiles = Array.isArray(result)
+        ? result
+        : Array.isArray(result.data)
+        ? result.data
+        : [];
+
+      const newImages = uploadedFiles
+        .filter((file: IIncidentFile) => file.generated_name)
+        .map((file: IIncidentFile) => ({
+          url: `app/private/uploads/photos/${file.generated_name}`,
+          generated_name: file.generated_name,
+          // displayURL: buildApiUrl(
+          //   `publicSafety/getFile/photos/${file.generated_name}`
+          // ),
+        }));
+
+      if (newImages.length) {
+        dispatch(
+          setIncidentFiles([
+            ...(incidentReports?.incidentFiles || []),
+            ...newImages,
+          ])
+        );
+      }
+    } catch (error) {
+      console.error("File upload error:", error);
     }
-
-    // Merge DB URLs into previews for persistence
-    const uploadedUrls = result.data.map((file: any) => buildApiUrl(file.url));
-    setPreviews((prev) => [...prev, ...uploadedUrls]);
-
-    console.log("response", response);
   };
 
   // Submit form and upload files
   const handleSubmit = async () => {
     if (!validateForm()) return;
     try {
-      // 1. Upload files if there are any
-      if (selectedFiles.length > 0) {
-        const formData = new FormData();
-        formData.append("incidentReportId", id);
-        selectedFiles.forEach((file) => {
-          formData.append("file[]", file);
-        });
-
-        const uploadResponse = await axios.post(
-          buildApiUrl(`/publicSafety/uploadPhoto/${id}`),
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        dispatch(setIncidentFiles(uploadResponse.data.files));
-      }
-
-      // 2. Update the incident report (not create a new one)
+      //Update the incident report (not create a new one)
       await updateIncidentReport({
         ...incidentReports,
         formSubmitted: true,
@@ -210,7 +225,7 @@ export const IncidentReportForm: React.FC = () => {
 
       dispatch(setFormSubmitted(true));
 
-      // 4. Navigate away
+      //Navigate away
       navigate(`/forms`);
     } catch (error) {
       console.error("Failed to submit incident report:", error);
@@ -464,19 +479,18 @@ export const IncidentReportForm: React.FC = () => {
             <Grid item xs={12} md={6}>
               <Button
                 component="label"
-                role={undefined}
-                // tabIndex={-1}
                 startIcon={<CloudUploadIcon />}
                 sx={{
-                  bgcolor: "#6C3777;",
+                  bgcolor: "#6C3777",
                   color: "#fff",
                   fontWeight: "bold",
+                  textTransform: "none",
                   "&:hover": {
-                    bgcolor: "#6d54a3ff",
+                    bgcolor: "#6d54a3",
                   },
                 }}
               >
-                Upload files
+                Upload Files
                 <input
                   type="file"
                   hidden
@@ -494,23 +508,47 @@ export const IncidentReportForm: React.FC = () => {
                   display: "flex",
                   gap: "10px",
                   flexWrap: "wrap",
-                  border: "1px solid red",
+                  border: "1px solid #ddd",
+                  borderRadius: "8px",
+                  padding: "10px",
+                  backgroundColor: "#fafafa",
                 }}
               >
-                {incidentReports.incidentFiles?.map((file, index) => (
-                  <img
-                    key={index}
-                    src={buildApiUrl(`${file.url}`)}
-                    alt={buildApiUrl(`${file.url}`)}
-                    style={{
-                      width: "500px",
-                      height: "150px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      border: "1px solid red",
-                    }}
-                  />
-                ))}
+                {incidentReports?.incidentFiles?.map((file, index) => {
+                  const blobUrl = imageUrls[file.generated_name];
+
+                  return blobUrl ? (
+                    <img
+                      key={index}
+                      src={blobUrl}
+                      alt={file.original_name}
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        border: "1px solid #ccc",
+                        transition: "transform 0.2s ease",
+                      }}
+                      onMouseOver={(e) =>
+                        (e.currentTarget.style.transform = "scale(1.05)")
+                      }
+                      onMouseOut={(e) =>
+                        (e.currentTarget.style.transform = "scale(1)")
+                      }
+                    />
+                  ) : (
+                    <div
+                      key={index}
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        backgroundColor: "#eee",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  );
+                })}
               </div>
             </Grid>
           </Grid>

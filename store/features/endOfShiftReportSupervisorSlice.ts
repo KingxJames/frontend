@@ -1,11 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
+export interface IEndOfShiftReportPatrolFile {
+  url: string;
+  generated_name: string;
+  original_name: string;
+  displayURL: string;
+}
+
 export interface EndOfShiftReportSupervisorInitialState {
   id: string;
   date: string;
   time: string;
   campus: string;
+  endOfShiftReportSupervisorFiles: IEndOfShiftReportPatrolFile[];
   report: string;
   uploadedBy: string; //patrol officer
   formSubmitted: boolean;
@@ -16,6 +24,7 @@ const initialState: EndOfShiftReportSupervisorInitialState = {
   date: "",
   time: "",
   campus: "",
+  endOfShiftReportSupervisorFiles: [],
   report: "",
   uploadedBy: "",
   formSubmitted: false,
@@ -41,6 +50,13 @@ export const endOfShiftReportSupervisorSlice = createSlice({
       state.campus = action.payload;
     },
 
+    setEndOfShiftReportSupervisorFiles: (
+      state,
+      action: PayloadAction<IEndOfShiftReportPatrolFile[]>
+    ) => {
+      state.endOfShiftReportSupervisorFiles = action.payload;
+    },
+
     setReport: (state, action: PayloadAction<string>) => {
       state.report = action.payload;
     },
@@ -57,12 +73,12 @@ export const {
   setDate,
   setTime,
   setCampus,
+  setEndOfShiftReportSupervisorFiles,
   setReport,
   setUploadedBy,
   setEndOfShiftReportSupervisor,
   setFormSubmitted,
 } = endOfShiftReportSupervisorSlice.actions;
-
 
 export const selectEndOfShiftReportSupervisor = (state: RootState) =>
   state.endOfShiftReportSupervisor;
@@ -72,6 +88,8 @@ export const selectTime = (state: RootState) =>
   state.endOfShiftReportSupervisor.time;
 export const selectCampus = (state: RootState) =>
   state.endOfShiftReportSupervisor.campus;
+export const selectEndOfShiftReportSupervisorFiles = (state: RootState) =>
+  state.endOfShiftReportSupervisor.endOfShiftReportSupervisorFiles;
 export const selectReport = (state: RootState) =>
   state.endOfShiftReportSupervisor.report;
 export const selectUploadedBy = (state: RootState) =>

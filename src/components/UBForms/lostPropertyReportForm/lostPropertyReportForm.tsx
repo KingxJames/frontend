@@ -20,8 +20,10 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  selectLostPropertyFiles,
+  ILostPropertyFile,
   selectLostProperty,
-  setLostPropertyState,
+  setLostPropertyFiles,
   setComplainantName,
   setComplainantAddress,
   setComplainantDOB,
@@ -66,6 +68,8 @@ export const LostPropertyReportForm: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const returnedSigRef = useRef<any>(null);
   const ownerSigRef = useRef<any>(null);
   const signatureDPSRef = useRef<any>(null);
@@ -76,7 +80,7 @@ export const LostPropertyReportForm: React.FC = () => {
   const [updateLostProperty] = useUpdateLostPropertyMutation();
 
   const lostProperty = useSelector(selectLostProperty);
-  console.log("Lost Property ID:", lostProperty.id);
+  const id = lostProperty.id;
   useAutosaveLostProperty();
 
   // Load saved signatures (from Redux or DB) on mount
@@ -118,6 +122,38 @@ export const LostPropertyReportForm: React.FC = () => {
     const dataURL = ownerSigRef.current.toDataURL();
     dispatch(setOwnerSignature(dataURL));
   };
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      if (!lostProperty.lostPropertyFiles?.length) return;
+
+      const urls: Record<string, string> = {};
+
+      for (const file of lostProperty.lostPropertyFiles) {
+        try {
+          const res = await fetch(
+            buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
+            {
+              method: "GET",
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          if (res.ok) {
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            urls[file.generated_name] = blobUrl;
+          }
+        } catch (err) {
+          console.error("Error fetching file:", file.generated_name, err);
+        }
+      }
+
+      setImageUrls(urls);
+    };
+
+    fetchImages();
+  }, [lostProperty, token]);
 
   const validateForm = () => {
     const requiredFields = [
@@ -169,6 +205,67 @@ export const LostPropertyReportForm: React.FC = () => {
       return false;
     }
     return true;
+  };
+
+  // Handle file selection
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (!files.length) return;
+
+    // Save selected files locally
+    setSelectedFiles(files);
+
+    try {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("file[]", file));
+
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadPublicSafetyPhoto/${id}`),
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+      {
+        console.log(`Bearer ${token}`);
+      }
+      if (!response.ok)
+        throw new Error(`Upload failed: ${response.statusText}`);
+
+      const result = await response.json();
+      console.log("Upload result:", result);
+
+      // Normalize response data
+      const uploadedFiles = Array.isArray(result)
+        ? result
+        : Array.isArray(result.data)
+        ? result.data
+        : [];
+
+      const newImages = uploadedFiles
+        .filter((file: ILostPropertyFile) => file.generated_name)
+        .map((file: ILostPropertyFile) => ({
+          url: `app/private/uploads/photos/${file.generated_name}`,
+          generated_name: file.generated_name,
+          // displayURL: buildApiUrl(
+          //   `publicSafety/getFile/photos/${file.generated_name}`
+          // ),
+        }));
+
+      if (newImages.length) {
+        dispatch(
+          setLostPropertyFiles([
+            ...(lostProperty.lostPropertyFiles || []),
+            ...newImages,
+          ])
+        );
+      }
+    } catch (error) {
+      console.error("File upload error:", error);
+    }
   };
 
   const handleSubmit = async () => {
@@ -383,6 +480,83 @@ export const LostPropertyReportForm: React.FC = () => {
               )}
             </FormControl>
           </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Button
+              component="label"
+              startIcon={<CloudUploadIcon />}
+              sx={{
+                bgcolor: "#6C3777",
+                color: "#fff",
+                fontWeight: "bold",
+                textTransform: "none",
+                "&:hover": {
+                  bgcolor: "#6d54a3",
+                },
+              }}
+            >
+              Upload Files
+              <input
+                type="file"
+                hidden
+                multiple
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </Button>
+          </Grid>
+
+          {/* Preview Section */}
+          <Grid item xs={12}>
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "10px",
+                backgroundColor: "#fafafa",
+              }}
+            >
+              {lostProperty.lostPropertyFiles?.map((file, index) => {
+                const blobUrl = imageUrls[file.generated_name];
+
+                return blobUrl ? (
+                  <img
+                    key={index}
+                    src={blobUrl}
+                    alt={file.original_name}
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                      transition: "transform 0.2s ease",
+                    }}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.transform = "scale(1.05)")
+                    }
+                    onMouseOut={(e) =>
+                      (e.currentTarget.style.transform = "scale(1)")
+                    }
+                  />
+                ) : (
+                  <div
+                    key={index}
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      backgroundColor: "#eee",
+                      borderRadius: "8px",
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </Grid>
+
           <Grid item xs={12}>
             <TextField
               label="Additional Description"

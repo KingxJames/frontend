@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
-export interface impoundedReportFile {}
-
-export interface impoundedReport {
-  impoundedReportFiles?: impoundedReportFile[];
+export interface IImpoundedReportFile {
+  url: string;
+  generated_name: string;
+  original_name: string;
+  displayURL: string;
 }
 
 export interface impoundedReportInitialState {
@@ -24,6 +25,7 @@ export interface impoundedReportInitialState {
   locationOfBikeStolen: string;
   whatTimeBikeStolen: string;
   bicycleRack: string;
+  impoundedReportFiles?: IImpoundedReportFile[];
   whenWasBikeWasStolen: string;
   signature: string;
   dateOfSignature: string;
@@ -36,7 +38,6 @@ export interface impoundedReportInitialState {
   remarks: string;
   ownerSignature: string;
   signaturePSD: string;
-
   nameOfFinder: string;
   locationFound: string;
   trackingBrand: string;
@@ -46,7 +47,6 @@ export interface impoundedReportInitialState {
   trackingSerialNumber: string;
   supervisorWhoreceivedItems: string;
   trackingFormRemarks: string;
-
   dateReturnedToOwner2: string;
   ownerName2: string;
   ownerAddress2: string;
@@ -77,6 +77,7 @@ const initialState: impoundedReportInitialState = {
   locationOfBikeStolen: "",
   whatTimeBikeStolen: "",
   bicycleRack: "",
+  impoundedReportFiles: [],
   whenWasBikeWasStolen: "",
   signature: "",
   dateOfSignature: "",
@@ -165,6 +166,12 @@ export const impoundedReportSlice = createSlice({
     },
     setBicycleRack: (state, action: PayloadAction<string>) => {
       state.bicycleRack = action.payload;
+    },
+    setImpoundedReportFiles: (
+      state,
+      action: PayloadAction<IImpoundedReportFile[]>
+    ) => {
+      state.impoundedReportFiles = action.payload;
     },
     setWhenWasBikeWasStolen: (state, action: PayloadAction<string>) => {
       state.whenWasBikeWasStolen = action.payload;
@@ -282,6 +289,7 @@ export const {
   setLocationOfBikeStolen,
   setWhatTimeBikeStolen,
   setBicycleRack,
+  setImpoundedReportFiles,
   setWhenWasBikeWasStolen,
   setSignature,
   setDateOfSignature,
@@ -343,6 +351,8 @@ export const selectWhatTimeBikeStolen = (state: RootState) =>
   state.impoundedReport.whatTimeBikeStolen;
 export const selectBicycleRack = (state: RootState) =>
   state.impoundedReport.bicycleRack;
+export const selectImpoundedReportFiles = (state: RootState) =>
+  state.impoundedReport.impoundedReportFiles;
 export const selectWhenWasBikeWasStolen = (state: RootState) =>
   state.impoundedReport.whenWasBikeWasStolen;
 export const selectSignature = (state: RootState) =>
