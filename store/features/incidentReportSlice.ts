@@ -9,10 +9,6 @@ export interface IIncidentFile {
   displayURL: string;
 }
 
-export interface IIncidentReport {
-  incidentFiles?: IIncidentFile[];
-}
-
 export interface IncidentReportInitialState {
   id: string;
   action: string;

@@ -19,7 +19,7 @@ export interface lostPropertyInitialState {
   dateLost: string;
   timeLost: string;
   complainantAffiliation: string;
-  lostPropertyFiles?: ILostPropertyFile[];
+  lostPropertyFiles: ILostPropertyFile[];
   additionalDescription: string;
   owner: string;
   ownerSignature: string;

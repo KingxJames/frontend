@@ -14,12 +14,18 @@ import {
 } from "@mui/material";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DownloadIcon from "@mui/icons-material/Download";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   useFetchImpoundedReportQuery,
   useGenerateImpoundedReportPdfMutation,
 } from "../../../store/services/impoundedReportAPI";
-import { setImpoundedReportState } from "../../../store/features/impoundedReportSlice";
+import {
+  setImpoundedReportState,
+  impoundedReportInitialState,
+  IImpoundedReportFile,
+} from "../../../store/features/impoundedReportSlice";
+import { buildApiUrl } from "../../../store/config/api";
+import { RootState } from "../../../store/store";
 
 export const ImpoundedReportTable: React.FC = () => {
   const dispatch = useDispatch();
@@ -29,6 +35,10 @@ export const ImpoundedReportTable: React.FC = () => {
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openPreview, setOpenPreview] = useState(false);
+  const [previewImages, setPreviewImages] = useState<Record<string, string>>(
+    {}
+  );
+  const token = useSelector((state: RootState) => state.auth.token);
 
   const [selectedImpoundedReport, setSelectedImpoundedReport] = useState<{
     id: string;
@@ -47,6 +57,7 @@ export const ImpoundedReportTable: React.FC = () => {
     locationOfBikeStolen: string;
     whatTimeBikeStolen: string;
     bicycleRack: string;
+    impoundedReportFiles?: IImpoundedReportFile[];
     whenWasBikeWasStolen: string;
     signature: string;
     dateOfSignature: string;
@@ -88,7 +99,8 @@ export const ImpoundedReportTable: React.FC = () => {
   }, [impoundedReportData, dispatch]);
 
   const filteredImpoundedReports = (impoundedReportData?.data || []).filter(
-    (report) => report.id?.toLowerCase().includes(search.toLowerCase())
+    (report: impoundedReportInitialState) =>
+      report.id?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleDownloadReportPDF = async (id: string) => {
@@ -112,9 +124,35 @@ export const ImpoundedReportTable: React.FC = () => {
     }
   };
 
-  const handlePreview = (impoundedReport: any) => {
-    setSelectedImpoundedReport(impoundedReport); // store the report to preview
-    setOpenPreview(true); // open the dialog
+  const handlePreview = async (
+    impoundedReport: impoundedReportInitialState
+  ) => {
+    setSelectedImpoundedReport(impoundedReport);
+    setOpenPreview(true);
+
+    const urls: Record<string, string> = {};
+
+    for (const file of impoundedReport.impoundedReportFiles) {
+      try {
+        const response = await fetch(
+          buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          urls[file.generated_name] = blobUrl;
+        }
+      } catch (err) {
+        console.error("Error loading image:", err);
+      }
+    }
+
+    setPreviewImages(urls);
   };
 
   useEffect(() => {
@@ -148,14 +186,7 @@ export const ImpoundedReportTable: React.FC = () => {
       headerName: "Actions",
       flex: 1,
       renderCell: (params) => {
-        const row = params.row as {
-          id: string;
-          date: string;
-          time: string;
-          campus: string;
-          report: string;
-          uploadedBy: string;
-        };
+        const row = params.row as impoundedReportInitialState;
         return (
           <Box>
             <IconButton onClick={() => handlePreview(row)} color="primary">
@@ -368,6 +399,67 @@ export const ImpoundedReportTable: React.FC = () => {
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
+
+                {/* Preview Section */}
+                <Grid item xs={12}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      flexWrap: "wrap",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "10px",
+                      backgroundColor: "#fafafa",
+                    }}
+                  >
+                    {selectedImpoundedReport?.impoundedReportFiles?.length ? (
+                      selectedImpoundedReport.impoundedReportFiles.map(
+                        (file, index) => {
+                          const blobUrl = file.generated_name;
+
+                          return blobUrl ? (
+                            <img
+                              key={index}
+                              src={previewImages[file.generated_name]}
+                              alt={file.original_name}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                objectFit: "cover",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                transition: "transform 0.2s ease",
+                              }}
+                              onMouseOver={(e) =>
+                                (e.currentTarget.style.transform =
+                                  "scale(1.05)")
+                              }
+                              onMouseOut={(e) =>
+                                (e.currentTarget.style.transform = "scale(1)")
+                              }
+                            />
+                          ) : (
+                            <div
+                              key={index}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                backgroundColor: "#eee",
+                                borderRadius: "8px",
+                              }}
+                            />
+                          );
+                        }
+                      )
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">
+                        No photos available for this report.
+                      </Typography>
+                    )}
+                  </div>
+                </Grid>
+
                 {/* Signature */}
                 <Grid item xs={12} md={6}>
                   <TextField

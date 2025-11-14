@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
-export interface ILostAndFoundtrackingFile {
+export interface ILostAndFoundTrackingFile {
   url: string;
   generated_name: string;
   original_name: string;
@@ -18,7 +18,7 @@ export interface lostAndFoundTrackingInitialState {
   itemDescription: string;
   roomNo: string;
   foundBy: string;
-  lostAndFoundTrackingFiles?: ILostAndFoundtrackingFile[];
+  lostAndFoundTrackingFiles: ILostAndFoundTrackingFile[];
   supervisorWhoReceivedItem: string;
   dateReturnedToOwner: string;
   timeReturnedToOwner: string;
@@ -96,7 +96,7 @@ export const lostAndFoundTrackingSlice = createSlice({
     },
     setLostAndFoundTrackingFiles: (
       state,
-      action: PayloadAction<ILostAndFoundtrackingFile[]>
+      action: PayloadAction<ILostAndFoundTrackingFile[]>
     ) => {
       state.lostAndFoundTrackingFiles = action.payload;
     },

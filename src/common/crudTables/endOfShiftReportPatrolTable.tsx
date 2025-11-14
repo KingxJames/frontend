@@ -9,16 +9,23 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Typography,
   Box,
 } from "@mui/material";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DownloadIcon from "@mui/icons-material/Download";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   useFetchEndOfShiftReportPatrolQuery,
   useGenerateEndOfShiftReportPatrolPdfMutation,
 } from "../../../store/services/endOfShiftReportPatrolAPI";
-import { setEndOfShiftReportPatrol } from "../../../store/features/endOfShiftReportPatrolSlice";
+import {
+  setEndOfShiftReportPatrol,
+  EndOfShiftReportPatrolInitialState,
+  IEndOfShiftReportPatrolFile,
+} from "../../../store/features/endOfShiftReportPatrolSlice";
+import { buildApiUrl } from "../../../store/config/api";
+import { RootState } from "../../../store/store";
 
 export const EndOfShiftReportPatrolTable: React.FC = () => {
   const dispatch = useDispatch();
@@ -28,8 +35,12 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
     useGenerateEndOfShiftReportPatrolPdfMutation();
 
   const paginationModel = { page: 0, pageSize: 5 };
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
   const [openPreview, setOpenPreview] = useState(false);
+  const token = useSelector((state: RootState) => state.auth.token);
+  const [previewImages, setPreviewImages] = useState<Record<string, string>>(
+    {}
+  );
 
   const [selectedEndOfShiftReportPatrol, setSelectedEndOfShiftReportPatrol] =
     useState<{
@@ -37,6 +48,7 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
       date: string;
       time: string;
       campus: string;
+      endOfShiftReportPatrolFiles: IEndOfShiftReportPatrolFile[];
       report: string;
       uploadedBy: string;
     } | null>(null);
@@ -47,11 +59,11 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
     }
   }, [endOfShiftReportPatrolData, dispatch]);
 
-  console.log(endOfShiftReportPatrolData);
-
   const filteredEndOfShiftReportPatrols = (
     endOfShiftReportPatrolData?.data || []
-  ).filter((report) => report.id?.toLowerCase().includes(search.toLowerCase()));
+  ).filter((report: EndOfShiftReportPatrolInitialState) =>
+    report.id?.toLowerCase().includes(search.toLowerCase())
+  );
 
   //handle download report pdf
   const handleDownloadReportPDF = async (id: string) => {
@@ -71,13 +83,37 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
     }
   };
 
-  const handlePreview = (endOfShiftReportPatrol: any) => {
-    setSelectedEndOfShiftReportPatrol(endOfShiftReportPatrol); // store the report to preview
-    setOpenPreview(true); // open the dialog
+  const handlePreview = async (
+    endOfShiftReportPatrol: EndOfShiftReportPatrolInitialState
+  ) => {
+    setSelectedEndOfShiftReportPatrol(endOfShiftReportPatrol);
+    setOpenPreview(true);
+
+    const urls: Record<string, string> = {};
+
+    for (const file of endOfShiftReportPatrol.endOfShiftReportPatrolFiles) {
+      try {
+        const response = await fetch(
+          buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          urls[file.generated_name] = blobUrl;
+        }
+      } catch (err) {
+        console.error("Error loading image:", err);
+      }
+    }
+    setPreviewImages(urls);
   };
 
   const columns: GridColDef[] = [
-    // { field: "id", headerName: "ID", flex: 1 },
     { field: "date", headerName: "Date", flex: 1 },
     { field: "time", headerName: "Time", flex: 1 },
     { field: "campus", headerName: "Campus", flex: 1 },
@@ -88,14 +124,7 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
       headerName: "Actions",
       flex: 1,
       renderCell: (params) => {
-        const row = params.row as {
-          id: string;
-          date: string;
-          time: string;
-          campus: string;
-          report: string;
-          uploadedBy: string;
-        };
+        const row = params.row as EndOfShiftReportPatrolInitialState;
         return (
           <Box>
             <IconButton onClick={() => handlePreview(row)} color="primary">
@@ -184,6 +213,68 @@ export const EndOfShiftReportPatrolTable: React.FC = () => {
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
+
+                {/* Preview Section */}
+                <Grid item xs={12}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      flexWrap: "wrap",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "10px",
+                      backgroundColor: "#fafafa",
+                    }}
+                  >
+                    {selectedEndOfShiftReportPatrol?.endOfShiftReportPatrolFiles
+                      ?.length ? (
+                      selectedEndOfShiftReportPatrol.endOfShiftReportPatrolFiles.map(
+                        (file, index) => {
+                          const blobUrl = file.generated_name;
+
+                          return blobUrl ? (
+                            <img
+                              key={index}
+                              src={previewImages[file.generated_name]}
+                              alt={file.original_name}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                objectFit: "cover",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                transition: "transform 0.2s ease",
+                              }}
+                              onMouseOver={(e) =>
+                                (e.currentTarget.style.transform =
+                                  "scale(1.05)")
+                              }
+                              onMouseOut={(e) =>
+                                (e.currentTarget.style.transform = "scale(1)")
+                              }
+                            />
+                          ) : (
+                            <div
+                              key={index}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                backgroundColor: "#eee",
+                                borderRadius: "8px",
+                              }}
+                            />
+                          );
+                        }
+                      )
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">
+                        No photos available for this report.
+                      </Typography>
+                    )}
+                  </div>
+                </Grid>
+
                 {/* Report */}
                 <Grid item xs={12}>
                   <TextField

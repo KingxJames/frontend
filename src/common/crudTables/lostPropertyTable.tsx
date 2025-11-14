@@ -19,7 +19,13 @@ import {
   useFetchLostPropertyQuery,
   useGenerateLostPropertyPdfMutation,
 } from "../../../store/services/lostPropertyAPI";
-import { setLostPropertyState } from "../../../store/features/lostPropertySlice";
+import {
+  setLostPropertyState,
+  lostPropertyInitialState,
+  ILostPropertyFile,
+} from "../../../store/features/lostPropertySlice";
+import { buildApiUrl } from "../../../store/config/api";
+import { RootState } from "../../../store/store";
 
 export const LostPropertyTable: React.FC = () => {
   const dispatch = useDispatch();
@@ -29,34 +35,39 @@ export const LostPropertyTable: React.FC = () => {
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openPreview, setOpenPreview] = useState(false);
+  const [previewImages, setPreviewImages] = useState<Record<string, string>>(
+    {}
+  );
+  const token = useSelector((state: RootState) => state.auth.token);
   const [selectedLostProperty, setSelectedLostProperty] = useState<{
-    id: "";
-    complainantName: "";
-    complainantAddress: "";
-    complainantDOB: "";
-    complainantTelephone: "";
-    complainantID: "";
-    complainantEmail: "";
-    dateLost: "";
-    timeLost: "";
-    complainantAffiliation: "";
-    additionalDescription: "";
-    owner: "";
-    ownerSignature: "";
-    dateReported: "";
-    dateReturnedToOwner: "";
-    timeReturnedToOwner: "";
-    ownerName: "";
-    ownerAddress: "";
-    ownerDOB: "";
-    ownerID: "";
-    ownerEmail: "";
-    ownerTelephone: "";
-    remarks: "";
-    signatureDPS: "";
-    returnedToOwnerSignature: "";
-    uploadedBy: "";
-    formSubmitted: false;
+    id: string;
+    complainantName: string;
+    complainantAddress: string;
+    complainantDOB: string;
+    complainantTelephone: string;
+    complainantID: string;
+    complainantEmail: string;
+    dateLost: string;
+    timeLost: string;
+    complainantAffiliation: string;
+    lostPropertyFiles: ILostPropertyFile[];
+    additionalDescription: string;
+    owner: string;
+    ownerSignature: string;
+    dateReported: string;
+    dateReturnedToOwner: string;
+    timeReturnedToOwner: string;
+    ownerName: string;
+    ownerAddress: string;
+    ownerDOB: string;
+    ownerID: string;
+    ownerEmail: string;
+    ownerTelephone: string;
+    remarks: string;
+    signatureDPS: string;
+    returnedToOwnerSignature: string;
+    uploadedBy: string;
+    formSubmitted: boolean;
   } | null>(null);
 
   useEffect(() => {
@@ -67,8 +78,9 @@ export const LostPropertyTable: React.FC = () => {
 
   console.log(lostPropertyData);
 
-  const filteredLostProperty = (lostPropertyData?.data || []).filter((report) =>
-    report.id?.toLowerCase().includes(search.toLowerCase())
+  const filteredLostProperty = (lostPropertyData?.data || []).filter(
+    (report: lostPropertyInitialState) =>
+      report.id?.toLowerCase().includes(search.toLowerCase())
   );
 
   //handle download report pdf
@@ -93,9 +105,33 @@ export const LostPropertyTable: React.FC = () => {
     }
   };
 
-  const handlePreview = (lostProperty: any) => {
-    setSelectedLostProperty(lostProperty); // store the report to preview
-    setOpenPreview(true); // open the dialog
+  const handlePreview = async (lostProperty: lostPropertyInitialState) => {
+    setSelectedLostProperty(lostProperty);
+    setOpenPreview(true);
+
+    const urls: Record<string, string> = {};
+
+    for (const file of lostProperty.lostPropertyFiles) {
+      try {
+        const response = await fetch(
+          buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          urls[file.generated_name] = blobUrl;
+        }
+      } catch (err) {
+        console.error("Error loading image:", err);
+      }
+    }
+
+    setPreviewImages(urls);
   };
 
   const columns: GridColDef[] = [
@@ -119,35 +155,7 @@ export const LostPropertyTable: React.FC = () => {
       headerName: "Actions",
       flex: 1,
       renderCell: (params) => {
-        const row = params.row as {
-          id: string;
-          complainantName: string;
-          complainantAddress: string;
-          complainantDOB: string;
-          complainantTelephone: string;
-          complainantID: string;
-          complainantEmail: string;
-          dateLost: string;
-          timeLost: string;
-          complainantAffiliation: string;
-          additionalDescription: string;
-          owner: string;
-          ownerSignature: string;
-          dateReported: string;
-          dateReturnedToOwner: string;
-          timeReturnedToOwner: string;
-          ownerName: string;
-          ownerAddress: string;
-          ownerDOB: string;
-          ownerID: string;
-          ownerEmail: string;
-          ownerTelephone: string;
-          remarks: string;
-          signatureDPS: string;
-          returnedToOwnerSignature: string;
-          uploadedBy: string;
-          formSubmitted: boolean;
-        };
+        const row = params.row as lostPropertyInitialState;
         return (
           <Box>
             <IconButton onClick={() => handlePreview(row)} color="primary">
@@ -280,6 +288,65 @@ export const LostPropertyTable: React.FC = () => {
                     value={selectedLostProperty.complainantAffiliation}
                     InputProps={{ readOnly: true }}
                   />
+                </Grid>
+                {/* Preview Section */}
+                <Grid item xs={12}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      flexWrap: "wrap",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "10px",
+                      backgroundColor: "#fafafa",
+                    }}
+                  >
+                    {selectedLostProperty?.lostPropertyFiles?.length ? (
+                      selectedLostProperty.lostPropertyFiles.map(
+                        (file, index) => {
+                          const blobUrl = file.generated_name;
+
+                          return blobUrl ? (
+                            <img
+                              key={index}
+                              src={previewImages[file.generated_name]}
+                              alt={file.original_name}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                objectFit: "cover",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                transition: "transform 0.2s ease",
+                              }}
+                              onMouseOver={(e) =>
+                                (e.currentTarget.style.transform =
+                                  "scale(1.05)")
+                              }
+                              onMouseOut={(e) =>
+                                (e.currentTarget.style.transform = "scale(1)")
+                              }
+                            />
+                          ) : (
+                            <div
+                              key={index}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                backgroundColor: "#eee",
+                                borderRadius: "8px",
+                              }}
+                            />
+                          );
+                        }
+                      )
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">
+                        No photos available for this report.
+                      </Typography>
+                    )}
+                  </div>
                 </Grid>
                 {/* Additional Description */}
                 <Grid item xs={12}>

@@ -9,16 +9,23 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Typography,
   Box,
 } from "@mui/material";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DownloadIcon from "@mui/icons-material/Download";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   useFetchEndOfShiftReportSupervisorQuery,
   useGenerateEndOfShiftReportSupervisorPdfMutation,
 } from "../../../store/services/endOfShiftReportSupervisorAPI";
-import { setEndOfShiftReportSupervisor } from "../../../store/features/endOfShiftReportSupervisorSlice";
+import {
+  setEndOfShiftReportSupervisor,
+  EndOfShiftReportSupervisorInitialState,
+  IEndOfShiftReportPatrolFile,
+} from "../../../store/features/endOfShiftReportSupervisorSlice";
+import { buildApiUrl } from "../../../store/config/api";
+import { RootState } from "../../../store/store";
 
 export const EndOfShiftReportSupervisorTable: React.FC = () => {
   const dispatch = useDispatch();
@@ -28,8 +35,12 @@ export const EndOfShiftReportSupervisorTable: React.FC = () => {
     useGenerateEndOfShiftReportSupervisorPdfMutation();
 
   const paginationModel = { page: 0, pageSize: 10 };
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
   const [openPreview, setOpenPreview] = useState(false);
+  const [previewImages, setPreviewImages] = useState<Record<string, string>>(
+    {}
+  );
+  const token = useSelector((state: RootState) => state.auth.token);
 
   const [
     selectedEndOfShiftReportSupervisor,
@@ -39,6 +50,7 @@ export const EndOfShiftReportSupervisorTable: React.FC = () => {
     date: string;
     time: string;
     campus: string;
+    endOfShiftReportSupervisorFiles: IEndOfShiftReportPatrolFile[];
     report: string;
     uploadedBy: string;
   } | null>(null);
@@ -55,7 +67,9 @@ export const EndOfShiftReportSupervisorTable: React.FC = () => {
 
   const filteredEndOfShiftReportSupervisors = (
     endOfShiftReportSupervisorData?.data || []
-  ).filter((report) => report.id?.toLowerCase().includes(search.toLowerCase()));
+  ).filter((report: EndOfShiftReportSupervisorInitialState) =>
+    report.id?.toLowerCase().includes(search.toLowerCase())
+  );
 
   //handle download report pdf
   const handleDownloadReportPDF = async (id: string) => {
@@ -75,9 +89,35 @@ export const EndOfShiftReportSupervisorTable: React.FC = () => {
     }
   };
 
-  const handlePreview = (endOfShiftReportSupervisor: any) => {
-    setSelectedEndOfShiftReportSupervisor(endOfShiftReportSupervisor); // store the report to preview
-    setOpenPreview(true); // open the dialog
+  const handlePreview = async (
+    endOfShiftReportSupervisor: EndOfShiftReportSupervisorInitialState
+  ) => {
+    setSelectedEndOfShiftReportSupervisor(endOfShiftReportSupervisor);
+    setOpenPreview(true);
+
+    const urls: Record<string, string> = {};
+
+    for (const file of endOfShiftReportSupervisor.endOfShiftReportSupervisorFiles) {
+      try {
+        const response = await fetch(
+          buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          urls[file.generated_name] = blobUrl;
+        }
+      } catch (err) {
+        console.error("Error loading image:", err);
+      }
+    }
+
+    setPreviewImages(urls);
   };
 
   const columns: GridColDef[] = [
@@ -97,8 +137,10 @@ export const EndOfShiftReportSupervisorTable: React.FC = () => {
           date: string;
           time: string;
           campus: string;
+          endOfShiftReportSupervisorFiles: IEndOfShiftReportPatrolFile[];
           report: string;
           uploadedBy: string;
+          formSubmitted: boolean;
         };
         return (
           <Box>
@@ -188,6 +230,68 @@ export const EndOfShiftReportSupervisorTable: React.FC = () => {
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
+
+                {/* Preview Section */}
+                <Grid item xs={12}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      flexWrap: "wrap",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "10px",
+                      backgroundColor: "#fafafa",
+                    }}
+                  >
+                    {selectedEndOfShiftReportSupervisor
+                      ?.endOfShiftReportSupervisorFiles?.length ? (
+                      selectedEndOfShiftReportSupervisor.endOfShiftReportSupervisorFiles.map(
+                        (file, index) => {
+                          const blobUrl = file.generated_name;
+
+                          return blobUrl ? (
+                            <img
+                              key={index}
+                              src={previewImages[file.generated_name]}
+                              alt={file.original_name}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                objectFit: "cover",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                transition: "transform 0.2s ease",
+                              }}
+                              onMouseOver={(e) =>
+                                (e.currentTarget.style.transform =
+                                  "scale(1.05)")
+                              }
+                              onMouseOut={(e) =>
+                                (e.currentTarget.style.transform = "scale(1)")
+                              }
+                            />
+                          ) : (
+                            <div
+                              key={index}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                backgroundColor: "#eee",
+                                borderRadius: "8px",
+                              }}
+                            />
+                          );
+                        }
+                      )
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">
+                        No photos available for this report.
+                      </Typography>
+                    )}
+                  </div>
+                </Grid>
+
                 {/* Report */}
                 <Grid item xs={12}>
                   <TextField

@@ -25,7 +25,7 @@ export interface impoundedReportInitialState {
   locationOfBikeStolen: string;
   whatTimeBikeStolen: string;
   bicycleRack: string;
-  impoundedReportFiles?: IImpoundedReportFile[];
+  impoundedReportFiles: IImpoundedReportFile[];
   whenWasBikeWasStolen: string;
   signature: string;
   dateOfSignature: string;

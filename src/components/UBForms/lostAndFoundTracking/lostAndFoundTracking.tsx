@@ -17,7 +17,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectLostAndFoundTracking,
-  ILostAndFoundtrackingFile,
+  ILostAndFoundTrackingFile,
   setLostAndFoundTrackingFiles,
   setFacilityName,
   setTime,
@@ -224,8 +224,8 @@ export const LostAndFoundTracking: React.FC = () => {
         : [];
 
       const newImages = uploadedFiles
-        .filter((file: ILostAndFoundtrackingFile) => file.generated_name)
-        .map((file: ILostAndFoundtrackingFile) => ({
+        .filter((file: ILostAndFoundTrackingFile) => file.generated_name)
+        .map((file: ILostAndFoundTrackingFile) => ({
           url: `app/private/uploads/photos/${file.generated_name}`,
           generated_name: file.generated_name,
           // displayURL: buildApiUrl(

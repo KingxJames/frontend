@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { UBSidebar } from "../../components/UBSidebar/UBSidebar";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Grid from "@mui/material/Grid";
 import {
@@ -21,39 +20,24 @@ import {
   useGenerateIncidentReportPdfMutation,
 } from "../../../store/services/incidentReportAPI";
 import {
+  IncidentReportInitialState,
   setIncidentReportState,
-  selectIncidentReports,
-  IIncidentReport,
   IIncidentFile,
 } from "../../../store/features/incidentReportSlice";
+import { buildApiUrl } from "../../../store/config/api";
+import { RootState } from "../../../store/store";
 
 export const IncidentReportTable: React.FC = () => {
   const dispatch = useDispatch();
-  const [files, setFiles] = useState<File[]>([]); // Store multiple file objects
-  const incidentReports = useSelector(selectIncidentReports);
   const { data: incidentReportData } = useFetchIncidentReportQuery({});
   const [generateIncidentReportPdf] = useGenerateIncidentReportPdfMutation();
 
   const paginationModel = { page: 0, pageSize: 5 };
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
   const [openPreview, setOpenPreview] = useState(false);
-  const [newIncidentReport, setNewIncidentReport] = useState({
-    id: "",
-    action: "",
-    description: "",
-    caseNumber: "",
-    incidentReportStatus: "",
-    incidentType: "",
-    incidentFiles: [],
-    buildingName: "",
-    campus: "",
-    uploadedBy: "",
-    date: "",
-    time: "",
-    reportedBy: "",
-    contact: "",
-    witnesses: "",
-  });
+  const [previewImages, setPreviewImages] = useState<Record<string, string>>(
+    {}
+  );
 
   const [selectedIncidentReport, setSelectedIncidentReport] = useState<{
     id: string;
@@ -79,10 +63,10 @@ export const IncidentReportTable: React.FC = () => {
     }
   }, [incidentReportData, dispatch]);
 
-  console.log(incidentReportData);
+  const token = useSelector((state: RootState) => state.auth.token);
 
   const filteredIncidentReports = (incidentReportData?.data || []).filter(
-    (report) =>
+    (report: IncidentReportInitialState) =>
       report.description?.toLowerCase().includes(search.toLowerCase()) ||
       report.caseNumber?.toLowerCase().includes(search.toLowerCase())
   );
@@ -91,7 +75,6 @@ export const IncidentReportTable: React.FC = () => {
   const handleDownloadReportPDF = async (id: string) => {
     try {
       const response = await generateIncidentReportPdf(id);
-      console.log("sdfgsdf", response);
       const blob = response.data;
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -105,9 +88,33 @@ export const IncidentReportTable: React.FC = () => {
     }
   };
 
-  const handlePreview = (incidentReport: IIncidentReport) => {
-    setSelectedIncidentReport(incidentReport); // store the report to preview
-    setOpenPreview(true); // open the dialog
+  const handlePreview = async (incidentReport: IncidentReportInitialState) => {
+    setSelectedIncidentReport(incidentReport);
+    setOpenPreview(true);
+
+    const urls: Record<string, string> = {};
+
+    for (const file of incidentReport.incidentFiles) {
+      try {
+        const response = await fetch(
+          buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          urls[file.generated_name] = blobUrl;
+        }
+      } catch (err) {
+        console.error("Error loading image:", err);
+      }
+    }
+
+    setPreviewImages(urls);
   };
 
   const columns: GridColDef[] = [
@@ -139,6 +146,7 @@ export const IncidentReportTable: React.FC = () => {
           reportedBy: string;
           contact: string;
           witnesses: string;
+          formSubmitted: boolean;
         };
         return (
           <Box>
@@ -292,19 +300,66 @@ export const IncidentReportTable: React.FC = () => {
                   >
                     Incident Files
                   </Typography>
-                  <Grid container spacing={2} sx={{ p: "2%" }}>
-                    {selectedIncidentReport.incidentFiles?.map(
-                      (file: IIncidentFile, index: number) => (
-                        <Grid item xs={12} md={6} key={index}>
-                          <TextField
-                            label={`Incident File ${index + 1}`}
-                            fullWidth
-                            value={file.incidentPicture}
-                            InputProps={{ readOnly: true }}
-                          />
-                        </Grid>
-                      )
-                    )}
+
+                  {/* Preview Section */}
+                  <Grid item xs={12}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        flexWrap: "wrap",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        backgroundColor: "#fafafa",
+                      }}
+                    >
+                      {selectedIncidentReport?.incidentFiles?.length ? (
+                        selectedIncidentReport.incidentFiles.map(
+                          (file, index) => {
+                            const blobUrl = file.generated_name;
+                            console.log("-->", blobUrl);
+
+                            return blobUrl ? (
+                              <img
+                                key={index}
+                                src={previewImages[file.generated_name]}
+                                alt={file.original_name}
+                                style={{
+                                  width: "150px",
+                                  height: "150px",
+                                  objectFit: "cover",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  transition: "transform 0.2s ease",
+                                }}
+                                onMouseOver={(e) =>
+                                  (e.currentTarget.style.transform =
+                                    "scale(1.05)")
+                                }
+                                onMouseOut={(e) =>
+                                  (e.currentTarget.style.transform = "scale(1)")
+                                }
+                              />
+                            ) : (
+                              <div
+                                key={index}
+                                style={{
+                                  width: "150px",
+                                  height: "150px",
+                                  backgroundColor: "#eee",
+                                  borderRadius: "8px",
+                                }}
+                              />
+                            );
+                          }
+                        )
+                      ) : (
+                        <Typography variant="body2" color="textSecondary">
+                          No photos available for this report.
+                        </Typography>
+                      )}
+                    </div>
                   </Grid>
                 </Box>
 

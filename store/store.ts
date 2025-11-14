@@ -108,6 +108,7 @@ export const endOfShiftReportPatrolPersistConfig = {
     "endOfShiftReportPatrolFiles",
     "report",
     "uploadedBy",
+    "formSubmitted",
   ], // Only persist the endOfShiftReportPatrol array
 };
 
@@ -122,6 +123,7 @@ export const endOfShiftReportSupervisorPersistConfig = {
     "endOfShiftReportSupervisorFiles",
     "report",
     "uploadedBy",
+    "formSubmitted",
   ], // Only persist the endOfShiftReportSupervisor array
 };
 

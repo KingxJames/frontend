@@ -19,7 +19,13 @@ import {
   useFetchLostAndFoundTrackingQuery,
   useGenerateLostAndFoundTrackingPdfMutation,
 } from "../../../store/services/lostAndFoundTrackingAPI";
-import { setLostAndFoundTrackingState } from "../../../store/features/lostAndFoundTrackingSlice";
+import {
+  setLostAndFoundTrackingState,
+  lostAndFoundTrackingInitialState,
+  ILostAndFoundTrackingFile,
+} from "../../../store/features/lostAndFoundTrackingSlice";
+import { buildApiUrl } from "../../../store/config/api";
+import { RootState } from "../../../store/store";
 
 export const LostAndFoundTrackingTable: React.FC = () => {
   const dispatch = useDispatch();
@@ -32,30 +38,35 @@ export const LostAndFoundTrackingTable: React.FC = () => {
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
   const [openPreview, setOpenPreview] = useState(false);
+  const [previewImages, setPreviewImages] = useState<Record<string, string>>(
+    {}
+  );
+  const token = useSelector((state: RootState) => state.auth.token);
   const [selectedLostAndFoundTracking, setSelectedLostAndFoundTracking] =
     useState<{
-      id: "";
-      facilityName: "";
-      time: "";
-      todaysDate: "";
-      serialNumber: "";
-      locationFound: "";
-      roomNo: "";
-      foundBy: "";
-      itemDescription: "";
-      supervisorWhoReceivedItem: "";
-      dateReturnedToOwner: "";
-      timeReturnedToOwner: "";
-      owner: "";
-      ownerDOB: "";
-      ownerAddress: "";
-      ownerIDNumber: "";
-      ownerTelephone: "";
-      remarks: "";
-      returnedToOwnerSignature: "";
-      ownerAcknowledgementSignature: "";
-      uploadedBy: "";
-      formSubmitted: false;
+      id: string;
+      facilityName: string;
+      time: string;
+      todaysDate: string;
+      serialNumber: string;
+      locationFound: string;
+      roomNo: string;
+      foundBy: string;
+      itemDescription: string;
+      lostAndFoundTrackingFiles: ILostAndFoundTrackingFile[];
+      supervisorWhoReceivedItem: string;
+      dateReturnedToOwner: string;
+      timeReturnedToOwner: string;
+      owner: string;
+      ownerDOB: string;
+      ownerAddress: string;
+      ownerIDNumber: string;
+      ownerTelephone: string;
+      remarks: string;
+      returnedToOwnerSignature: string;
+      ownerAcknowledgementSignature: string;
+      uploadedBy: string;
+      formSubmitted: boolean;
     } | null>(null);
 
   useEffect(() => {
@@ -68,34 +79,61 @@ export const LostAndFoundTrackingTable: React.FC = () => {
 
   const filteredLostAndFoundTracking = (
     lostAndFoundTrackingData?.data || []
-  ).filter((report) => report.id?.toLowerCase().includes(search.toLowerCase()));
+  ).filter((report: lostAndFoundTrackingInitialState) =>
+    report.id?.toLowerCase().includes(search.toLowerCase())
+  );
 
   //handle download report pdf
- const handleDownloadReportPDF = async (id: string) => {
-  try {
-    const blob = await generateLostAndFoundTrackingPdf(id).unwrap();
+  const handleDownloadReportPDF = async (id: string) => {
+    try {
+      const blob = await generateLostAndFoundTrackingPdf(id).unwrap();
 
-    if (!(blob instanceof Blob)) {
-      throw new Error("Response is not a Blob");
+      if (!(blob instanceof Blob)) {
+        throw new Error("Response is not a Blob");
+      }
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `lost_and_found_tracking_${id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download report PDF:", error);
+    }
+  };
+
+  const handlePreview = async (
+    lostAndFoundTracking: lostAndFoundTrackingInitialState
+  ) => {
+    setSelectedLostAndFoundTracking(lostAndFoundTracking);
+    setOpenPreview(true);
+
+    const urls: Record<string, string> = {};
+
+    for (const file of lostAndFoundTracking.lostAndFoundTrackingFiles) {
+      try {
+        const response = await fetch(
+          buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          urls[file.generated_name] = blobUrl;
+        }
+      } catch (err) {
+        console.error("Error loading image:", err);
+      }
     }
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `lost_and_found_tracking_${id}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Failed to download report PDF:", error);
-  }
-};
-
-
-  const handlePreview = (lostAndFoundTracking: any) => {
-    setSelectedLostAndFoundTracking(lostAndFoundTracking); // store the report to preview
-    setOpenPreview(true); // open the dialog
+    setPreviewImages(urls);
   };
 
   const columns: GridColDef[] = [
@@ -118,30 +156,7 @@ export const LostAndFoundTrackingTable: React.FC = () => {
       headerName: "Actions",
       flex: 1,
       renderCell: (params) => {
-        const row = params.row as {
-          id: string;
-          facilityName: string;
-          time: string;
-          todaysDate: string;
-          serialNumber: string;
-          locationFound: string;
-          roomNo: string;
-          foundBy: string;
-          supervisorWhoReceivedItem: string;
-          itemDescription: string;
-          dateReturnedToOwner: string;
-          timeReturnedToOwner: string;
-          owner: string;
-          ownerDOB: string;
-          ownerAddress: string;
-          ownerIDNumber: string;
-          ownerTelephone: string;
-          remarks: string;
-          returnedToOwnerSignature: string;
-          ownerAcknowledgementSignature: string;
-          uploadedBy: string;
-          formSubmitted: boolean;
-        };
+        const row = params.row as lostAndFoundTrackingInitialState;
         return (
           <Box>
             <IconButton onClick={() => handlePreview(row)} color="primary">
@@ -271,6 +286,66 @@ export const LostAndFoundTrackingTable: React.FC = () => {
                   />
                 </Grid>
 
+                {/* Preview Section */}
+                <Grid item xs={12}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      flexWrap: "wrap",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      padding: "10px",
+                      backgroundColor: "#fafafa",
+                    }}
+                  >
+                    {selectedLostAndFoundTracking?.lostAndFoundTrackingFiles
+                      ?.length ? (
+                      selectedLostAndFoundTracking.lostAndFoundTrackingFiles.map(
+                        (file, index) => {
+                          const blobUrl = file.generated_name;
+
+                          return blobUrl ? (
+                            <img
+                              key={index}
+                              src={previewImages[file.generated_name]}
+                              alt={file.original_name}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                objectFit: "cover",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                transition: "transform 0.2s ease",
+                              }}
+                              onMouseOver={(e) =>
+                                (e.currentTarget.style.transform =
+                                  "scale(1.05)")
+                              }
+                              onMouseOut={(e) =>
+                                (e.currentTarget.style.transform = "scale(1)")
+                              }
+                            />
+                          ) : (
+                            <div
+                              key={index}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                backgroundColor: "#eee",
+                                borderRadius: "8px",
+                              }}
+                            />
+                          );
+                        }
+                      )
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">
+                        No photos available for this report.
+                      </Typography>
+                    )}
+                  </div>
+                </Grid>
                 {/* item description */}
                 <Grid item xs={12}>
                   <TextField
