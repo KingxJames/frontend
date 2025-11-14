@@ -21,7 +21,6 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectImpoundedReport,
-  setImpoundedReportState,
   IImpoundedReportFile,
   setImpoundedReportFiles,
   setName,
