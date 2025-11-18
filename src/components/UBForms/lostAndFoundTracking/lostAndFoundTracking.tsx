@@ -56,6 +56,7 @@ import UBLogoWhite from "../../../images/UBLogoWhite.png";
 export const LostAndFoundTracking: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedSigFiles, setSelectedSigFiles] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -77,24 +78,24 @@ export const LostAndFoundTracking: React.FC = () => {
   const id = lostAndFoundTrackings.id;
 
   // Load saved signatures (from Redux or DB) on mount
-  useEffect(() => {
-    if (
-      lostAndFoundTrackings.returnedToOwnerSignature &&
-      returnedSigRef.current
-    ) {
-      returnedSigRef.current.fromDataURL(
-        lostAndFoundTrackings.returnedToOwnerSignature
-      );
-    }
-    if (
-      lostAndFoundTrackings.ownerAcknowledgementSignature &&
-      ownerSigRef.current
-    ) {
-      ownerSigRef.current.fromDataURL(
-        lostAndFoundTrackings.ownerAcknowledgementSignature
-      );
-    }
-  }, [lostAndFoundTrackings]);
+  // useEffect(() => {
+  //   if (
+  //     lostAndFoundTrackings.returnedToOwnerSignature &&
+  //     returnedSigRef.current
+  //   ) {
+  //     returnedSigRef.current.fromDataURL(
+  //       lostAndFoundTrackings.returnedToOwnerSignature
+  //     );
+  //   }
+  //   if (
+  //     lostAndFoundTrackings.ownerAcknowledgementSignature &&
+  //     ownerSigRef.current
+  //   ) {
+  //     ownerSigRef.current.fromDataURL(
+  //       lostAndFoundTrackings.ownerAcknowledgementSignature
+  //     );
+  //   }
+  // }, [lostAndFoundTrackings]);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -128,17 +129,157 @@ export const LostAndFoundTracking: React.FC = () => {
     fetchImages();
   }, [lostAndFoundTrackings, token]);
 
+  //FETCH SIGNATURE FROM SERVER AND LOAD CANVAS FOR OWNER SIGNATURE
+  useEffect(() => {
+    const loadReturnedSignature = async () => {
+      const sigList = lostAndFoundTrackings.returnedToOwnerSignature;
+
+      if (!sigList || !sigList.length || !returnedSigRef.current) return;
+
+      const sigFile = sigList[0]; // { generated_name, url }
+
+      try {
+        const res = await fetch(
+          buildApiUrl(
+            `publicSafety/getFile/signatures/${sigFile.generated_name}`
+          ),
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (!res.ok) return;
+
+        const blob = await res.blob();
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          returnedSigRef.current.fromDataURL(base64);
+        };
+
+        reader.readAsDataURL(blob);
+      } catch (err) {
+        console.error("Failed loading signature:", err);
+      }
+    };
+
+    loadReturnedSignature();
+  }, [lostAndFoundTrackings.returnedToOwnerSignature, token]);
+
+  //FETCH SIGNATURE FROM SERVER AND LOAD CANVAS FOR RETURNED OWNERACKNOWLEDGEMENT SIGNATURE
+  useEffect(() => {
+    const loadOwnerSignature = async () => {
+      const sigList = lostAndFoundTrackings.ownerAcknowledgementSignature;
+
+      if (!sigList || !sigList.length || !ownerSigRef.current) return;
+
+      const sigFile = sigList[0]; // { generated_name, url }
+
+      try {
+        const res = await fetch(
+          buildApiUrl(
+            `publicSafety/getFile/signatures/${sigFile.generated_name}`
+          ),
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (!res.ok) return;
+
+        const blob = await res.blob();
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          ownerSigRef.current.fromDataURL(base64);
+        };
+
+        reader.readAsDataURL(blob);
+      } catch (err) {
+        console.error("Failed loading signature:", err);
+      }
+    };
+
+    loadOwnerSignature();
+  }, [lostAndFoundTrackings.ownerAcknowledgementSignature, token]);
+
   const clearReturnedSignature = () => returnedSigRef.current.clear();
   const clearOwnerSignature = () => ownerSigRef.current.clear();
 
-  const saveReturnedSignature = () => {
+  const saveReturnedSignature = async () => {
     const dataURL = returnedSigRef.current.toDataURL();
-    dispatch(setReturnedToOwnerSignature(dataURL));
+
+    try {
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadSignatureCanvas/${id}`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ signature: dataURL }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      console.log("Signature saved:", result);
+
+      const fileData = result.data;
+
+      // Must save as an array like incidentFiles
+      dispatch(
+        setReturnedToOwnerSignature([
+          {
+            generated_name: fileData.generated_name,
+            url: fileData.url,
+          },
+        ])
+      );
+    } catch (error) {
+      console.error("Canvas signature upload error:", error);
+    }
   };
 
-  const saveOwnerSignature = () => {
+  const saveOwnerSignature = async () => {
     const dataURL = ownerSigRef.current.toDataURL();
-    dispatch(setOwnerAcknowledgementSignature(dataURL));
+
+    try {
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadSignatureCanvas/${id}`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ signature: dataURL }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      console.log("Signature saved:", result);
+
+      const fileData = result.data;
+
+      // Must save as an array like incidentFiles
+      dispatch(
+        setOwnerAcknowledgementSignature([
+          {
+            generated_name: fileData.generated_name,
+            url: fileData.url,
+          },
+        ])
+      );
+    } catch (error) {
+      console.error("Canvas signature upload error:", error);
+    }
   };
 
   const validateForm = () => {

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import SignatureCanvas from "react-signature-canvas";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Grid from "@mui/material/Grid";
 import {
@@ -21,19 +22,26 @@ import {
 } from "../../../store/services/lostAndFoundTrackingAPI";
 import {
   setLostAndFoundTrackingState,
+  selectLostAndFoundTracking,
   lostAndFoundTrackingInitialState,
   ILostAndFoundTrackingFile,
+  IReturnedToOwnerSignatureFile,
+  IOwnerAcknowledgementSignatureFile,
 } from "../../../store/features/lostAndFoundTrackingSlice";
 import { buildApiUrl } from "../../../store/config/api";
 import { RootState } from "../../../store/store";
 
 export const LostAndFoundTrackingTable: React.FC = () => {
   const dispatch = useDispatch();
+  const returnedSigRef = useRef<any>(null);
+  const ownerSigRef = useRef<any>(null);
   const { data: lostAndFoundTrackingData } = useFetchLostAndFoundTrackingQuery(
     {}
   );
   const [generateLostAndFoundTrackingPdf] =
     useGenerateLostAndFoundTrackingPdfMutation();
+
+  const lostAndFoundTrackings = useSelector(selectLostAndFoundTracking);
 
   const paginationModel = { page: 0, pageSize: 5 };
   const [search, setSearch] = useState("");
@@ -63,8 +71,8 @@ export const LostAndFoundTrackingTable: React.FC = () => {
       ownerIDNumber: string;
       ownerTelephone: string;
       remarks: string;
-      returnedToOwnerSignature: string;
-      ownerAcknowledgementSignature: string;
+      returnedToOwnerSignature: IReturnedToOwnerSignatureFile[];
+      ownerAcknowledgementSignature: IOwnerAcknowledgementSignatureFile[];
       uploadedBy: string;
       formSubmitted: boolean;
     } | null>(null);
@@ -82,6 +90,150 @@ export const LostAndFoundTrackingTable: React.FC = () => {
   ).filter((report: lostAndFoundTrackingInitialState) =>
     report.id?.toLowerCase().includes(search.toLowerCase())
   );
+
+  //FETCH SIGNATURE FROM SERVER AND LOAD CANVAS FOR OWNER SIGNATURE
+  // useEffect(() => {
+  //   const loadReturnedSignature = async () => {
+  //     const sigList = lostAndFoundTrackings.returnedToOwnerSignature;
+
+  //     if (!sigList || !sigList.length || !returnedSigRef.current) return;
+
+  //     const sigFile = sigList[0]; // { generated_name, url }
+
+  //     try {
+  //       const res = await fetch(
+  //         buildApiUrl(
+  //           `publicSafety/getFile/signatures/${sigFile.generated_name}`
+  //         ),
+  //         {
+  //           headers: { Authorization: `Bearer ${token}` },
+  //         }
+  //       );
+
+  //       if (!res.ok) return;
+
+  //       const blob = await res.blob();
+  //       const reader = new FileReader();
+
+  //       reader.onloadend = () => {
+  //         const base64 = reader.result as string;
+  //         returnedSigRef.current.fromDataURL(base64);
+  //       };
+
+  //       reader.readAsDataURL(blob);
+  //     } catch (err) {
+  //       console.error("Failed loading signature:", err);
+  //     }
+  //   };
+
+  //   loadReturnedSignature();
+  // }, [lostAndFoundTrackings.returnedToOwnerSignature, token]);
+
+  //FETCH SIGNATURE FROM SERVER AND LOAD CANVAS FOR RETURNED OWNERACKNOWLEDGEMENT SIGNATURE
+  // useEffect(() => {
+  //   const loadOwnerSignature = async () => {
+  //     const sigList = lostAndFoundTrackings.ownerAcknowledgementSignature;
+
+  //     if (!sigList || !sigList.length || !ownerSigRef.current) return;
+
+  //     const sigFile = sigList[0]; // { generated_name, url }
+
+  //     try {
+  //       const res = await fetch(
+  //         buildApiUrl(
+  //           `publicSafety/getFile/signatures/${sigFile.generated_name}`
+  //         ),
+  //         {
+  //           headers: { Authorization: `Bearer ${token}` },
+  //         }
+  //       );
+
+  //       if (!res.ok) return;
+
+  //       const blob = await res.blob();
+  //       const reader = new FileReader();
+
+  //       reader.onloadend = () => {
+  //         const base64 = reader.result as string;
+  //         ownerSigRef.current.fromDataURL(base64);
+  //       };
+
+  //       reader.readAsDataURL(blob);
+  //     } catch (err) {
+  //       console.error("Failed loading signature:", err);
+  //     }
+  //   };
+
+  //   loadOwnerSignature();
+  // }, [lostAndFoundTrackings.ownerAcknowledgementSignature, token]);
+
+  // useEffect(() => {
+  //   const loadSignature = async () => {
+  //     const sig = lostAndFoundTrackings.ownerAcknowledgementSignature?.[0];
+  //     if (!sig || !ownerSigRef.current) return;
+
+  //     try {
+  //       const response = await fetch(
+  //         buildApiUrl(`/publicSafety/getFile/signatures/${sig.generated_name}`),
+  //         { headers: { Authorization: `Bearer ${token}` } }
+  //       );
+
+  //       if (!response.ok) {
+  //         console.log("Failed to fetch signature file");
+  //         return;
+  //       }
+
+  //       console.log(sig.generated_name);
+
+  //       const blob = await response.blob();
+  //       const reader = new FileReader();
+
+  //       reader.onloadend = () => {
+  //         const base64 = reader.result as string;
+  //         ownerSigRef.current.fromDataURL(base64);
+  //       };
+
+  //       reader.readAsDataURL(blob);
+  //     } catch (err) {
+  //       console.error("Error loading signature:", err);
+  //     }
+  //   };
+
+  //   loadSignature();
+  // }, [lostAndFoundTrackings.ownerAcknowledgementSignature, token]);
+
+  // useEffect(() => {
+  //   const loadReturnedSignature = async () => {
+  //     const sig = lostAndFoundTrackings.returnedToOwnerSignature?.[0];
+  //     if (!sig || !returnedSigRef.current) return;
+
+  //     try {
+  //       const response = await fetch(
+  //         buildApiUrl(`publicSafety/getFile/signatures/${sig.generated_name}`),
+  //         { headers: { Authorization: `Bearer ${token}` } }
+  //       );
+
+  //       if (!response.ok) {
+  //         console.error("Failed to fetch signature file");
+  //         return;
+  //       }
+
+  //       const blob = await response.blob();
+  //       const reader = new FileReader();
+
+  //       reader.onloadend = () => {
+  //         returnedSigRef.current.fromDataURL(reader.result as string);
+  //         returnedSigRef.current.off(); // Make it read-only
+  //       };
+
+  //       reader.readAsDataURL(blob);
+  //     } catch (err) {
+  //       console.error("Error loading signature:", err);
+  //     }
+  //   };
+
+  //   loadReturnedSignature();
+  // }, [lostAndFoundTrackings.returnedToOwnerSignature, token]);
 
   //handle download report pdf
   const handleDownloadReportPDF = async (id: string) => {
@@ -103,6 +255,37 @@ export const LostAndFoundTrackingTable: React.FC = () => {
     } catch (error) {
       console.error("Failed to download report PDF:", error);
     }
+  };
+
+const handleSignaturePreview = async (
+    lostAndFoundTracking: lostAndFoundTrackingInitialState
+  ) => {
+    setSelectedLostAndFoundTracking(lostAndFoundTracking);
+    setOpenPreview(true);
+
+    const urls: Record<string, string> = {};
+
+    for (const file of lostAndFoundTracking.lostAndFoundTrackingFiles) {
+      try {
+        const response = await fetch(
+          buildApiUrl(`publicSafety/getFile/signatures/${file.generated_name}`),
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          urls[file.generated_name] = blobUrl;
+        }
+      } catch (err) {
+        console.error("Error loading image:", err);
+      }
+    }
+
+    setPreviewImages(urls);
   };
 
   const handlePreview = async (
@@ -432,26 +615,83 @@ export const LostAndFoundTrackingTable: React.FC = () => {
                     InputProps={{ readOnly: true }}
                   />
                 </Grid>
-                {/* Returned to Owner Signature */}
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Returned to Owner Signature"
-                    fullWidth
-                    value={
-                      selectedLostAndFoundTracking.returnedToOwnerSignature
-                    }
-                    InputProps={{ readOnly: true }}
-                  />
+                  <label>Returned to Owner Signature</label>
+                  {/* <SignatureCanvas
+                    ref={returnedSigRef}
+                    penColor="black"
+                    minWidth={0}
+                    maxWidth={0}
+                    canvasProps={{
+                      width: 400,
+                      height: 150,
+                      className: "sigCanvas",
+                      style: { border: "1px solid #ccc", borderRadius: "8px" },
+                    }}
+                  /> */}
+
+                  {selectedLostAndFoundTracking?.returnedToOwnerSignature
+                    ?.length ? (
+                    selectedLostAndFoundTracking.returnedToOwnerSignature.map(
+                      (file, index) => {
+                        const blobUrl = file.generated_name;
+                        console.log("-->", [
+                          previewImages,
+                          file.generated_name,
+                        ]);
+
+                        return blobUrl ? (
+                          <img
+                            key={index}
+                            src={previewImages[file.generated_name]}
+                            alt={file.generated_name}
+                            style={{
+                              width: "150px",
+                              height: "150px",
+                              objectFit: "cover",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              transition: "transform 0.2s ease",
+                            }}
+                            onMouseOver={(e) =>
+                              (e.currentTarget.style.transform = "scale(1.05)")
+                            }
+                            onMouseOut={(e) =>
+                              (e.currentTarget.style.transform = "scale(1)")
+                            }
+                          />
+                        ) : (
+                          <div
+                            key={index}
+                            style={{
+                              width: "150px",
+                              height: "150px",
+                              backgroundColor: "#eee",
+                              borderRadius: "8px",
+                            }}
+                          />
+                        );
+                      }
+                    )
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No photos available for this report.
+                    </Typography>
+                  )}
                 </Grid>
-                {/* Owner Acknowledgement Signature */}
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Owner Acknowledgement Signature"
-                    fullWidth
-                    value={
-                      selectedLostAndFoundTracking.ownerAcknowledgementSignature
-                    }
-                    InputProps={{ readOnly: true }}
+                  <label>Owner Acknowledgement Signature</label>
+                  <SignatureCanvas
+                    ref={ownerSigRef}
+                    penColor="black"
+                    minWidth={0}
+                    maxWidth={0}
+                    canvasProps={{
+                      width: 400,
+                      height: 150,
+                      className: "sigCanvas",
+                      style: { border: "1px solid #ccc", borderRadius: "8px" },
+                    }}
                   />
                 </Grid>
               </Grid>

@@ -8,6 +8,16 @@ export interface ILostAndFoundTrackingFile {
   displayURL: string;
 }
 
+export interface IReturnedToOwnerSignatureFile {
+  url: string;
+  generated_name: string;
+}
+
+export interface IOwnerAcknowledgementSignatureFile {
+  url: string;
+  generated_name: string;
+}
+
 export interface lostAndFoundTrackingInitialState {
   id: string;
   facilityName: string;
@@ -28,8 +38,8 @@ export interface lostAndFoundTrackingInitialState {
   ownerIDNumber: string;
   ownerTelephone: string;
   remarks: string;
-  returnedToOwnerSignature: string;
-  ownerAcknowledgementSignature: string;
+  returnedToOwnerSignature: IReturnedToOwnerSignatureFile[];
+  ownerAcknowledgementSignature: IOwnerAcknowledgementSignatureFile[];
   uploadedBy: string;
   formSubmitted: boolean;
 }
@@ -54,8 +64,8 @@ const initialState: lostAndFoundTrackingInitialState = {
   ownerIDNumber: "",
   ownerTelephone: "",
   remarks: "",
-  returnedToOwnerSignature: "",
-  ownerAcknowledgementSignature: "",
+  returnedToOwnerSignature: [],
+  ownerAcknowledgementSignature: [],
   uploadedBy: "",
   formSubmitted: false,
 };
@@ -127,12 +137,15 @@ export const lostAndFoundTrackingSlice = createSlice({
     setRemarks: (state, action: PayloadAction<string>) => {
       state.remarks = action.payload;
     },
-    setReturnedToOwnerSignature: (state, action: PayloadAction<string>) => {
+    setReturnedToOwnerSignature: (
+      state,
+      action: PayloadAction<IReturnedToOwnerSignatureFile[]>
+    ) => {
       state.returnedToOwnerSignature = action.payload;
     },
     setOwnerAcknowledgementSignature: (
       state,
-      action: PayloadAction<string>
+      action: PayloadAction<IOwnerAcknowledgementSignatureFile[]>
     ) => {
       state.ownerAcknowledgementSignature = action.payload;
     },
