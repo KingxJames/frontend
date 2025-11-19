@@ -257,36 +257,36 @@ export const LostAndFoundTrackingTable: React.FC = () => {
     }
   };
 
-const handleSignaturePreview = async (
-    lostAndFoundTracking: lostAndFoundTrackingInitialState
-  ) => {
-    setSelectedLostAndFoundTracking(lostAndFoundTracking);
-    setOpenPreview(true);
+  // const handleSignaturePreview = async (
+  //     lostAndFoundTracking: lostAndFoundTrackingInitialState
+  //   ) => {
+  //     setSelectedLostAndFoundTracking(lostAndFoundTracking);
+  //     setOpenPreview(true);
 
-    const urls: Record<string, string> = {};
+  //     const urls: Record<string, string> = {};
 
-    for (const file of lostAndFoundTracking.lostAndFoundTrackingFiles) {
-      try {
-        const response = await fetch(
-          buildApiUrl(`publicSafety/getFile/signatures/${file.generated_name}`),
-          {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+  //     for (const file of lostAndFoundTracking.lostAndFoundTrackingFiles) {
+  //       try {
+  //         const response = await fetch(
+  //           buildApiUrl(`publicSafety/getFile/signatures/${file.generated_name}`),
+  //           {
+  //             method: "GET",
+  //             headers: { Authorization: `Bearer ${token}` },
+  //           }
+  //         );
 
-        if (response.ok) {
-          const blob = await response.blob();
-          const blobUrl = URL.createObjectURL(blob);
-          urls[file.generated_name] = blobUrl;
-        }
-      } catch (err) {
-        console.error("Error loading image:", err);
-      }
-    }
+  //         if (response.ok) {
+  //           const blob = await response.blob();
+  //           const blobUrl = URL.createObjectURL(blob);
+  //           urls[file.generated_name] = blobUrl;
+  //         }
+  //       } catch (err) {
+  //         console.error("Error loading image:", err);
+  //       }
+  //     }
 
-    setPreviewImages(urls);
-  };
+  //     setPreviewImages(urls);
+  //   };
 
   const handlePreview = async (
     lostAndFoundTracking: lostAndFoundTrackingInitialState
@@ -313,6 +313,32 @@ const handleSignaturePreview = async (
         }
       } catch (err) {
         console.error("Error loading image:", err);
+      }
+    }
+
+    // Combine both signature arrays into one
+    const allSignatures = [
+      ...(lostAndFoundTracking.returnedToOwnerSignature || []),
+      ...(lostAndFoundTracking.ownerAcknowledgementSignature || []),
+    ];
+
+    for (const file of allSignatures) {
+      try {
+        const response = await fetch(
+          buildApiUrl(`publicSafety/getFile/signatures/${file.generated_name}`),
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          urls[file.generated_name] = blobUrl;
+        }
+      } catch (err) {
+        console.error("Error loading signature:", err);
       }
     }
 
@@ -617,28 +643,12 @@ const handleSignaturePreview = async (
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <label>Returned to Owner Signature</label>
-                  {/* <SignatureCanvas
-                    ref={returnedSigRef}
-                    penColor="black"
-                    minWidth={0}
-                    maxWidth={0}
-                    canvasProps={{
-                      width: 400,
-                      height: 150,
-                      className: "sigCanvas",
-                      style: { border: "1px solid #ccc", borderRadius: "8px" },
-                    }}
-                  /> */}
-
                   {selectedLostAndFoundTracking?.returnedToOwnerSignature
                     ?.length ? (
                     selectedLostAndFoundTracking.returnedToOwnerSignature.map(
                       (file, index) => {
                         const blobUrl = file.generated_name;
-                        console.log("-->", [
-                          previewImages,
-                          file.generated_name,
-                        ]);
+                        console.log("-->", previewImages);
 
                         return blobUrl ? (
                           <img
@@ -646,7 +656,7 @@ const handleSignaturePreview = async (
                             src={previewImages[file.generated_name]}
                             alt={file.generated_name}
                             style={{
-                              width: "150px",
+                              width: "350px",
                               height: "150px",
                               objectFit: "cover",
                               borderRadius: "8px",
@@ -664,7 +674,7 @@ const handleSignaturePreview = async (
                           <div
                             key={index}
                             style={{
-                              width: "150px",
+                              width: "350px",
                               height: "150px",
                               backgroundColor: "#eee",
                               borderRadius: "8px",
@@ -681,18 +691,51 @@ const handleSignaturePreview = async (
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <label>Owner Acknowledgement Signature</label>
-                  <SignatureCanvas
-                    ref={ownerSigRef}
-                    penColor="black"
-                    minWidth={0}
-                    maxWidth={0}
-                    canvasProps={{
-                      width: 400,
-                      height: 150,
-                      className: "sigCanvas",
-                      style: { border: "1px solid #ccc", borderRadius: "8px" },
-                    }}
-                  />
+                  {selectedLostAndFoundTracking?.ownerAcknowledgementSignature
+                    ?.length ? (
+                    selectedLostAndFoundTracking.ownerAcknowledgementSignature.map(
+                      (file, index) => {
+                        const blobUrl = file.generated_name;
+                        console.log("-->", previewImages);
+
+                        return blobUrl ? (
+                          <img
+                            key={index}
+                            src={previewImages[file.generated_name]}
+                            alt={file.generated_name}
+                            style={{
+                              width: "350px",
+                              height: "150px",
+                              objectFit: "cover",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              transition: "transform 0.2s ease",
+                            }}
+                            onMouseOver={(e) =>
+                              (e.currentTarget.style.transform = "scale(1.05)")
+                            }
+                            onMouseOut={(e) =>
+                              (e.currentTarget.style.transform = "scale(1)")
+                            }
+                          />
+                        ) : (
+                          <div
+                            key={index}
+                            style={{
+                              width: "350px",
+                              height: "150px",
+                              backgroundColor: "#eee",
+                              borderRadius: "8px",
+                            }}
+                          />
+                        );
+                      }
+                    )
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No photos available for this report.
+                    </Typography>
+                  )}
                 </Grid>
               </Grid>
             </Box>

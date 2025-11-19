@@ -113,7 +113,6 @@ export const IncidentReportTable: React.FC = () => {
         console.error("Error loading image:", err);
       }
     }
-
     setPreviewImages(urls);
   };
 
@@ -318,7 +317,6 @@ export const IncidentReportTable: React.FC = () => {
                         selectedIncidentReport.incidentFiles.map(
                           (file, index) => {
                             const blobUrl = file.generated_name;
-                            console.log("-->", blobUrl);
 
                             return blobUrl ? (
                               <img
