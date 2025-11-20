@@ -77,25 +77,6 @@ export const LostAndFoundTracking: React.FC = () => {
   const campus = useSelector(selectCampus);
   const id = lostAndFoundTrackings.id;
 
-  // Load saved signatures (from Redux or DB) on mount
-  // useEffect(() => {
-  //   if (
-  //     lostAndFoundTrackings.returnedToOwnerSignature &&
-  //     returnedSigRef.current
-  //   ) {
-  //     returnedSigRef.current.fromDataURL(
-  //       lostAndFoundTrackings.returnedToOwnerSignature
-  //     );
-  //   }
-  //   if (
-  //     lostAndFoundTrackings.ownerAcknowledgementSignature &&
-  //     ownerSigRef.current
-  //   ) {
-  //     ownerSigRef.current.fromDataURL(
-  //       lostAndFoundTrackings.ownerAcknowledgementSignature
-  //     );
-  //   }
-  // }, [lostAndFoundTrackings]);
 
   useEffect(() => {
     const fetchImages = async () => {

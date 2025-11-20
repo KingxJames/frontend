@@ -81,19 +81,22 @@ import { buildApiUrl } from "../../../../store/config/api";
 import { RootState } from "../../../../store/store";
 import { Form, useNavigate } from "react-router-dom";
 import { useAutosaveImpoundedReport } from "../../../hooks/useAutoSave";
+import {
+  getImages,
+  loadSignature,
+  loadOwnerSignature,
+  loadSignaturePSD,
+  loadOwnerSignature2,
+  loadSignaturePSD2,
+} from "../../../hooks/impoundedReport/fetchUseEffects";
 import UBLogoWhite from "../../../images/UBLogoWhite.png";
 
 export const ImpoundedReportTrackingForm: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const signatureRef = useRef<any>(null);
-  const ownerSigRef = useRef<any>(null);
-  const signaturePSDRef = useRef<any>(null);
-  const ownerSigRef1 = useRef<any>(null);
-  const signaturePSDRef1 = useRef<any>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+  // const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const token = useSelector((state: RootState) => state.auth.token);
   const { data: impoundedReportData } = useFetchImpoundedReportQuery({});
   const [createImpoundedReport] = useCreateImpoundedReportMutation();
@@ -101,26 +104,14 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
   const impoundedReport = useSelector(selectImpoundedReport);
   const id = impoundedReport.id;
   useAutosaveImpoundedReport();
+  const imageUrls = getImages();
+  const ownerSigRef = loadOwnerSignature();
+  const signaturePSDRef = loadSignaturePSD();
+  const ownerSigRef2 = loadOwnerSignature2();
+  const signaturePSDRef2 = loadSignaturePSD2();
 
-  // Load saved signatures (from Redux or DB) on mount
-  useEffect(() => {
-    if (impoundedReport.signature && signatureRef.current) {
-      signatureRef.current.fromDataURL(impoundedReport.signature);
-    }
-    if (impoundedReport.ownerSignature && ownerSigRef.current) {
-      ownerSigRef.current.fromDataURL(impoundedReport.ownerSignature);
-    }
-    if (impoundedReport.signaturePSD && signaturePSDRef.current) {
-      signaturePSDRef.current.fromDataURL(impoundedReport.signaturePSD);
-    }
-    if (impoundedReport.ownerSignature2 && ownerSigRef1.current) {
-      ownerSigRef1.current.fromDataURL(impoundedReport.ownerSignature2);
-    }
-
-    if (impoundedReport.signaturePSD2 && signaturePSDRef1.current) {
-      signaturePSDRef1.current.fromDataURL(impoundedReport.signaturePSD2);
-    }
-  }, [impoundedReport]);
+  //fetch signature from server and load canvases
+  const signatureRef = loadSignature();
 
   const clearSignature = () => {
     signatureRef.current.clear();
@@ -134,68 +125,194 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
     signaturePSDRef.current.clear();
   };
 
-  const clearOwnerSignature1 = () => {
-    ownerSigRef1.current.clear();
+  const clearOwnerSignature2 = () => {
+    ownerSigRef2.current.clear();
   };
 
-  const clearSignaturePSD1 = () => {
-    signaturePSDRef1.current.clear();
+  const clearSignaturePSD2 = () => {
+    signaturePSDRef2.current.clear();
   };
 
-  const saveSignature = () => {
+  const saveSignature = async () => {
     const dataURL = signatureRef.current.toDataURL();
-    dispatch(setSignature(dataURL));
-  };
-
-  const saveOwnerSignature = () => {
-    const dataURL = ownerSigRef.current.toDataURL();
-    dispatch(setOwnerSignature(dataURL));
-  };
-
-  const saveSignaturePSD = () => {
-    const dataURL = signaturePSDRef.current.toDataURL();
-    dispatch(setSignaturePSD(dataURL));
-  };
-
-  const saveOwnerSignature1 = () => {
-    const dataURL = ownerSigRef1.current.toDataURL();
-    dispatch(setOwnerSignature2(dataURL));
-  };
-
-  const saveSignaturePSD1 = () => {
-    const dataURL = signaturePSDRef1.current.toDataURL();
-    dispatch(setSignaturePSD2(dataURL));
-  };
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      if (!impoundedReport.impoundedReportFiles?.length) return;
-
-      const urls: Record<string, string> = {};
-
-      for (const file of impoundedReport.impoundedReportFiles) {
-        try {
-          const res = await fetch(
-            buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
-            {
-              method: "GET",
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-
-          if (res.ok) {
-            const blob = await res.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            urls[file.generated_name] = blobUrl;
-          }
-        } catch (err) {
-          console.error("Error fetching file:", file.generated_name, err);
+    try {
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadSignatureCanvas/${id}`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ signature: dataURL }),
         }
-      }
-      setImageUrls(urls);
-    };
-    fetchImages();
-  }, [impoundedReport, token]);
+      );
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      console.log("Signature saved:", result);
+
+      const fileData = result.data;
+
+      // Must save as an array like incidentFiles
+      dispatch(
+        setSignature([
+          {
+            generated_name: fileData.generated_name,
+            url: fileData.url,
+          },
+        ])
+      );
+    } catch (error) {
+      console.error("Signature upload error:", error);
+    }
+  };
+
+  const saveOwnerSignature = async () => {
+    const dataURL = ownerSigRef.current.toDataURL();
+
+    try {
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadSignatureCanvas/${id}`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ signature: dataURL }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      console.log("Signature saved:", result);
+
+      const fileData = result.data;
+
+      // Must save as an array like incidentFiles
+      dispatch(
+        setOwnerSignature([
+          {
+            generated_name: fileData.generated_name,
+            url: fileData.url,
+          },
+        ])
+      );
+    } catch (error) {
+      console.error("Signature upload error:", error);
+    }
+  };
+
+  const saveSignaturePSD = async () => {
+    const dataURL = signaturePSDRef.current.toDataURL();
+    try {
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadSignatureCanvas/${id}`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ signature: dataURL }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      console.log("Signature saved:", result);
+
+      const fileData = result.data;
+
+      // Must save as an array like incidentFiles
+      dispatch(
+        setSignaturePSD([
+          {
+            generated_name: fileData.generated_name,
+            url: fileData.url,
+          },
+        ])
+      );
+    } catch (error) {
+      console.error("Signature upload error:", error);
+    }
+  };
+
+  const saveOwnerSignature2 = async () => {
+    const dataURL = ownerSigRef2.current.toDataURL();
+    try {
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadSignatureCanvas/${id}`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ signature: dataURL }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      console.log("Signature saved:", result);
+
+      const fileData = result.data;
+
+      // Must save as an array like incidentFiles
+      dispatch(
+        setOwnerSignature2([
+          {
+            generated_name: fileData.generated_name,
+            url: fileData.url,
+          },
+        ])
+      );
+    } catch (error) {
+      console.error("Signature upload error:", error);
+    }
+  };
+
+  const saveSignaturePSD2 = async () => {
+    const dataURL = signaturePSDRef2.current.toDataURL();
+    try {
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadSignatureCanvas/${id}`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ signature: dataURL }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      console.log("Signature saved:", result);
+
+      const fileData = result.data;
+
+      // Must save as an array like incidentFiles
+      dispatch(
+        setSignaturePSD2([
+          {
+            generated_name: fileData.generated_name,
+            url: fileData.url,
+          },
+        ])
+      );
+    } catch (error) {
+      console.error("Signature upload error:", error);
+    }
+  };
 
   const validateForm = () => {
     const requiredFields = [
@@ -1019,7 +1136,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
           <Grid item xs={12} md={6}>
             <label>Owner Signature</label>
             <SignatureCanvas
-              ref={ownerSigRef1}
+              ref={ownerSigRef2}
               penColor="black"
               canvasProps={{
                 width: 400,
@@ -1029,10 +1146,10 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
               }}
             />
             <div style={{ marginTop: 8 }}>
-              <Button size="small" onClick={clearOwnerSignature1}>
+              <Button size="small" onClick={clearOwnerSignature2}>
                 Clear
               </Button>
-              <Button size="small" onClick={saveOwnerSignature1}>
+              <Button size="small" onClick={saveOwnerSignature2}>
                 Save
               </Button>
             </div>
@@ -1040,7 +1157,7 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
           <Grid item xs={12} md={6}>
             <label>Signature DPS</label>
             <SignatureCanvas
-              ref={signaturePSDRef1}
+              ref={signaturePSDRef2}
               penColor="black"
               canvasProps={{
                 width: 400,
@@ -1050,10 +1167,10 @@ export const ImpoundedReportTrackingForm: React.FC = () => {
               }}
             />
             <div style={{ marginTop: 8 }}>
-              <Button size="small" onClick={clearSignaturePSD1}>
+              <Button size="small" onClick={clearSignaturePSD2}>
                 Clear
               </Button>
-              <Button size="small" onClick={saveSignaturePSD1}>
+              <Button size="small" onClick={saveSignaturePSD2}>
                 Save
               </Button>
             </div>

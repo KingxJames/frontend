@@ -8,6 +8,31 @@ export interface IImpoundedReportFile {
   displayURL: string;
 }
 
+export interface ISignatureFile {
+  url: string;
+  generated_name: string;
+}
+
+export interface IOwnerSignatureFile {
+  url: string;
+  generated_name: string;
+}
+
+export interface ISignaturePSDFile {
+  url: string;
+  generated_name: string;
+}
+
+export interface IOwnerSignatureFile2 {
+  url: string;
+  generated_name: string;
+}
+
+export interface ISignaturePSDFile2 {
+  url: string;
+  generated_name: string;
+}
+
 export interface impoundedReportInitialState {
   id: string;
   name: string;
@@ -27,7 +52,7 @@ export interface impoundedReportInitialState {
   bicycleRack: string;
   impoundedReportFiles: IImpoundedReportFile[];
   whenWasBikeWasStolen: string;
-  signature: string;
+  signature: ISignatureFile[];
   dateOfSignature: string;
   dateReturnedToOwner: string;
   ownerName: string;
@@ -36,8 +61,8 @@ export interface impoundedReportInitialState {
   ownerIDNumber: string;
   ownerTelephone: string;
   remarks: string;
-  ownerSignature: string;
-  signaturePSD: string;
+  ownerSignature: IOwnerSignatureFile[];
+  signaturePSD: ISignaturePSDFile[];
   nameOfFinder: string;
   locationFound: string;
   trackingBrand: string;
@@ -54,8 +79,8 @@ export interface impoundedReportInitialState {
   ownerIDNumber2: string;
   ownerTelephone2: string;
   remarks2: string;
-  ownerSignature2: string;
-  signaturePSD2: string;
+  ownerSignature2: IOwnerSignatureFile2[];
+  signaturePSD2: ISignaturePSDFile2[];
   uploadedBy: string;
   formSubmitted: boolean;
 }
@@ -79,7 +104,7 @@ const initialState: impoundedReportInitialState = {
   bicycleRack: "",
   impoundedReportFiles: [],
   whenWasBikeWasStolen: "",
-  signature: "",
+  signature: [],
   dateOfSignature: "",
   dateReturnedToOwner: "",
   ownerName: "",
@@ -88,8 +113,8 @@ const initialState: impoundedReportInitialState = {
   ownerIDNumber: "",
   ownerTelephone: "",
   remarks: "",
-  ownerSignature: "",
-  signaturePSD: "",
+  ownerSignature: [],
+  signaturePSD: [],
   nameOfFinder: "",
   locationFound: "",
   trackingBrand: "",
@@ -106,8 +131,8 @@ const initialState: impoundedReportInitialState = {
   ownerIDNumber2: "",
   ownerTelephone2: "",
   remarks2: "",
-  ownerSignature2: "",
-  signaturePSD2: "",
+  ownerSignature2: [],
+  signaturePSD2: [],
   uploadedBy: "",
   formSubmitted: false,
 };
@@ -176,7 +201,7 @@ export const impoundedReportSlice = createSlice({
     setWhenWasBikeWasStolen: (state, action: PayloadAction<string>) => {
       state.whenWasBikeWasStolen = action.payload;
     },
-    setSignature: (state, action: PayloadAction<string>) => {
+    setSignature: (state, action: PayloadAction<ISignatureFile[]>) => {
       state.signature = action.payload;
     },
     setDateOfSignature: (state, action: PayloadAction<string>) => {
@@ -203,10 +228,13 @@ export const impoundedReportSlice = createSlice({
     setRemarks: (state, action: PayloadAction<string>) => {
       state.remarks = action.payload;
     },
-    setOwnerSignature: (state, action: PayloadAction<string>) => {
+    setOwnerSignature: (
+      state,
+      action: PayloadAction<IOwnerSignatureFile[]>
+    ) => {
       state.ownerSignature = action.payload;
     },
-    setSignaturePSD: (state, action: PayloadAction<string>) => {
+    setSignaturePSD: (state, action: PayloadAction<ISignaturePSDFile[]>) => {
       state.signaturePSD = action.payload;
     },
     setNameOfFinder: (state, action: PayloadAction<string>) => {
@@ -257,10 +285,13 @@ export const impoundedReportSlice = createSlice({
     setRemarks2: (state, action: PayloadAction<string>) => {
       state.remarks2 = action.payload;
     },
-    setOwnerSignature2: (state, action: PayloadAction<string>) => {
+    setOwnerSignature2: (
+      state,
+      action: PayloadAction<IOwnerSignatureFile2[]>
+    ) => {
       state.ownerSignature2 = action.payload;
     },
-    setSignaturePSD2: (state, action: PayloadAction<string>) => {
+    setSignaturePSD2: (state, action: PayloadAction<ISignaturePSDFile2[]>) => {
       state.signaturePSD2 = action.payload;
     },
     setUploadedBy: (state, action: PayloadAction<string>) => {

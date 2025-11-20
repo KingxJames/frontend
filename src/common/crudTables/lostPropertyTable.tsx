@@ -23,6 +23,9 @@ import {
   setLostPropertyState,
   lostPropertyInitialState,
   ILostPropertyFile,
+  IOwnerSignatureFile,
+  ISignatureDPSFile,
+  IReturnedToOwnerSignatureFile,
 } from "../../../store/features/lostPropertySlice";
 import { buildApiUrl } from "../../../store/config/api";
 import { RootState } from "../../../store/store";
@@ -53,7 +56,7 @@ export const LostPropertyTable: React.FC = () => {
     lostPropertyFiles: ILostPropertyFile[];
     additionalDescription: string;
     owner: string;
-    ownerSignature: string;
+    ownerSignature: IOwnerSignatureFile[];
     dateReported: string;
     dateReturnedToOwner: string;
     timeReturnedToOwner: string;
@@ -64,8 +67,8 @@ export const LostPropertyTable: React.FC = () => {
     ownerEmail: string;
     ownerTelephone: string;
     remarks: string;
-    signatureDPS: string;
-    returnedToOwnerSignature: string;
+    signatureDPS: ISignatureDPSFile[];
+    returnedToOwnerSignature: IReturnedToOwnerSignatureFile[];
     uploadedBy: string;
     formSubmitted: boolean;
   } | null>(null);
@@ -128,6 +131,33 @@ export const LostPropertyTable: React.FC = () => {
         }
       } catch (err) {
         console.error("Error loading image:", err);
+      }
+    }
+
+    // Combine both signature arrays into one
+    const allSignatures = [
+      ...(lostProperty.ownerSignature || []),
+      ...(lostProperty.signatureDPS || []),
+      ...(lostProperty.returnedToOwnerSignature || []),
+    ];
+
+    for (const file of allSignatures) {
+      try {
+        const response = await fetch(
+          buildApiUrl(`publicSafety/getFile/signatures/${file.generated_name}`),
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          urls[file.generated_name] = blobUrl;
+        }
+      } catch (err) {
+        console.error("Error loading signature:", err);
       }
     }
 
@@ -360,7 +390,7 @@ export const LostPropertyTable: React.FC = () => {
                   />
                 </Grid>
                 {/* Owner */}
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                   <TextField
                     label="Owner"
                     fullWidth
@@ -370,12 +400,49 @@ export const LostPropertyTable: React.FC = () => {
                 </Grid>
                 {/* Owner Signature */}
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Owner Signature"
-                    fullWidth
-                    value={selectedLostProperty.ownerSignature}
-                    InputProps={{ readOnly: true }}
-                  />
+                  <label>Owner Signature</label>
+                  {selectedLostProperty?.ownerSignature?.length ? (
+                    selectedLostProperty.ownerSignature.map((file, index) => {
+                      const blobUrl = file.generated_name;
+                      console.log("-->", previewImages);
+
+                      return blobUrl ? (
+                        <img
+                          key={index}
+                          src={previewImages[file.generated_name]}
+                          alt={file.generated_name}
+                          style={{
+                            width: "350px",
+                            height: "150px",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                            border: "1px solid #ccc",
+                            transition: "transform 0.2s ease",
+                          }}
+                          onMouseOver={(e) =>
+                            (e.currentTarget.style.transform = "scale(1.05)")
+                          }
+                          onMouseOut={(e) =>
+                            (e.currentTarget.style.transform = "scale(1)")
+                          }
+                        />
+                      ) : (
+                        <div
+                          key={index}
+                          style={{
+                            width: "350px",
+                            height: "150px",
+                            backgroundColor: "#eee",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      );
+                    })
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No photos available for this report.
+                    </Typography>
+                  )}
                 </Grid>
                 {/* Date Reportted */}
                 <Grid item xs={12} md={6}>
@@ -486,21 +553,96 @@ export const LostPropertyTable: React.FC = () => {
                 </Grid>
                 {/* Signature DPS */}
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Signature DPS"
-                    fullWidth
-                    value={selectedLostProperty.signatureDPS}
-                    InputProps={{ readOnly: true }}
-                  />
+                  <label>Signature DPS</label>
+                  {selectedLostProperty?.signatureDPS?.length ? (
+                    selectedLostProperty.signatureDPS.map((file, index) => {
+                      const blobUrl = file.generated_name;
+
+                      return blobUrl ? (
+                        <img
+                          key={index}
+                          src={previewImages[file.generated_name]}
+                          alt={file.generated_name}
+                          style={{
+                            width: "350px",
+                            height: "150px",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                            border: "1px solid #ccc",
+                            transition: "transform 0.2s ease",
+                          }}
+                          onMouseOver={(e) =>
+                            (e.currentTarget.style.transform = "scale(1.05)")
+                          }
+                          onMouseOut={(e) =>
+                            (e.currentTarget.style.transform = "scale(1)")
+                          }
+                        />
+                      ) : (
+                        <div
+                          key={index}
+                          style={{
+                            width: "350px",
+                            height: "150px",
+                            backgroundColor: "#eee",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      );
+                    })
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No photos available for this report.
+                    </Typography>
+                  )}
                 </Grid>
                 {/* Returned to Owner Signature */}
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Returned to Owner Signature"
-                    fullWidth
-                    value={selectedLostProperty.returnedToOwnerSignature}
-                    InputProps={{ readOnly: true }}
-                  />
+                  <label>Returned to Owner Signature</label>
+                  {selectedLostProperty?.returnedToOwnerSignature?.length ? (
+                    selectedLostProperty.returnedToOwnerSignature.map(
+                      (file, index) => {
+                        const blobUrl = file.generated_name;
+                        console.log("-->", previewImages);
+
+                        return blobUrl ? (
+                          <img
+                            key={index}
+                            src={previewImages[file.generated_name]}
+                            alt={file.generated_name}
+                            style={{
+                              width: "350px",
+                              height: "150px",
+                              objectFit: "cover",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              transition: "transform 0.2s ease",
+                            }}
+                            onMouseOver={(e) =>
+                              (e.currentTarget.style.transform = "scale(1.05)")
+                            }
+                            onMouseOut={(e) =>
+                              (e.currentTarget.style.transform = "scale(1)")
+                            }
+                          />
+                        ) : (
+                          <div
+                            key={index}
+                            style={{
+                              width: "350px",
+                              height: "150px",
+                              backgroundColor: "#eee",
+                              borderRadius: "8px",
+                            }}
+                          />
+                        );
+                      }
+                    )
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No photos available for this report.
+                    </Typography>
+                  )}
                 </Grid>
               </Grid>
             </Box>

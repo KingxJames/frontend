@@ -8,6 +8,21 @@ export interface ILostPropertyFile {
   displayURL: string;
 }
 
+export interface IOwnerSignatureFile {
+  url: string;
+  generated_name: string;
+}
+
+export interface ISignatureDPSFile {
+  url: string;
+  generated_name: string;
+}
+
+export interface IReturnedToOwnerSignatureFile {
+  url: string;
+  generated_name: string;
+}
+
 export interface lostPropertyInitialState {
   id: string;
   complainantName: string;
@@ -22,7 +37,7 @@ export interface lostPropertyInitialState {
   lostPropertyFiles: ILostPropertyFile[];
   additionalDescription: string;
   owner: string;
-  ownerSignature: string;
+  ownerSignature: IOwnerSignatureFile[];
   dateReported: string;
   dateReturnedToOwner: string;
   timeReturnedToOwner: string;
@@ -33,8 +48,8 @@ export interface lostPropertyInitialState {
   ownerEmail: string;
   ownerTelephone: string;
   remarks: string;
-  signatureDPS: string;
-  returnedToOwnerSignature: string;
+  signatureDPS: ISignatureDPSFile[];
+  returnedToOwnerSignature: IReturnedToOwnerSignatureFile[];
   uploadedBy: string;
   formSubmitted: boolean;
 }
@@ -53,7 +68,7 @@ const initialState: lostPropertyInitialState = {
   lostPropertyFiles: [],
   additionalDescription: "",
   owner: "",
-  ownerSignature: "",
+  ownerSignature: [],
   dateReported: "",
   dateReturnedToOwner: "",
   timeReturnedToOwner: "",
@@ -64,8 +79,8 @@ const initialState: lostPropertyInitialState = {
   ownerEmail: "",
   ownerTelephone: "",
   remarks: "",
-  signatureDPS: "",
-  returnedToOwnerSignature: "",
+  signatureDPS: [],
+  returnedToOwnerSignature: [],
   uploadedBy: "",
   formSubmitted: false,
 };
@@ -119,7 +134,10 @@ export const lostPropertySlice = createSlice({
     setOwner: (state, action: PayloadAction<string>) => {
       state.owner = action.payload;
     },
-    setOwnerSignature: (state, action: PayloadAction<string>) => {
+    setOwnerSignature: (
+      state,
+      action: PayloadAction<IOwnerSignatureFile[]>
+    ) => {
       state.ownerSignature = action.payload;
     },
     setDateReported: (state, action: PayloadAction<string>) => {
@@ -152,10 +170,13 @@ export const lostPropertySlice = createSlice({
     setRemarks: (state, action: PayloadAction<string>) => {
       state.remarks = action.payload;
     },
-    setSignatureDPS: (state, action: PayloadAction<string>) => {
+    setSignatureDPS: (state, action: PayloadAction<ISignatureDPSFile[]>) => {
       state.signatureDPS = action.payload;
     },
-    setReturnedToOwnerSignature: (state, action: PayloadAction<string>) => {
+    setReturnedToOwnerSignature: (
+      state,
+      action: PayloadAction<IReturnedToOwnerSignatureFile[]>
+    ) => {
       state.returnedToOwnerSignature = action.payload;
     },
     setUploadedBy: (state, action: PayloadAction<string>) => {

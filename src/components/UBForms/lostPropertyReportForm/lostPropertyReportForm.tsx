@@ -57,23 +57,22 @@ import {
   useCreateLostPropertyMutation,
 } from "../../../../store/services/lostPropertyAPI";
 import { useFetchCampusesQuery } from "../../../../store/services/campusAPI";
-import axios from "axios";
 import { buildApiUrl } from "../../../../store/config/api";
 import { RootState } from "../../../../store/store";
-import { Form, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAutosaveLostProperty } from "../../../hooks/useAutoSave";
-import UBLogoWhite from "../../../images/UBLogoWhite.png";
+import {
+  loadOwnerSignature,
+  loadSignatureDPS,
+  loadReturnedToOwnerSignature,
+  getImages,
+} from "../../../hooks/lostProperty/fetchUseEffects";
 
 export const LostPropertyReportForm: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
-  const returnedSigRef = useRef<any>(null);
-  const ownerSigRef = useRef<any>(null);
-  const signatureDPSRef = useRef<any>(null);
-
   const token = useSelector((state: RootState) => state.auth.token);
   const { data: lostPropertyData } = useFetchLostPropertyQuery({});
   const [createLostProperty] = useCreateLostPropertyMutation();
@@ -81,79 +80,135 @@ export const LostPropertyReportForm: React.FC = () => {
 
   const lostProperty = useSelector(selectLostProperty);
   const id = lostProperty.id;
+
+  //Autosave
   useAutosaveLostProperty();
 
-  // Load saved signatures (from Redux or DB) on mount
-  useEffect(() => {
-    if (lostProperty.returnedToOwnerSignature && returnedSigRef.current) {
-      returnedSigRef.current.fromDataURL(lostProperty.returnedToOwnerSignature);
-    }
-    if (lostProperty.signatureDPS && signatureDPSRef.current) {
-      signatureDPSRef.current.fromDataURL(lostProperty.signatureDPS);
-    }
-    if (lostProperty.ownerSignature && ownerSigRef.current) {
-      ownerSigRef.current.fromDataURL(lostProperty.ownerSignature);
-    }
-  }, [lostProperty]);
+  //fetch images from server
+  const imageUrls = getImages();
 
+  //Fetch Signatures from server and load canvases
+  const ownerSigRef = loadOwnerSignature();
+  const signatureDPSRef = loadSignatureDPS();
+  const returnedSigRef = loadReturnedToOwnerSignature();
   const clearReturnedToOwnerSignature = () => {
     returnedSigRef.current.clear();
   };
-
   const clearSignatureDPS = () => {
     signatureDPSRef.current.clear();
   };
-
   const clearOwnerSignature = () => {
     ownerSigRef.current.clear();
   };
 
-  const saveReturnedToOwnerSignature = () => {
+  const saveReturnedToOwnerSignature = async () => {
     const dataURL = returnedSigRef.current.toDataURL();
-    dispatch(setReturnedToOwnerSignature(dataURL));
-  };
 
-  const saveSignatureDPS = () => {
-    const dataURL = signatureDPSRef.current.toDataURL();
-    dispatch(setSignatureDPS(dataURL));
-  };
-
-  const saveOwnerSignature = () => {
-    const dataURL = ownerSigRef.current.toDataURL();
-    dispatch(setOwnerSignature(dataURL));
-  };
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      if (!lostProperty.lostPropertyFiles?.length) return;
-
-      const urls: Record<string, string> = {};
-
-      for (const file of lostProperty.lostPropertyFiles) {
-        try {
-          const res = await fetch(
-            buildApiUrl(`publicSafety/getFile/photos/${file.generated_name}`),
-            {
-              method: "GET",
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-
-          if (res.ok) {
-            const blob = await res.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            urls[file.generated_name] = blobUrl;
-          }
-        } catch (err) {
-          console.error("Error fetching file:", file.generated_name, err);
+    try {
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadSignatureCanvas/${id}`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ signature: dataURL }),
         }
-      }
+      );
 
-      setImageUrls(urls);
-    };
+      if (!response.ok) throw new Error("Upload failed");
 
-    fetchImages();
-  }, [lostProperty, token]);
+      const result = await response.json();
+      console.log("Signature saved:", result);
+
+      const fileData = result.data;
+
+      // Must save as an array like incidentFiles
+      dispatch(
+        setReturnedToOwnerSignature([
+          {
+            generated_name: fileData.generated_name,
+            url: fileData.url,
+          },
+        ])
+      );
+    } catch (error) {
+      console.error("Canvas signature upload error:", error);
+    }
+  };
+
+  const saveSignatureDPS = async () => {
+    const dataURL = signatureDPSRef.current.toDataURL();
+    try {
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadSignatureCanvas/${id}`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ signature: dataURL }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      console.log("Signature saved:", result);
+
+      const fileData = result.data;
+
+      // Must save as an array like incidentFiles
+      dispatch(
+        setSignatureDPS([
+          {
+            generated_name: fileData.generated_name,
+            url: fileData.url,
+          },
+        ])
+      );
+    } catch (error) {
+      console.error("Canvas signature upload error:", error);
+    }
+  };
+
+  const saveOwnerSignature = async () => {
+    const dataURL = ownerSigRef.current.toDataURL();
+    try {
+      const response = await fetch(
+        buildApiUrl(`/publicSafety/uploadSignatureCanvas/${id}`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ signature: dataURL }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      console.log("Signature saved:", result);
+
+      const fileData = result.data;
+
+      // Must save as an array like incidentFiles
+      dispatch(
+        setOwnerSignature([
+          {
+            generated_name: fileData.generated_name,
+            url: fileData.url,
+          },
+        ])
+      );
+    } catch (error) {
+      console.error("Canvas signature upload error:", error);
+    }
+  };
 
   const validateForm = () => {
     const requiredFields = [
