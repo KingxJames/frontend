@@ -23,6 +23,11 @@ import {
   setImpoundedReportState,
   impoundedReportInitialState,
   IImpoundedReportFile,
+  ISignatureFile,
+  IOwnerSignatureFile,
+  ISignaturePSDFile,
+  ISignaturePSDFile2,
+  IOwnerSignatureFile2,
 } from "../../../store/features/impoundedReportSlice";
 import { buildApiUrl } from "../../../store/config/api";
 import { RootState } from "../../../store/store";
@@ -59,7 +64,7 @@ export const ImpoundedReportTable: React.FC = () => {
     bicycleRack: string;
     impoundedReportFiles?: IImpoundedReportFile[];
     whenWasBikeWasStolen: string;
-    signature: string;
+    signature: ISignatureFile[];
     dateOfSignature: string;
     dateReturnedToOwner: string;
     ownerName: string;
@@ -68,8 +73,8 @@ export const ImpoundedReportTable: React.FC = () => {
     ownerIDNumber: string;
     ownerTelephone: string;
     remarks: string;
-    ownerSignature: string;
-    signaturePSD: string;
+    ownerSignature: IOwnerSignatureFile[];
+    signaturePSD: ISignaturePSDFile[];
     nameOfFinder: string;
     locationFound: string;
     trackingBrand: string;
@@ -86,8 +91,8 @@ export const ImpoundedReportTable: React.FC = () => {
     ownerIDNumber2: string;
     ownerTelephone2: string;
     remarks2: string;
-    ownerSignature2: string;
-    signaturePSD2: string;
+    ownerSignature2: IOwnerSignatureFile2[];
+    signaturePSD2: ISignaturePSDFile2[];
     uploadedBy: string;
     formSubmitted: boolean;
   } | null>(null);
@@ -149,6 +154,35 @@ export const ImpoundedReportTable: React.FC = () => {
         }
       } catch (err) {
         console.error("Error loading image:", err);
+      }
+    }
+
+    // Combine both signature arrays into one
+    const allSignatures = [
+      ...(impoundedReport.signature || []),
+      ...(impoundedReport.signaturePSD || []),
+      ...(impoundedReport.signaturePSD2 || []),
+      ...(impoundedReport.ownerSignature || []),
+      ...(impoundedReport.ownerSignature2 || []),
+    ];
+
+    for (const file of allSignatures) {
+      try {
+        const res = await fetch(
+          buildApiUrl(`publicSafety/getFile/signatures/${file.generated_name}`),
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (res.ok) {
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          urls[file.generated_name] = blobUrl;
+        }
+      } catch (err) {
+        console.error("Error loading signature:", err);
       }
     }
 
@@ -462,12 +496,48 @@ export const ImpoundedReportTable: React.FC = () => {
 
                 {/* Signature */}
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Signature"
-                    fullWidth
-                    value={selectedImpoundedReport.signature}
-                    InputProps={{ readOnly: true }}
-                  />
+                  <label>Signature</label>
+                  {selectedImpoundedReport?.signature?.length ? (
+                    selectedImpoundedReport.signature.map((file, index) => {
+                      const blobUrl = file.generated_name;
+
+                      return blobUrl ? (
+                        <img
+                          key={index}
+                          src={previewImages[file.generated_name]}
+                          alt={file.generated_name}
+                          style={{
+                            width: "350px",
+                            height: "150px",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                            border: "1px solid #ccc",
+                            transition: "transform 0.2s ease",
+                          }}
+                          onMouseOver={(e) =>
+                            (e.currentTarget.style.transform = "scale(1.05)")
+                          }
+                          onMouseOut={(e) =>
+                            (e.currentTarget.style.transform = "scale(1)")
+                          }
+                        />
+                      ) : (
+                        <div
+                          key={index}
+                          style={{
+                            width: "350px",
+                            height: "150px",
+                            backgroundColor: "#eee",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      );
+                    })
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No photos available for this report.
+                    </Typography>
+                  )}
                 </Grid>
                 {/* Date of Signature */}
                 <Grid item xs={12} md={6}>
@@ -561,30 +631,95 @@ export const ImpoundedReportTable: React.FC = () => {
                 </Grid>
                 {/* Owner Signature */}
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Owner Signature"
-                    fullWidth
-                    value={selectedImpoundedReport.ownerSignature}
-                    InputProps={{ readOnly: true }}
-                  />
+                  <label>Owner Signature</label>
+                  {selectedImpoundedReport?.ownerSignature?.length ? (
+                    selectedImpoundedReport.ownerSignature.map(
+                      (file, index) => {
+                        const blobUrl = file.generated_name;
+
+                        return blobUrl ? (
+                          <img
+                            key={index}
+                            src={previewImages[file.generated_name]}
+                            alt={file.generated_name}
+                            style={{
+                              width: "350px",
+                              height: "150px",
+                              objectFit: "cover",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              transition: "transform 0.2s ease",
+                            }}
+                            onMouseOver={(e) =>
+                              (e.currentTarget.style.transform = "scale(1.05)")
+                            }
+                            onMouseOut={(e) =>
+                              (e.currentTarget.style.transform = "scale(1)")
+                            }
+                          />
+                        ) : (
+                          <div
+                            key={index}
+                            style={{
+                              width: "350px",
+                              height: "150px",
+                              backgroundColor: "#eee",
+                              borderRadius: "8px",
+                            }}
+                          />
+                        );
+                      }
+                    )
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No photos available for this report.
+                    </Typography>
+                  )}
                 </Grid>
                 {/* Signature PSD */}
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Signature PSD"
-                    fullWidth
-                    value={selectedImpoundedReport.signaturePSD}
-                    InputProps={{ readOnly: true }}
-                  />
-                </Grid>
-                {/* Name of Finder */}
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Name of Finder"
-                    fullWidth
-                    value={selectedImpoundedReport.nameOfFinder}
-                    InputProps={{ readOnly: true }}
-                  />
+                  <label>Signature PSD</label>
+                  {selectedImpoundedReport?.signaturePSD?.length ? (
+                    selectedImpoundedReport.signaturePSD.map((file, index) => {
+                      const blobUrl = file.generated_name;
+
+                      return blobUrl ? (
+                        <img
+                          key={index}
+                          src={previewImages[file.generated_name]}
+                          alt={file.generated_name}
+                          style={{
+                            width: "350px",
+                            height: "150px",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                            border: "1px solid #ccc",
+                            transition: "transform 0.2s ease",
+                          }}
+                          onMouseOver={(e) =>
+                            (e.currentTarget.style.transform = "scale(1.05)")
+                          }
+                          onMouseOut={(e) =>
+                            (e.currentTarget.style.transform = "scale(1)")
+                          }
+                        />
+                      ) : (
+                        <div
+                          key={index}
+                          style={{
+                            width: "350px",
+                            height: "150px",
+                            backgroundColor: "#eee",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      );
+                    })
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No photos available for this report.
+                    </Typography>
+                  )}
                 </Grid>
 
                 <Typography
@@ -601,6 +736,16 @@ export const ImpoundedReportTable: React.FC = () => {
                 >
                   Impound Report Tracking Form
                 </Typography>
+
+                {/* Name of Finder */}
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Name of Finder"
+                    fullWidth
+                    value={selectedImpoundedReport.nameOfFinder}
+                    InputProps={{ readOnly: true }}
+                  />
+                </Grid>
 
                 {/* Location Found */}
                 <Grid item xs={12} md={6}>
@@ -746,9 +891,11 @@ export const ImpoundedReportTable: React.FC = () => {
                   />
                 </Grid>
                 {/* Remarks2 */}
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                   <TextField
                     label="Remarks"
+                    multiline
+                    rows={4}
                     fullWidth
                     value={selectedImpoundedReport.remarks2}
                     InputProps={{ readOnly: true }}
@@ -756,21 +903,95 @@ export const ImpoundedReportTable: React.FC = () => {
                 </Grid>
                 {/* Owner Signature2 */}
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Owner Signature"
-                    fullWidth
-                    value={selectedImpoundedReport.ownerSignature2}
-                    InputProps={{ readOnly: true }}
-                  />
+                  <label>Owner Signature</label>
+                  {selectedImpoundedReport?.ownerSignature2?.length ? (
+                    selectedImpoundedReport.ownerSignature2.map(
+                      (file, index) => {
+                        const blobUrl = file.generated_name;
+
+                        return blobUrl ? (
+                          <img
+                            key={index}
+                            src={previewImages[file.generated_name]}
+                            alt={file.generated_name}
+                            style={{
+                              width: "350px",
+                              height: "150px",
+                              objectFit: "cover",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              transition: "transform 0.2s ease",
+                            }}
+                            onMouseOver={(e) =>
+                              (e.currentTarget.style.transform = "scale(1.05)")
+                            }
+                            onMouseOut={(e) =>
+                              (e.currentTarget.style.transform = "scale(1)")
+                            }
+                          />
+                        ) : (
+                          <div
+                            key={index}
+                            style={{
+                              width: "350px",
+                              height: "150px",
+                              backgroundColor: "#eee",
+                              borderRadius: "8px",
+                            }}
+                          />
+                        );
+                      }
+                    )
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No photos available for this report.
+                    </Typography>
+                  )}
                 </Grid>
                 {/* Signature PSD2 */}
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Signature PSD"
-                    fullWidth
-                    value={selectedImpoundedReport.signaturePSD2}
-                    InputProps={{ readOnly: true }}
-                  />
+                  <label>Signature PSD</label>
+                  {selectedImpoundedReport?.signaturePSD2?.length ? (
+                    selectedImpoundedReport.signaturePSD2.map((file, index) => {
+                      const blobUrl = file.generated_name;
+
+                      return blobUrl ? (
+                        <img
+                          key={index}
+                          src={previewImages[file.generated_name]}
+                          alt={file.generated_name}
+                          style={{
+                            width: "350px",
+                            height: "150px",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                            border: "1px solid #ccc",
+                            transition: "transform 0.2s ease",
+                          }}
+                          onMouseOver={(e) =>
+                            (e.currentTarget.style.transform = "scale(1.05)")
+                          }
+                          onMouseOut={(e) =>
+                            (e.currentTarget.style.transform = "scale(1)")
+                          }
+                        />
+                      ) : (
+                        <div
+                          key={index}
+                          style={{
+                            width: "350px",
+                            height: "150px",
+                            backgroundColor: "#eee",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      );
+                    })
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No photos available for this report.
+                    </Typography>
+                  )}
                 </Grid>
                 {/* Uploaded By */}
                 <Grid item xs={12}>

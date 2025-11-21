@@ -2,6 +2,11 @@ import React from "react";
 import UBFormCard from "../../components/UBForms/UBFormCard/UBFormCard";
 import { Box, Typography, Grid } from "@mui/material";
 import warning from "../../images/incident/warning.png";
+import track_bicycle from "../../images/track_bicycle.png";
+import lost_and_found from "../../images/lost_and_found.png";
+import lost_property from "../../images/lost_property.png";
+import patrol_security from "../../images/patrol_security.png";
+import head_security from "../../images/head_security.png";
 import { useNavigate } from "react-router-dom";
 import {
   useInitializeIncidentReportMutation,
@@ -212,7 +217,7 @@ export const FormNames: React.FC = () => {
         <Grid item xs={12} sm={6} md={4}>
           <UBFormCard
             title="End of Shift Report Patrol"
-            image={warning}
+            image={patrol_security}
             onClick={() => handleClickShiftReportPatrol()}
           />
         </Grid>
@@ -220,7 +225,7 @@ export const FormNames: React.FC = () => {
         <Grid item xs={12} sm={6} md={4}>
           <UBFormCard
             title="End of Shift Report Supervisor"
-            image={warning}
+            image={head_security}
             onClick={() => handleClickShiftReportSupervisor()}
           />
         </Grid>
@@ -228,7 +233,7 @@ export const FormNames: React.FC = () => {
         <Grid item xs={12} sm={6} md={4}>
           <UBFormCard
             title="Lost and Found Tracking Form"
-            image={warning}
+            image={lost_and_found}
             onClick={() => handleClickLostAndFoundTracking()}
           />
         </Grid>
@@ -236,7 +241,7 @@ export const FormNames: React.FC = () => {
         <Grid item xs={12} sm={6} md={4}>
           <UBFormCard
             title="Lost Property Report Form"
-            image={warning}
+            image={lost_property}
             onClick={() => handleLostPropertyReportForm()}
           />
         </Grid>
@@ -244,7 +249,7 @@ export const FormNames: React.FC = () => {
         <Grid item xs={12} sm={6} md={4}>
           <UBFormCard
             title="Bicycle Lost / Impounded Report Tracking Form"
-            image={warning}
+            image={track_bicycle}
             onClick={() => handleClickImpoundedReport()}
           />
         </Grid>
