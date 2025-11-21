@@ -117,13 +117,12 @@ export const IncidentReportTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "caseNumber", headerName: "Case Number", flex: 1 },
-    { field: "incidentType", headerName: "Incident Type", flex: 1 },
-    { field: "incidentReportStatus", headerName: "Incident Status", flex: 1 },
-    { field: "description", headerName: "Incident Report", flex: 1 },
-    { field: "action", headerName: "Action Taken", flex: 1 },
+    { field: "caseNumber", headerName: "Case Number", flex: 1.2 },
+    { field: "incidentType", headerName: "Incident Type", flex: 1.2 },
+    { field: "incidentReportStatus", headerName: "Incident Status", flex: 0.8 },
     { field: "uploadedBy", headerName: "Uploaded By", flex: 1 },
     { field: "reportedBy", headerName: "Reported By", flex: 1 },
+    { field: "date", headerName: "Date of Incident", flex: 1.2 },
     {
       field: "actions",
       headerName: "Actions",

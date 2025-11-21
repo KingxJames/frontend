@@ -58,6 +58,7 @@ export const LostAndFoundTracking: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedSigFiles, setSelectedSigFiles] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+  const [signatureError, setSignatureError] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const returnedSigRef = useRef<any>(null);
@@ -76,7 +77,6 @@ export const LostAndFoundTracking: React.FC = () => {
   useAutosaveLostAndFoundTracking();
   const campus = useSelector(selectCampus);
   const id = lostAndFoundTrackings.id;
-
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -266,20 +266,8 @@ export const LostAndFoundTracking: React.FC = () => {
   const validateForm = () => {
     const requiredFields = [
       "todaysDate",
-      "time",
       "facilityName",
-      "locationFound",
-      "roomNo",
-      "foundBy",
-      "supervisorWhoReceivedItem",
-      "dateReturnedToOwner",
-      "timeReturnedToOwner",
-      "owner",
-      "ownerDOB",
-      "ownerAddress",
-      "ownerIDNumber",
-      "ownerTelephone",
-      "remarks",
+      "itmesDescription",
       "returnedToOwnerSignature",
       "ownerAcknowledgementSignature",
     ];
@@ -440,7 +428,7 @@ export const LostAndFoundTracking: React.FC = () => {
             textTransform: "uppercase",
           }}
         >
-          Lost Found Tracking Form
+          Lost and Found Tracking Form
         </Typography>
       </Box>
 
@@ -488,8 +476,6 @@ export const LostAndFoundTracking: React.FC = () => {
               InputLabelProps={{ shrink: true }}
               value={lostAndFoundTrackings.time}
               onChange={(e) => dispatch(setTime(e.target.value))}
-              error={!!errors["time"]}
-              helperText={errors["time"] ? "Time is required" : ""}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -518,11 +504,6 @@ export const LostAndFoundTracking: React.FC = () => {
               value={lostAndFoundTrackings.locationFound}
               onChange={(e) => dispatch(setLocationFound(e.target.value))}
             />
-            {errors["locationFound"] && (
-              <Typography color="error" variant="caption">
-                Location found is required
-              </Typography>
-            )}
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
@@ -779,6 +760,12 @@ export const LostAndFoundTracking: React.FC = () => {
                 className: "sigCanvas",
                 style: { border: "1px solid #ccc", borderRadius: "8px" },
               }}
+              error={!!errors["ownerAcknowledgementSignature"]}
+              helperText={
+                errors["ownerAcknowledgementSignature"]
+                  ? "Signature is required"
+                  : ""
+              }
             />
             <div style={{ marginTop: 8 }}>
               <Button size="small" onClick={clearOwnerSignature}>

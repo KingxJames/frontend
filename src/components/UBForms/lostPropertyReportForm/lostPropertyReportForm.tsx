@@ -221,9 +221,7 @@ export const LostPropertyReportForm: React.FC = () => {
       "dateLost",
       "timeLost",
       "complainantAffiliation",
-      "additionalDescription",
       "owner",
-      "ownerSignature",
       "dateReported",
       "dateReturnedToOwner",
       "timeReturnedToOwner",
@@ -233,7 +231,6 @@ export const LostPropertyReportForm: React.FC = () => {
       "ownerID",
       "ownerEmail",
       "ownerTelephone",
-      "remarks",
       "signatureDPS",
       "returnedToOwnerSignature",
       "uploadedBy",
@@ -305,9 +302,6 @@ export const LostPropertyReportForm: React.FC = () => {
         .map((file: ILostPropertyFile) => ({
           url: `app/private/uploads/photos/${file.generated_name}`,
           generated_name: file.generated_name,
-          // displayURL: buildApiUrl(
-          //   `publicSafety/getFile/photos/${file.generated_name}`
-          // ),
         }));
 
       if (newImages.length) {
@@ -416,6 +410,8 @@ export const LostPropertyReportForm: React.FC = () => {
               fullWidth
               value={lostProperty.complainantName}
               onChange={(e) => dispatch(setComplainantName(e.target.value))}
+              error={!!errors["complainantName"]}
+              helperText={errors["complainantName"] ? "Name is required" : ""}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -424,6 +420,10 @@ export const LostPropertyReportForm: React.FC = () => {
               fullWidth
               value={lostProperty.complainantAddress}
               onChange={(e) => dispatch(setComplainantAddress(e.target.value))}
+              error={!!errors["complainantAddress"]}
+              helperText={
+                errors["complainantAddress"] ? "Address is required" : ""
+              }
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -448,6 +448,10 @@ export const LostPropertyReportForm: React.FC = () => {
               onChange={(e) =>
                 dispatch(setComplainantTelephone(e.target.value))
               }
+              error={!!errors["complainantTelephone"]}
+              helperText={
+                errors["complainantTelephone"] ? "Telephone is required" : ""
+              }
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -456,6 +460,8 @@ export const LostPropertyReportForm: React.FC = () => {
               fullWidth
               value={lostProperty.complainantID}
               onChange={(e) => dispatch(setComplainantID(e.target.value))}
+              error={!!errors["complainantID"]}
+              helperText={errors["complainantID"] ? "ID is required" : ""}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -464,6 +470,8 @@ export const LostPropertyReportForm: React.FC = () => {
               fullWidth
               value={lostProperty.complainantEmail}
               onChange={(e) => dispatch(setComplainantEmail(e.target.value))}
+              error={!!errors["complainantEmail"]}
+              helperText={errors["complainantEmail"] ? "Email is required" : ""}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -624,11 +632,6 @@ export const LostPropertyReportForm: React.FC = () => {
                 dispatch(setAdditionalDescription(e.target.value))
               }
             />
-            {errors["additionalDescription"] && (
-              <Typography color="error" variant="caption">
-                Additional description is required
-              </Typography>
-            )}
           </Grid>
           <Grid item xs={12} md={4}>
             <TextField
@@ -636,6 +639,8 @@ export const LostPropertyReportForm: React.FC = () => {
               fullWidth
               value={lostProperty.owner}
               onChange={(e) => dispatch(setOwner(e.target.value))}
+              error={!!errors["owner"]}
+              helperText={errors["owner"] ? "Owner is required" : ""}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -758,6 +763,8 @@ export const LostPropertyReportForm: React.FC = () => {
                 fullWidth
                 value={lostProperty.ownerName}
                 onChange={(e) => dispatch(setOwnerName(e.target.value))}
+                error={!!errors["ownerName"]}
+                helperText={errors["ownerName"] ? "Owner Name is required" : ""}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -778,6 +785,10 @@ export const LostPropertyReportForm: React.FC = () => {
                 fullWidth
                 value={lostProperty.ownerAddress}
                 onChange={(e) => dispatch(setOwnerAddress(e.target.value))}
+                error={!!errors["ownerAddress"]}
+                helperText={
+                  errors["ownerAddress"] ? "Owner Address is required" : ""
+                }
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -786,6 +797,8 @@ export const LostPropertyReportForm: React.FC = () => {
                 fullWidth
                 value={lostProperty.ownerID}
                 onChange={(e) => dispatch(setOwnerID(e.target.value))}
+                error={!!errors["ownerID"]}
+                helperText={errors["ownerID"] ? "Owner ID is required" : ""}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -794,6 +807,10 @@ export const LostPropertyReportForm: React.FC = () => {
                 fullWidth
                 value={lostProperty.ownerEmail}
                 onChange={(e) => dispatch(setOwnerEmail(e.target.value))}
+                error={!!errors["ownerEmail"]}
+                helperText={
+                  errors["ownerEmail"] ? "Owner Email is required" : ""
+                }
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -802,6 +819,10 @@ export const LostPropertyReportForm: React.FC = () => {
                 fullWidth
                 value={lostProperty.ownerTelephone}
                 onChange={(e) => dispatch(setOwnerTelephone(e.target.value))}
+                error={!!errors["ownerTelephone"]}
+                helperText={
+                  errors["ownerTelephone"] ? "Owner Telephone is required" : ""
+                }
               />
             </Grid>
             <Grid item xs={12}>

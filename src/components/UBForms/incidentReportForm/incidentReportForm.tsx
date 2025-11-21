@@ -194,9 +194,6 @@ export const IncidentReportForm: React.FC = () => {
         .map((file: IIncidentFile) => ({
           url: `app/private/uploads/photos/${file.generated_name}`,
           generated_name: file.generated_name,
-          // displayURL: buildApiUrl(
-          //   `publicSafety/getFile/photos/${file.generated_name}`
-          // ),
         }));
 
       if (newImages.length) {

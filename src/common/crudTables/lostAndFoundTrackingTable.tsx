@@ -173,15 +173,6 @@ export const LostAndFoundTrackingTable: React.FC = () => {
     { field: "itemDescription", headerName: "Item Description", flex: 1 },
     { field: "locationFound", headerName: "Location Found", flex: 1 },
     { field: "foundBy", headerName: "Found By", flex: 1 },
-    { field: "owner", headerName: "Owner", flex: 1 },
-    { field: "ownerTelephone", headerName: "Owner Telephone", flex: 1 },
-    { field: "dateReturnedToOwner", headerName: "Date Returned", flex: 1 },
-    { field: "remarks", headerName: "Remarks", flex: 1 },
-    {
-      field: "ownerAcknowledgementSignature",
-      headerName: "Owner Acknowledgement Signature",
-      flex: 1,
-    },
     {
       field: "actions",
       headerName: "Actions",

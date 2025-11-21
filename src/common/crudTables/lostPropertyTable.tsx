@@ -165,20 +165,20 @@ export const LostPropertyTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "complainantName", headerName: "Complainant Name", flex: 1 },
-    { field: "complainantAddress", headerName: "Complainant Address", flex: 1 },
-    { field: "complainantDOB", headerName: "Complainant DOB", flex: 1 },
+    { field: "complainantName", headerName: "Complainant Name", flex: 1.5 },
+    { field: "complainantAddress", headerName: "Address", flex: 1 },
+    { field: "complainantDOB", headerName: "DOB", flex: 1 },
     {
       field: "complainantTelephone",
-      headerName: "Complainant Telephone",
+      headerName: "Telephone",
       flex: 1,
     },
-    { field: "complainantID", headerName: "Complainant ID", flex: 1 },
-    { field: "complainantEmail", headerName: "Complainant Email", flex: 1 },
+    { field: "complainantID", headerName: "ID", flex: 1 },
+    { field: "complainantEmail", headerName: "Email Address", flex: 1 },
     {
       field: "complainantAffiliation",
-      headerName: "Comlainant Affiliation",
-      flex: 1,
+      headerName: "Affiliation of Owner with University",
+      flex: 2,
     },
     {
       field: "actions",
@@ -250,7 +250,7 @@ export const LostPropertyTable: React.FC = () => {
                 {/* Complainant Address */}
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Complainant Address"
+                    label="Address"
                     fullWidth
                     value={selectedLostProperty.complainantAddress}
                     InputProps={{ readOnly: true }}
@@ -259,7 +259,7 @@ export const LostPropertyTable: React.FC = () => {
                 {/* Complainant DOB */}
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Complainant DOB"
+                    label="DOB"
                     fullWidth
                     value={selectedLostProperty.complainantDOB}
                     InputProps={{ readOnly: true }}
@@ -268,7 +268,7 @@ export const LostPropertyTable: React.FC = () => {
                 {/* Complainant Telephone */}
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Complainant Telephone"
+                    label=" Telephone"
                     fullWidth
                     value={selectedLostProperty.complainantTelephone}
                     InputProps={{ readOnly: true }}
@@ -277,7 +277,7 @@ export const LostPropertyTable: React.FC = () => {
                 {/* Complainant ID */}
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Complainant ID"
+                    label="ID"
                     fullWidth
                     value={selectedLostProperty.complainantID}
                     InputProps={{ readOnly: true }}
@@ -286,7 +286,7 @@ export const LostPropertyTable: React.FC = () => {
                 {/* Complainant Email */}
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Complainant Email"
+                    label=" Email Address"
                     fullWidth
                     value={selectedLostProperty.complainantEmail}
                     InputProps={{ readOnly: true }}
@@ -313,7 +313,7 @@ export const LostPropertyTable: React.FC = () => {
                 {/* Comlainant Affiliation */}
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Comlainant Affiliation"
+                    label="Affiliation of Owner with University"
                     fullWidth
                     value={selectedLostProperty.complainantAffiliation}
                     InputProps={{ readOnly: true }}
