@@ -49,7 +49,7 @@ export const UBLogin: React.FC = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${API_HOST}/auth/google/redirect`;
+    window.location.href = `${API_HOST}/auth/google/redirect?system=public`;
   };
 
   // Handle login response

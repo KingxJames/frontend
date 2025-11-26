@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { Box, CircularProgress } from "@mui/material";
-import { validateToken } from "../../../store/services/authAPI";
 import { setGoogleAuthData } from "../../../store/features/authSlice";
 import { setMenuState } from "../../../store/features/menuSlice";
+import { API_HOST } from "../../../store/config/api";
 
 interface User {
   id: string;
@@ -22,7 +22,7 @@ export const UBPrivateRoute = () => {
   useEffect(() => {
     const validateUserAccess = async () => {
       try {
-        // Check for error parameter in URL first
+        // Check URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const errorParam = urlParams.get("error");
         const tokenParam = urlParams.get("token");
@@ -33,21 +33,52 @@ export const UBPrivateRoute = () => {
           return;
         }
 
-        // Get token from URL or localStorage
-        let token = tokenParam || localStorage.getItem("access_token");
+        // Use token from URL or localStorage
+        const token = tokenParam || localStorage.getItem("access_token");
 
-        if (token) {
-          localStorage.setItem("access_token", token);
-          // Clean URL by removing query parameters
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-          );
+        if (!token) {
+          setIsUnauthorized(true);
+          setIsLoading(false);
+          return;
         }
 
-        // Validate token with backend
-        const userData = await validateToken();
+        localStorage.setItem("access_token", token);
+
+        // Clean URL query params
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+
+        // Fetch user data from backend with Bearer token
+        const response = await fetch(`${API_HOST}/api/v1/publicSafety/user`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            setIsUnauthorized(true);
+          } else {
+            throw new Error(`Server error: ${response.status}`);
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        const userData = await response.json();
+
+        if (!userData.user) {
+          setIsUnauthorized(true);
+          setIsLoading(false);
+          return;
+        }
+
+        // Save user info in Redux
         dispatch(
           setGoogleAuthData({
             token,
@@ -56,37 +87,26 @@ export const UBPrivateRoute = () => {
           })
         );
 
-        // console.log("--->", userData.user.name);
-
-        // Set menu from userData
-        if (userData.user.menus && userData.user.menus.length) {
+        // Set menus if available
+        if (userData.user.menus && userData.user.menus.length > 0) {
           dispatch(setMenuState(userData.user.menus));
-          // navigate(userData.user.menus[0].path);
-          // redirect here
+          // Optional: navigate(userData.user.menus[0].path);
         }
 
-        setUser(userData);
-      } catch (error: any) {
+        setUser(userData.user);
+      } catch (error) {
         console.error("Token validation failed:", error);
-
-        // Check for 401 Unauthorized status
-        const isUnauthorizedError =
-          error?.status === 401 || error?.response?.status === 401;
-
-        if (isUnauthorizedError) {
-          setIsUnauthorized(true);
-        } else {
-          setUser(null);
-        }
+        setUser(null);
+        setIsUnauthorized(true);
       } finally {
         setIsLoading(false);
       }
     };
 
     validateUserAccess();
-  }, []);
+  }, [dispatch, navigate]);
 
-  // Show loading spinner while validating
+  // Show spinner while loading
   if (isLoading) {
     return (
       <Box
@@ -98,22 +118,17 @@ export const UBPrivateRoute = () => {
           width: "100vw",
         }}
       >
-        <CircularProgress
-          size={60}
-          sx={{
-            color: "#6C3777",
-          }}
-        />
+        <CircularProgress size={60} sx={{ color: "#6C3777" }} />
       </Box>
     );
   }
 
-  // Redirect to login with unauthorized flag if user is not authorized
+  // Redirect if unauthorized
   if (isUnauthorized) {
     return <Navigate to="/login?unauthorized=true" replace />;
   }
 
-  // Redirect to login if no user data, otherwise render protected content
+  // Render protected route if user exists
   return user ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
